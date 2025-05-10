@@ -5,12 +5,7 @@ import { toast } from "sonner";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
 import { authApi } from "./api";
-
-interface ErrorResponse {
-  code?: string;
-  detail?: string;
-  error?: string;
-}
+import type { ErrorResponse } from "../base/global-type";
 
 export const useAuthLogin = () => {
   const router = useRouter();

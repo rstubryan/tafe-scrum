@@ -32,3 +32,9 @@ export interface FormFieldDefinition<T extends z.ZodType> {
   required?: boolean;
   hidden?: boolean;
 }
+
+export interface ErrorResponse {
+  code?: string;
+  detail?: string;
+  error?: string;
+}
