@@ -21,7 +21,7 @@ import { useAuthLogin } from "@/api/auth/mutation";
 import { FormFieldDefinition } from "@/api/base/global-type";
 
 export default function LoginForm() {
-  const { mutate: login } = useAuthLogin();
+  const { mutate: login, isPending } = useAuthLogin();
 
   const form = useForm({
     resolver: zodResolver(loginFormSchema),
@@ -76,9 +76,9 @@ export default function LoginForm() {
             <Button
               type="submit"
               className="w-full"
-              disabled={!form.formState.isValid || form.formState.isSubmitting}
+              disabled={!form.formState.isValid || isPending}
             >
-              {form.formState.isSubmitting ? (
+              {isPending ? (
                 <LoaderCircle className="animate-spin mr-2" />
               ) : (
                 "Login"

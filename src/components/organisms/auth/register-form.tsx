@@ -21,7 +21,7 @@ import { useAuthRegister } from "@/api/auth/mutation";
 import { FormFieldDefinition } from "@/api/base/global-type";
 
 export default function RegisterForm() {
-  const { mutate: register } = useAuthRegister();
+  const { mutate: register, isPending } = useAuthRegister();
 
   const form = useForm({
     resolver: zodResolver(registerFormSchema),
@@ -87,9 +87,9 @@ export default function RegisterForm() {
             <Button
               type="submit"
               className="w-full"
-              disabled={!form.formState.isValid || form.formState.isSubmitting}
+              disabled={!form.formState.isValid || isPending}
             >
-              {form.formState.isSubmitting ? (
+              {isPending ? (
                 <LoaderCircle className="animate-spin mr-2" />
               ) : (
                 "Register"
