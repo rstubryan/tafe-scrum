@@ -14,7 +14,7 @@ export default function DialogProject() {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline" className="w-max">
+        <Button variant="outline" className="sm:w-max w-full">
           <Plus />
           Create Project
         </Button>
