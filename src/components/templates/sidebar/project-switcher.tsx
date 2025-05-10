@@ -61,7 +61,7 @@ export function ProjectSwitcher({
             sideOffset={4}
           >
             <DropdownMenuLabel className="text-muted-foreground text-xs">
-              Teams
+              Projects
             </DropdownMenuLabel>
             {projects.map((project, index) => (
               <DropdownMenuItem
