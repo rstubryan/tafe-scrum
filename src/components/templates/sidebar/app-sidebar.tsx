@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 
 import { NavMain } from "@/components/templates/sidebar/nav-main";
+import { NavProject } from "@/components/templates/sidebar/nav-project";
 import { NavDocumentation } from "@/components/templates/sidebar/nav-documentation";
 import { NavUser } from "@/components/templates/sidebar/nav-user";
 import { ProjectSwitcher } from "@/components/templates/sidebar/project-switcher";
@@ -46,6 +47,13 @@ const data = {
       plan: "Free",
     },
   ],
+  project_list: [
+    {
+      name: "Projects",
+      url: "/dashboard/projects/[slug]",
+      icon: GalleryVerticalEnd,
+    },
+  ],
   navMain: [
     {
       title: "Scrum",
@@ -55,23 +63,23 @@ const data = {
       items: [
         {
           title: "Backlogs",
-          url: "/dashboard/backlogs",
+          url: "/dashboard/projects/[slug]/backlogs",
         },
         {
           title: "Tasks",
-          url: "/dashboard/tasks",
+          url: "/dashboard/projects/[slug]/tasks",
         },
         {
           title: "Epics",
-          url: "/dashboard/epics",
+          url: "/dashboard/projects/[slug]/epics",
         },
         {
           title: "Sprints",
-          url: "/dashboard/sprints",
+          url: "/dashboard/projects/[slug]/sprints",
         },
         {
           title: "Issues",
-          url: "/dashboard/issues",
+          url: "/dashboard/projects/[slug]/issues",
         },
       ],
     },
@@ -107,6 +115,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <ProjectSwitcher projects={data.teams} />
       </SidebarHeader>
       <SidebarContent>
+        <NavProject project_list={data.project_list} />
         <NavMain items={data.navMain} />
         <NavDocumentation documentation={data.documentation} />
       </SidebarContent>
