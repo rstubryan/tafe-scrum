@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { FormFieldDefinition } from "@/api/base/global-type";
 
 export const projectFormSchema = z.object({
   description: z
@@ -14,3 +15,27 @@ export const projectFormSchema = z.object({
 });
 
 export type ProjectFormSchema = typeof projectFormSchema;
+
+export const projectFormFields: FormFieldDefinition<
+  typeof projectFormSchema
+>[] = [
+  { name: "name", label: "Project Name", type: "text", required: true },
+  {
+    name: "description",
+    label: "Description",
+    type: "textarea",
+    required: true,
+  },
+  {
+    name: "is_private",
+    label: "Private Project",
+    type: "checkbox",
+    required: false,
+  },
+  {
+    name: "is_epics_activated",
+    label: "Enable Epics",
+    type: "hidden",
+    hidden: true,
+  },
+];
