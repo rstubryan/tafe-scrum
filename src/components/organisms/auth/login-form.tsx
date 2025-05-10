@@ -16,9 +16,8 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { loginFormSchema } from "@/api/auth/schema";
+import { loginFormFields, loginFormSchema } from "@/api/auth/schema";
 import { useAuthLogin } from "@/api/auth/mutation";
-import { FormFieldDefinition } from "@/api/base/global-type";
 
 export default function LoginForm() {
   const { mutate: login, isPending } = useAuthLogin();
@@ -36,12 +35,6 @@ export default function LoginForm() {
     login(data);
   };
 
-  const fields: FormFieldDefinition<typeof loginFormSchema>[] = [
-    { name: "username", label: "Username", type: "text", required: true },
-    { name: "password", label: "Password", type: "password", required: true },
-    { name: "type", label: "Type", type: "hidden", hidden: true },
-  ];
-
   return (
     <Card>
       <CardHeader>
@@ -52,7 +45,7 @@ export default function LoginForm() {
       <CardContent>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            {fields.map((field) => (
+            {loginFormFields.map((field) => (
               <FormField
                 key={field.name}
                 control={form.control}

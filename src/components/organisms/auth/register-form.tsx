@@ -16,9 +16,8 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { registerFormSchema } from "@/api/auth/schema";
+import { registerFormFields, registerFormSchema } from "@/api/auth/schema";
 import { useAuthRegister } from "@/api/auth/mutation";
-import { FormFieldDefinition } from "@/api/base/global-type";
 
 export default function RegisterForm() {
   const { mutate: register, isPending } = useAuthRegister();
@@ -39,20 +38,6 @@ export default function RegisterForm() {
     register(data);
   };
 
-  const fields: FormFieldDefinition<typeof registerFormSchema>[] = [
-    { name: "username", label: "Username", type: "text", required: true },
-    { name: "full_name", label: "Full Name", type: "text", required: true },
-    { name: "email", label: "Email", type: "email", required: true },
-    { name: "password", label: "Password", type: "password", required: true },
-    { name: "type", label: "Type", type: "hidden", hidden: true },
-    {
-      name: "accepted_terms",
-      label: "Accepted Terms",
-      type: "hidden",
-      hidden: true,
-    },
-  ];
-
   return (
     <Card>
       <CardHeader>
@@ -63,7 +48,7 @@ export default function RegisterForm() {
       <CardContent>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            {fields.map((field) => (
+            {registerFormFields.map((field) => (
               <FormField
                 key={field.name}
                 control={form.control}
