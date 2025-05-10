@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -11,8 +14,10 @@ import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function DialogProject() {
+  const [open, setOpen] = useState(false);
+
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant="outline" className="sm:w-max w-full">
           <Plus />
@@ -25,7 +30,7 @@ export default function DialogProject() {
           <DialogDescription>
             Fill in the details below to create a project.
           </DialogDescription>
-          <CreateProjectForm />
+          <CreateProjectForm onSuccess={() => setOpen(false)} />
         </DialogHeader>
       </DialogContent>
     </Dialog>

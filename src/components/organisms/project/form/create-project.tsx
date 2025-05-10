@@ -20,7 +20,13 @@ import { useCreateProject } from "@/api/project/mutation";
 import { z } from "zod";
 import { Label } from "@/components/ui/label";
 
-export default function CreateProjectForm() {
+interface CreateProjectFormProps {
+  onSuccess?: () => void;
+}
+
+export default function CreateProjectForm({
+  onSuccess,
+}: CreateProjectFormProps) {
   const { mutate: createProject, isPending } = useCreateProject();
 
   const form = useForm({
@@ -42,6 +48,10 @@ export default function CreateProjectForm() {
           is_private: false,
           is_epics_activated: true,
         });
+
+        if (onSuccess) {
+          onSuccess();
+        }
       },
     });
   };
