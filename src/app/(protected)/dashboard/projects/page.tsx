@@ -1,10 +1,10 @@
 import MainContent from "@/components/templates/content/main-content";
-import CreateProjectForm from "@/components/organisms/project/create-project";
+import DialogProject from "@/components/organisms/project/dialog-project";
 
 export default function ProjectsPage() {
   return (
     <MainContent>
-      <CreateProjectForm />
+      <DialogProject />
     </MainContent>
   );
 }
