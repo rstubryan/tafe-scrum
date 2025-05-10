@@ -23,7 +23,7 @@ export default function MainContent({
         </header>
       </section>
       <Separator />
-      <section className={`container mx-auto my-4 sm:px-0 px-4 ${className}`}>
+      <section className={`container mx-auto my-4 2xl:px-0 px-4 ${className}`}>
         {children}
       </section>
     </ContainerLayout>
