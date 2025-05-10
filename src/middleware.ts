@@ -13,7 +13,6 @@ export default async function middleware(req: NextRequest) {
   const isProtectedRoute =
     path === "/dashboard" ||
     path.startsWith("/dashboard/") ||
-    path === "/dashboard" ||
     path.startsWith("/dashboard-");
 
   const cookieStore = await cookies();
