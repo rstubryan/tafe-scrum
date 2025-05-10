@@ -1,6 +1,7 @@
 import MainContent from "@/components/templates/content/main-content";
 import DialogProject from "@/components/organisms/project/dialog-project";
 import { Typography } from "@/components/atoms/typography/typography";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function ProjectsPage() {
   return (
@@ -14,6 +15,22 @@ export default function ProjectsPage() {
         </div>
         <DialogProject />
       </section>
+      <Tabs defaultValue="my-project" className="w-full my-4">
+        <TabsList className="w-full">
+          <TabsTrigger value="my-project" className={"w-full"}>
+            My Project
+          </TabsTrigger>
+          <TabsTrigger value="discover" className={"w-full"}>
+            Discover
+          </TabsTrigger>
+        </TabsList>
+        <TabsContent value="my-project">
+          My projects will be listed here.
+        </TabsContent>
+        <TabsContent value="discover">
+          Discover projects will be listed here.
+        </TabsContent>
+      </Tabs>
     </MainContent>
   );
 }
