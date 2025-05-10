@@ -30,7 +30,7 @@ const data = {
     email: "m@example.com",
     avatar: "/avatars/shadcn.jpg",
   },
-  teams: [
+  projects: [
     {
       name: "Acme Inc",
       logo: GalleryVerticalEnd,
@@ -112,7 +112,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        <ProjectSwitcher projects={data.teams} />
+        <ProjectSwitcher projects={data.projects} />
       </SidebarHeader>
       <SidebarContent>
         <NavProject project_list={data.project_list} />
