@@ -50,7 +50,7 @@ const data = {
   project_list: [
     {
       name: "Projects",
-      url: "/dashboard/projects/[slug]",
+      url: "/dashboard/projects",
       icon: GalleryVerticalEnd,
     },
   ],
