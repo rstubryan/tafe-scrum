@@ -12,17 +12,21 @@ export const authApi = {
   login: createApiRequest<LoginRequestProps, AuthResponseProps>({
     endpoint: `${BASE_URL}`,
     method: "POST",
+    withAuth: false,
   }),
 
   register: createApiRequest<RegisterProps, AuthResponseProps>({
     endpoint: `${BASE_URL}/register`,
     method: "POST",
+    withAuth: false,
   }),
 };
 
 export const handleLogout = () => {
-  document.cookie = "username=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT";
-  document.cookie = "token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT";
-  document.cookie = "role=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT";
+  document.cookie = "user_info=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT";
+  document.cookie =
+    "auth_token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT";
+  document.cookie =
+    "refresh=; Path=/refresh_token; Expires=Thu, 01 Jan 1970 00:00:00 GMT";
   redirect("/login");
 };
