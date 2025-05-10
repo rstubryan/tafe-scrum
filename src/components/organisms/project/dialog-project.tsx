@@ -6,7 +6,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import CreateProjectForm from "@/components/organisms/project/create-project";
+import CreateProjectForm from "@/components/organisms/project/form/create-project";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
