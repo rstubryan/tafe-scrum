@@ -1,4 +1,5 @@
 import type { HttpMethod } from "./api-factory";
+import { z } from "zod";
 
 export interface SelectOptionProps {
   label: string;
@@ -22,4 +23,12 @@ export interface ApiOptions<ResponseData = unknown> {
   withAuth?: boolean;
   transformResponse?: (data: unknown) => ResponseData;
   extraConfig?: Record<string, unknown>;
+}
+
+export interface FormFieldDefinition<T extends z.ZodType> {
+  name: keyof z.infer<T>;
+  label: string;
+  type: string;
+  required?: boolean;
+  hidden?: boolean;
 }
