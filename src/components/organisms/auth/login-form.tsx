@@ -71,7 +71,7 @@ export default function LoginForm() {
           >
             {isPending ? (
               <>
-                <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
+                <LoaderCircle className="animate-spin" />
                 Logging in...
               </>
             ) : (
