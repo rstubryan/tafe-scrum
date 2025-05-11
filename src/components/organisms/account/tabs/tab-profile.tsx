@@ -100,18 +100,10 @@ export default function TabProfile() {
                 render={({ field: fieldProps }) => (
                   <FormItem className="flex flex-col">
                     <FormLabel className="flex items-center">
-                      {field.name === "username" && (
-                        <AtSign className="mr-2 h-4 w-4" />
-                      )}
-                      {field.name === "email" && (
-                        <Mail className="mr-2 h-4 w-4" />
-                      )}
-                      {field.name === "full_name" && (
-                        <User className="mr-2 h-4 w-4" />
-                      )}
-                      {field.name === "bio" && (
-                        <FileText className="mr-2 h-4 w-4" />
-                      )}
+                      {field.name === "username" && <AtSign />}
+                      {field.name === "email" && <Mail />}
+                      {field.name === "full_name" && <User />}
+                      {field.name === "bio" && <FileText />}
                       {field.label}
                     </FormLabel>
                     <FormControl>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { LoaderCircle, User, FileText, Camera } from "lucide-react";
+import { LoaderCircle, User, KeyRound, Camera } from "lucide-react";
 import { useGetUserAuth } from "@/api/user/queries";
 import { UserProps } from "@/api/user/type";
 import { Typography } from "@/components/atoms/typography/typography";
@@ -71,7 +71,7 @@ export default function EditProfile() {
                 className="absolute -bottom-1 -right-1 h-8 w-8 rounded-full shadow-md"
                 // onClick={openFileSelector}
               >
-                <Camera className="h-4 w-4" />
+                <Camera />
               </Button>
             </div>
 
@@ -94,7 +94,7 @@ export default function EditProfile() {
             >
               <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="profile">Profile</TabsTrigger>
-                <TabsTrigger value="preferences">Preferences</TabsTrigger>
+                <TabsTrigger value="password">Password</TabsTrigger>
               </TabsList>
             </Tabs>
           </div>
@@ -107,16 +107,16 @@ export default function EditProfile() {
                 className="w-full justify-start"
                 onClick={() => setActiveTab("profile")}
               >
-                <User className="mr-2 h-4 w-4" />
+                <User />
                 Profile
               </Button>
               <Button
-                variant={activeTab === "preferences" ? "secondary" : "ghost"}
+                variant={activeTab === "password" ? "secondary" : "ghost"}
                 className="w-full justify-start"
-                onClick={() => setActiveTab("preferences")}
+                onClick={() => setActiveTab("password")}
               >
-                <FileText className="mr-2 h-4 w-4" />
-                Preferences
+                <KeyRound />
+                Password
               </Button>
             </div>
           </div>

@@ -70,7 +70,7 @@ export default function TabPassword() {
                 render={({ field: fieldProps }) => (
                   <FormItem className="flex flex-col">
                     <FormLabel className="flex items-center">
-                      <KeyRound className="mr-2 h-4 w-4" />
+                      <KeyRound />
                       {field.label}
                     </FormLabel>
                     <FormControl>
@@ -100,7 +100,7 @@ export default function TabPassword() {
               <Button type="submit" disabled={isPending}>
                 {isPending ? (
                   <>
-                    <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
+                    <LoaderCircle className="animate-spin" />
                     Updating...
                   </>
                 ) : (
