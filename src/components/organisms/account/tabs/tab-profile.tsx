@@ -159,7 +159,11 @@ export default function TabProfile() {
               />
             ))}
             <div className="flex justify-end">
-              <Button type="submit" disabled={isUpdatingProfile}>
+              <Button
+                type="submit"
+                disabled={isUpdatingProfile}
+                className={"w-full sm:w-max"}
+              >
                 {isUpdatingProfile ? "Saving..." : "Save Changes"}
               </Button>
             </div>
