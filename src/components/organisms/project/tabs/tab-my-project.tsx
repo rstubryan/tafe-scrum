@@ -20,6 +20,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import Link from "next/link";
 
 export default function TabMyProject() {
   const [mounted, setMounted] = useState(false);
@@ -110,6 +111,12 @@ export default function TabMyProject() {
                   </span>
                 )}
               </div>
+
+              <Link href={`/dashboard/projects/${project.slug}`}>
+                <Button variant="outline" size="sm">
+                  View
+                </Button>
+              </Link>
 
               <div className="flex gap-2 ml-4">
                 <DialogProject
