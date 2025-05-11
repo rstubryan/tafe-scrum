@@ -11,7 +11,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import TabProfile from "@/components/organisms/account/tabs/tab-profile";
 import TabPassword from "@/components/organisms/account/tabs/tab-password";
 
-export default function EditForm() {
+export default function EditProfile() {
   const { data, isLoading: isLoadingUserData } = useGetUserAuth();
   const [activeTab, setActiveTab] = useState("profile");
   const userData = data as unknown as UserProps;

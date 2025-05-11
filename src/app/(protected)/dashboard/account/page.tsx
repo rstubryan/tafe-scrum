@@ -1,6 +1,6 @@
 import MainContent from "@/components/templates/content/main-content";
 import HeadContent from "@/components/molecules/head-content/head-content";
-import EditForm from "@/components/organisms/account/form/edit-form";
+import EditProfile from "@/components/organisms/account/form/edit-profile";
 
 export default function AccountPage() {
   return (
@@ -9,7 +9,7 @@ export default function AccountPage() {
         title={"Account"}
         description={"Manage your account settings and preferences."}
       />
-      <EditForm />
+      <EditProfile />
     </MainContent>
   );
 }

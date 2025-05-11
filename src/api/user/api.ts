@@ -23,8 +23,11 @@ export const userApi = {
     UserEditProfileProps,
     ResponseProps<UserProps>
   >({
-    endpoint: `${BASE_URL}/me`,
+    endpoint: `${BASE_URL}/{id}`,
     method: "PATCH",
+    extraConfig: ({ urlParams }) => ({
+      url: `${BASE_URL}/${urlParams?.id}`,
+    }),
   }),
 
   changeProfilePicture: createApiRequest<FormData, ResponseProps<UserProps>>({

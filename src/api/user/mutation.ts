@@ -9,8 +9,18 @@ export const useEditUserInfo = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: UserEditProfileProps) =>
-      userApi.updateUserProfile({ data }),
+    mutationFn: (data: UserEditProfileProps) => {
+      if (!data.id) {
+        throw new Error("User ID is required for profile update");
+      }
+
+      return userApi.updateUserProfile({
+        data,
+        urlParams: {
+          id: data.id,
+        },
+      });
+    },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["user-auth"] });
       toast.success("Profile updated successfully");
