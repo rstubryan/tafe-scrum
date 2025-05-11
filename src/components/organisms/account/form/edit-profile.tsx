@@ -10,21 +10,12 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import TabProfile from "@/components/organisms/account/tabs/tab-profile";
 import TabPassword from "@/components/organisms/account/tabs/tab-password";
+import { getInitials } from "@/utils";
 
 export default function EditProfile() {
   const { data, isLoading: isLoadingUserData } = useGetUserAuth();
   const [activeTab, setActiveTab] = useState("profile");
   const userData = data as unknown as UserProps;
-
-  function getInitials(name: string | undefined) {
-    if (!name) return "?";
-    return name
-      .split(" ")
-      .map((n) => n[0])
-      .join("")
-      .toUpperCase()
-      .substring(0, 2);
-  }
 
   if (isLoadingUserData) {
     return (
@@ -107,7 +98,7 @@ export default function EditProfile() {
                 className="w-full justify-start"
                 onClick={() => setActiveTab("profile")}
               >
-                <User />
+                <User size={16} />
                 Profile
               </Button>
               <Button
@@ -115,7 +106,7 @@ export default function EditProfile() {
                 className="w-full justify-start"
                 onClick={() => setActiveTab("password")}
               >
-                <KeyRound />
+                <KeyRound size={16} />
                 Password
               </Button>
             </div>
