@@ -41,7 +41,12 @@ export const profileFormFields: FormFieldDefinition<
 ];
 
 export const passwordFormSchema = z.object({
-  current_password: z.string().min(8, "Current password is required"),
+  current_password: z
+    .string()
+    .min(
+      0,
+      "Current password is required (or empty if you have no password yet)",
+    ),
   password: z.string().min(8, "New password is required"),
   password_confirmation: z.string().min(8, "Confirm password is required"),
 });
