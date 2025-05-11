@@ -23,13 +23,10 @@ import {
   SidebarHeader,
   SidebarRail,
 } from "@/components/ui/sidebar";
+import { useGetUserAuth } from "@/api/user/queries";
+import { UserProps } from "@/api/user/type";
 
-const data = {
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
+const sidebarNavData = {
   projects: [
     {
       name: "Acme Inc",
@@ -109,18 +106,38 @@ const data = {
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const { data } = useGetUserAuth();
+
+  const extractUserData = (): UserProps => {
+    if (!data) return {} as UserProps;
+
+    if ("data" in data && data.data) {
+      return data.data as UserProps;
+    }
+
+    return data as unknown as UserProps;
+  };
+
+  const userData = extractUserData();
+
+  const userInfo = {
+    name: userData.full_name_display || userData.username || "User",
+    email: userData.email || "",
+    avatar: userData.photo || "",
+  };
+
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        <ProjectSwitcher projects={data.projects} />
+        <ProjectSwitcher projects={sidebarNavData.projects} />
       </SidebarHeader>
       <SidebarContent>
-        <NavProject project_list={data.project_list} />
-        <NavMain items={data.navMain} />
-        <NavDocumentation documentation={data.documentation} />
+        <NavProject project_list={sidebarNavData.project_list} />
+        <NavMain items={sidebarNavData.navMain} />
+        <NavDocumentation documentation={sidebarNavData.documentation} />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser user={userInfo} />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>
