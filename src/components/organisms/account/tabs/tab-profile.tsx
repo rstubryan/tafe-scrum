@@ -28,9 +28,10 @@ import {
 } from "@/components/ui/card";
 import { ResponseProps } from "@/api/base/global-type";
 import { UserProps } from "@/api/user/type";
+import { TabProfileSkeleton } from "@/components/atoms/skeleton/profile/form/skeleton-form";
 
 export default function TabProfile() {
-  const { data, isLoading } = useGetUserAuth();
+  const { data, isLoading, isError } = useGetUserAuth();
   const { mutate: updateProfile, isPending: isUpdatingProfile } =
     useEditUserInfo();
 
@@ -66,19 +67,11 @@ export default function TabProfile() {
   };
 
   if (isLoading) {
-    return (
-      <div className="flex justify-center py-8">
-        <LoaderCircle className="animate-spin" />
-      </div>
-    );
+    return <TabProfileSkeleton type="loading" />;
   }
 
-  if (!data) {
-    return (
-      <div className="text-center py-8 text-muted-foreground">
-        Unable to load user data.
-      </div>
-    );
+  if (isError || !data) {
+    return <TabProfileSkeleton type="error" />;
   }
 
   return (
@@ -100,10 +93,18 @@ export default function TabProfile() {
                 render={({ field: fieldProps }) => (
                   <FormItem className="flex flex-col">
                     <FormLabel className="flex items-center">
-                      {field.name === "username" && <AtSign size={16} />}
-                      {field.name === "email" && <Mail size={16} />}
-                      {field.name === "full_name" && <User size={16} />}
-                      {field.name === "bio" && <FileText size={16} />}
+                      {field.name === "username" && (
+                        <AtSign size={16} className="mr-2" />
+                      )}
+                      {field.name === "email" && (
+                        <Mail size={16} className="mr-2" />
+                      )}
+                      {field.name === "full_name" && (
+                        <User size={16} className="mr-2" />
+                      )}
+                      {field.name === "bio" && (
+                        <FileText size={16} className="mr-2" />
+                      )}
                       {field.label}
                     </FormLabel>
                     <FormControl>
@@ -164,7 +165,14 @@ export default function TabProfile() {
                 disabled={isUpdatingProfile}
                 className={"w-full sm:w-max"}
               >
-                {isUpdatingProfile ? "Saving..." : "Save Changes"}
+                {isUpdatingProfile ? (
+                  <>
+                    <LoaderCircle size={16} className="mr-2 animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  "Save Changes"
+                )}
               </Button>
             </div>
           </form>
