@@ -71,7 +71,7 @@ export default function EditProfile() {
                 className="absolute -bottom-1 -right-1 h-8 w-8 rounded-full shadow-md"
                 // onClick={openFileSelector}
               >
-                <Camera />
+                <Camera size={16} />
               </Button>
             </div>
 

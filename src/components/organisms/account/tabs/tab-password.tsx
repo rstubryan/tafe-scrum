@@ -70,7 +70,7 @@ export default function TabPassword() {
                 render={({ field: fieldProps }) => (
                   <FormItem className="flex flex-col">
                     <FormLabel className="flex items-center">
-                      <KeyRound />
+                      <KeyRound size={16} />
                       {field.label}
                     </FormLabel>
                     <FormControl>
