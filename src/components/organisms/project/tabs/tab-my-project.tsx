@@ -23,6 +23,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { formatDate } from "@/utils";
+import { Typography } from "@/components/atoms/typography/typography";
 
 export default function TabMyProject() {
   const [mounted, setMounted] = useState(false);
@@ -75,7 +76,7 @@ export default function TabMyProject() {
   if (!currentUserId) {
     return (
       <div className="text-center py-8 text-muted-foreground">
-        Please log in to view your projects.
+        <Typography>Please log in to view your projects.</Typography>
       </div>
     );
   }
@@ -91,7 +92,7 @@ export default function TabMyProject() {
   if (!Array.isArray(myProjects) || myProjects.length === 0) {
     return (
       <div className="text-center py-8 text-muted-foreground">
-        You don&#39;t have any projects yet.
+        <Typography>You don&#39;t have any projects yet.</Typography>
       </div>
     );
   }
@@ -122,98 +123,102 @@ export default function TabMyProject() {
                   >
                     {project.name}
                   </div>
-                  <p className="text-muted-foreground flex gap-1 text-xs">
+                  <Typography className="flex gap-1 text-xs text-muted-foreground">
                     {project.is_private && (
                       <span className="text-amber-500">Private</span>
                     )}
                     {project.is_private && <span>•</span>}
                     <span className="font-medium">Owner</span>
-                  </p>
+                  </Typography>
                 </div>
               </div>
             </div>
-
             <div className="p-6 flex-1">
-              <p className="scroll-m-20 mb-2 line-clamp-2 text-sm text-muted-foreground">
+              <Typography className="mb-2 line-clamp-2 text-sm text-muted-foreground">
                 {project.description || "No description"}
-              </p>
+              </Typography>
               <div className="mt-2 text-xs text-muted-foreground">
                 <div className="flex items-center gap-1">
-                  <span>
+                  <Typography size="xs">
                     Created:{" "}
                     {project.created_date
                       ? formatDate(project.created_date)
                       : "Unknown"}
-                  </span>
+                  </Typography>
                 </div>
-                <p className="leading-7 scroll-m-20 text-muted-foreground">
+                <Typography size="xs" className="text-muted-foreground">
                   {project.tags?.length
                     ? project.tags.join(", ")
                     : "No tags available"}
-                </p>
+                </Typography>
               </div>
             </div>
-
             <div className="flex items-center p-6 pt-0">
-              <div className="flex w-full gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-3 w-full gap-2">
                 <Link
                   href={`/dashboard/projects/${project.slug}`}
-                  className="ring-offset-background focus-visible:ring-ring inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 flex-1"
+                  className="sm:col-span-2 inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-3 py-2"
                 >
-                  <Eye />
-                  View Project
+                  <Eye className="size-4 shrink-0" />
+                  <span className="truncate">View Project</span>
                 </Link>
 
-                <DialogProject
-                  mode="edit"
-                  project={project}
-                  trigger={
-                    <Button variant="outline" size="icon" className="h-10 w-10">
-                      <p className="text-primary leading-7 scroll-m-20 sr-only">
-                        Edit
-                      </p>
-                      <Pencil />
-                    </Button>
-                  }
-                />
-
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button variant="outline" size="icon" className="h-10 w-10">
-                      <p className="text-primary leading-7 scroll-m-20 sr-only">
-                        Delete
-                      </p>
-                      <Trash2 />
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Delete Project</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        Are you sure you want to delete{" "}
-                        <span className="font-bold">
-                          &#34;{project.name}
-                          &#34;
-                        </span>
-                        ? This action cannot be undone and will permanently
-                        remove the project and all its associated data.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction
-                        onClick={() =>
-                          project.id && handleDeleteProject(project.id)
-                        }
-                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                <div className="grid grid-cols-2 gap-2">
+                  <DialogProject
+                    mode="edit"
+                    project={project}
+                    trigger={
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        className="h-10 w-full"
                       >
-                        Delete
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
+                        <Typography className="sr-only">Edit</Typography>
+                        <Pencil />
+                      </Button>
+                    }
+                  />
+
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        className="h-10 w-full"
+                      >
+                        <Typography className="sr-only">Delete</Typography>
+                        <Trash2 />
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Delete Project</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Are you sure you want to delete{" "}
+                          <span className="font-bold">
+                            &#34;{project.name}
+                            &#34;
+                          </span>
+                          ? This action cannot be undone and will permanently
+                          remove the project and all its associated data.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
+                          onClick={() =>
+                            project.id && handleDeleteProject(project.id)
+                          }
+                          className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                        >
+                          Delete
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </div>
               </div>
-            </div>
+            </div>{" "}
           </div>
         ))}
       </div>
