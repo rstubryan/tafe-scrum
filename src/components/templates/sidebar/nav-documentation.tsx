@@ -1,6 +1,7 @@
 "use client";
 
 import { type LucideIcon } from "lucide-react";
+import { useParams } from "next/navigation";
 import {
   SidebarGroup,
   SidebarGroupLabel,
@@ -8,6 +9,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import Link from "next/link";
 
 export function NavDocumentation({
   documentation,
@@ -18,6 +20,9 @@ export function NavDocumentation({
     icon: LucideIcon;
   }[];
 }) {
+  const params = useParams();
+  const docSlug = params?.slug || "introduction";
+
   return (
     <SidebarGroup className="group-data-[collapsible=icon]:hidden">
       <SidebarGroupLabel>Documentation</SidebarGroupLabel>
@@ -25,10 +30,10 @@ export function NavDocumentation({
         {documentation.map((item) => (
           <SidebarMenuItem key={item.name}>
             <SidebarMenuButton asChild>
-              <a href={item.url}>
+              <Link href={item.url.replace("[slug]", docSlug.toString())}>
                 <item.icon />
                 <span>{item.name}</span>
-              </a>
+              </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         ))}
