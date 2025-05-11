@@ -152,7 +152,7 @@ export default function ProjectForm({
         >
           {isPending ? (
             <>
-              <LoaderCircle className="animate-spin mr-2" />
+              <LoaderCircle className="animate-spin" />
               {mode === "create"
                 ? "Creating Project..."
                 : "Updating Project..."}

@@ -30,12 +30,12 @@ export default function DialogProject({
   const defaultTrigger =
     mode === "create" ? (
       <Button variant="outline" className="sm:w-max w-full">
-        <Plus className="mr-2" />
+        <Plus />
         Create Project
       </Button>
     ) : (
       <Button variant="outline" size="sm">
-        <Edit className="h-4 w-4 mr-2" />
+        <Edit />
         Edit Project
       </Button>
     );
