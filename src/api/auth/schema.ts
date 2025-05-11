@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { FormFieldDefinition } from "@/api/base/global-type";
 
 export const loginFormSchema = z.object({
   username: z
@@ -13,6 +14,12 @@ export const loginFormSchema = z.object({
 });
 
 export type LoginFormSchema = typeof loginFormSchema;
+
+export const loginFormFields: FormFieldDefinition<typeof loginFormSchema>[] = [
+  { name: "username", label: "Username", type: "text", required: true },
+  { name: "password", label: "Password", type: "password", required: true },
+  { name: "type", label: "Type", type: "hidden", hidden: true },
+];
 
 export const registerFormSchema = z.object({
   username: z
@@ -33,3 +40,19 @@ export const registerFormSchema = z.object({
 });
 
 export type RegisterFormSchema = typeof registerFormSchema;
+
+export const registerFormFields: FormFieldDefinition<
+  typeof registerFormSchema
+>[] = [
+  { name: "username", label: "Username", type: "text", required: true },
+  { name: "full_name", label: "Full Name", type: "text", required: true },
+  { name: "email", label: "Email", type: "email", required: true },
+  { name: "password", label: "Password", type: "password", required: true },
+  { name: "type", label: "Type", type: "hidden", hidden: true },
+  {
+    name: "accepted_terms",
+    label: "Accepted Terms",
+    type: "hidden",
+    hidden: true,
+  },
+];

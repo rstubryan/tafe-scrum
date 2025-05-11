@@ -3,21 +3,19 @@
 import * as React from "react";
 import {
   AudioWaveform,
-  BookOpen,
-  Bot,
   Command,
   Frame,
   GalleryVerticalEnd,
   Map,
-  PieChart,
   Settings2,
   SquareTerminal,
 } from "lucide-react";
 
 import { NavMain } from "@/components/templates/sidebar/nav-main";
-import { NavProjects } from "@/components/templates/sidebar/nav-projects";
+import { NavProject } from "@/components/templates/sidebar/nav-project";
+import { NavDocumentation } from "@/components/templates/sidebar/nav-documentation";
 import { NavUser } from "@/components/templates/sidebar/nav-user";
-import { TeamSwitcher } from "@/components/templates/sidebar/team-switcher";
+import { ProjectSwitcher } from "@/components/templates/sidebar/project-switcher";
 import {
   Sidebar,
   SidebarContent,
@@ -25,15 +23,11 @@ import {
   SidebarHeader,
   SidebarRail,
 } from "@/components/ui/sidebar";
+import { useGetUserAuth } from "@/api/user/queries";
+import { UserProps } from "@/api/user/type";
 
-// This is sample data.
-const data = {
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
-  teams: [
+const sidebarNavData = {
+  projects: [
     {
       name: "Acme Inc",
       logo: GalleryVerticalEnd,
@@ -50,124 +44,100 @@ const data = {
       plan: "Free",
     },
   ],
+  project_list: [
+    {
+      name: "Projects",
+      url: "/dashboard/projects",
+      icon: GalleryVerticalEnd,
+    },
+  ],
   navMain: [
     {
-      title: "Playground",
+      title: "Scrum",
       url: "#",
       icon: SquareTerminal,
       isActive: true,
       items: [
         {
-          title: "History",
-          url: "#",
+          title: "Backlogs",
+          url: "/dashboard/projects/[slug]/backlogs",
         },
         {
-          title: "Starred",
-          url: "#",
+          title: "Tasks",
+          url: "/dashboard/projects/[slug]/tasks",
         },
         {
-          title: "Settings",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Models",
-      url: "#",
-      icon: Bot,
-      items: [
-        {
-          title: "Genesis",
-          url: "#",
+          title: "Epics",
+          url: "/dashboard/projects/[slug]/epics",
         },
         {
-          title: "Explorer",
-          url: "#",
+          title: "Sprints",
+          url: "/dashboard/projects/[slug]/sprints",
         },
         {
-          title: "Quantum",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Documentation",
-      url: "#",
-      icon: BookOpen,
-      items: [
-        {
-          title: "Introduction",
-          url: "#",
-        },
-        {
-          title: "Get Started",
-          url: "#",
-        },
-        {
-          title: "Tutorials",
-          url: "#",
-        },
-        {
-          title: "Changelog",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Settings",
-      url: "#",
-      icon: Settings2,
-      items: [
-        {
-          title: "General",
-          url: "#",
-        },
-        {
-          title: "Team",
-          url: "#",
-        },
-        {
-          title: "Billing",
-          url: "#",
-        },
-        {
-          title: "Limits",
-          url: "#",
+          title: "Issues",
+          url: "/dashboard/projects/[slug]/issues",
         },
       ],
     },
   ],
-  projects: [
+  documentation: [
     {
-      name: "Design Engineering",
-      url: "#",
+      name: "Introduction",
+      url: "/dashboard/documentation/[slug]",
       icon: Frame,
     },
     {
-      name: "Sales & Marketing",
-      url: "#",
-      icon: PieChart,
+      name: "Get Started",
+      url: "/dashboard/documentation/[slug]",
+      icon: Map,
     },
     {
-      name: "Travel",
-      url: "#",
-      icon: Map,
+      name: "Tutorials",
+      url: "/dashboard/documentation/[slug]",
+      icon: Settings2,
+    },
+    {
+      name: "Changelog",
+      url: "/dashboard/documentation/[slug]",
+      icon: GalleryVerticalEnd,
     },
   ],
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const { data } = useGetUserAuth();
+
+  const extractUserData = (): UserProps => {
+    if (!data) return {} as UserProps;
+
+    if ("data" in data && data.data) {
+      return data.data as UserProps;
+    }
+
+    return data as unknown as UserProps;
+  };
+
+  const userData = extractUserData();
+
+  const userInfo = {
+    name: userData.full_name_display || userData.username || "User",
+    email: userData.email || "",
+    avatar: userData.photo || "",
+  };
+
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        <TeamSwitcher teams={data.teams} />
+        <ProjectSwitcher projects={sidebarNavData.projects} />
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
-        <NavProjects projects={data.projects} />
+        <NavProject project_list={sidebarNavData.project_list} />
+        <NavMain items={sidebarNavData.navMain} />
+        <NavDocumentation documentation={sidebarNavData.documentation} />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser user={userInfo} />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>
