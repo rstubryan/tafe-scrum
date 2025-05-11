@@ -93,12 +93,22 @@ export const useDeleteProject = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (projectId: string) =>
-      projectApi.deleteProject({ urlParams: { projectId } }),
-    onSuccess: () => {
+    mutationFn: (data: { id: string | number }) => {
+      if (!data.id) {
+        throw new Error("Project ID is required for project deletion");
+      }
+
+      return projectApi.deleteProject({
+        urlParams: {
+          id: data.id,
+        },
+      });
+    },
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["projects-by-user"] });
       queryClient.invalidateQueries({ queryKey: ["projects-discover"] });
       toast.success("Project deleted successfully");
+      return data;
     },
     onError: (error: AxiosError) => {
       if (error.response?.data) {
@@ -110,7 +120,7 @@ export const useDeleteProject = () => {
           "Project deletion failed";
 
         toast.error(errorMessage, {
-          description: "Please try again later.",
+          description: "Please check your input and try again.",
         });
       } else if (error.request) {
         toast.error("Network error", {
