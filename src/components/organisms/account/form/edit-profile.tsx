@@ -33,7 +33,7 @@ import Image from "next/image";
 import { Input } from "@/components/ui/input";
 import { changeProfilePictureFormSchema } from "@/api/user/schema";
 import { z } from "zod";
-import { ProfileSkeleton } from "@/components/atoms/skeleton/profile/skeleton-profile";
+import { ProfileSkeleton } from "@/components/atoms/skeleton/account/skeleton-profile";
 
 export default function EditProfile() {
   const { data, isLoading: isLoadingUserData } = useGetUserAuth();

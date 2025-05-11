@@ -28,7 +28,7 @@ import {
 } from "@/components/ui/card";
 import { ResponseProps } from "@/api/base/global-type";
 import { UserProps } from "@/api/user/type";
-import { TabProfileSkeleton } from "@/components/atoms/skeleton/profile/form/skeleton-form";
+import { TabProfileSkeleton } from "@/components/atoms/skeleton/account/form/skeleton-form";
 
 export default function TabProfile() {
   const { data, isLoading, isError } = useGetUserAuth();
