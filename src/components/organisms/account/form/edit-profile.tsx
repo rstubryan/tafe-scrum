@@ -33,6 +33,7 @@ import Image from "next/image";
 import { Input } from "@/components/ui/input";
 import { changeProfilePictureFormSchema } from "@/api/user/schema";
 import { z } from "zod";
+import { ProfileSkeleton } from "@/components/atoms/skeleton/account/skeleton-profile";
 
 export default function EditProfile() {
   const { data, isLoading: isLoadingUserData } = useGetUserAuth();
@@ -76,19 +77,11 @@ export default function EditProfile() {
   };
 
   if (isLoadingUserData) {
-    return (
-      <div className="flex justify-center py-8">
-        <LoaderCircle className="animate-spin" />
-      </div>
-    );
+    return <ProfileSkeleton type="edit-profile" />;
   }
 
   if (!data) {
-    return (
-      <div className="text-center py-8 text-muted-foreground">
-        Unable to load user information.
-      </div>
-    );
+    return <ProfileSkeleton type="error" />;
   }
 
   return (

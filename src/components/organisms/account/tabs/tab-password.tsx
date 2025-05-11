@@ -97,7 +97,11 @@ export default function TabPassword() {
               />
             ))}
             <div className="flex justify-end">
-              <Button type="submit" disabled={isPending}>
+              <Button
+                type="submit"
+                disabled={isPending}
+                className={"w-full sm:w-max"}
+              >
                 {isPending ? (
                   <>
                     <LoaderCircle className="animate-spin" />

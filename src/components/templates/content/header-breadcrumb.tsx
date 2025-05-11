@@ -4,12 +4,12 @@ import { Separator } from "@/components/ui/separator";
 import {
   Breadcrumb,
   BreadcrumbItem,
-  BreadcrumbLink,
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import React from "react";
+import Link from "next/link";
 
 export default async function HeaderBreadcrumb() {
   const headersList = await headers();
@@ -59,7 +59,7 @@ export default async function HeaderBreadcrumb() {
             <React.Fragment key={item.path}>
               {index < breadcrumbItems.length - 1 ? (
                 <BreadcrumbItem key={item.path} className="hidden md:block">
-                  <BreadcrumbLink href={item.path}>{item.name}</BreadcrumbLink>
+                  <Link href={item.path}>{item.name}</Link>
                 </BreadcrumbItem>
               ) : (
                 <BreadcrumbItem key={item.path}>

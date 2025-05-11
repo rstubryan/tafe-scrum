@@ -22,10 +22,20 @@ export const useGetProjectById = (projectId: string) => {
   });
 };
 
-export const useGetProjectsByUser = (memberId: string) => {
+export const useGetProjectsByUser = (
+  memberId: string,
+  options?: {
+    enabled?: boolean;
+    retry?: number;
+    retryDelay?: number;
+  },
+) => {
   return useQuery({
     queryKey: ["projects-by-user", memberId],
     queryFn: () => projectApi.getProjectsByUser({ urlParams: { memberId } }),
+    enabled: options?.enabled,
+    retry: options?.retry,
+    retryDelay: options?.retryDelay,
   });
 };
 

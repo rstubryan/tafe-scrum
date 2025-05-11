@@ -11,7 +11,7 @@ export default function ProjectsPage() {
           title={"Projects"}
           description={"Create and manage your projects."}
         />
-        <DialogProject />
+        <DialogProject mode={"create"} />
       </section>
       <TabsProject />
     </MainContent>

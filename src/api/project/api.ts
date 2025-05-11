@@ -84,7 +84,7 @@ export const projectApi = {
     endpoint: `${BASE_URL}/{id}`,
     method: "PATCH",
     extraConfig: ({ urlParams }) => ({
-      url: `${BASE_URL}${urlParams?.id}`,
+      url: `${BASE_URL}/${urlParams?.id}`,
     }),
   }),
 

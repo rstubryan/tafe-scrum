@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { toast } from "sonner";
 import { projectApi } from "@/api/project/api";
-import { ProjectResponseProps } from "@/api/project/type";
+import { ProjectEditProps, ProjectResponseProps } from "@/api/project/type";
 import type { ErrorResponse } from "@/api/base/global-type";
 
 export const useCreateProject = () => {
@@ -12,7 +12,8 @@ export const useCreateProject = () => {
     mutationFn: (data: ProjectResponseProps) =>
       projectApi.createProject({ data }),
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ["projects"] });
+      queryClient.invalidateQueries({ queryKey: ["projects-by-user"] });
+      queryClient.invalidateQueries({ queryKey: ["projects-discover"] });
       toast.success("Project created successfully");
       return data;
     },
@@ -45,10 +46,21 @@ export const useEditProject = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: ProjectResponseProps) =>
-      projectApi.updateProject({ data }),
+    mutationFn: (data: ProjectEditProps) => {
+      if (!data.id) {
+        throw new Error("Project ID is required for project update");
+      }
+
+      return projectApi.updateProject({
+        data,
+        urlParams: {
+          id: data.id,
+        },
+      });
+    },
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ["projects"] });
+      queryClient.invalidateQueries({ queryKey: ["projects-by-user"] });
+      queryClient.invalidateQueries({ queryKey: ["projects-discover"] });
       toast.success("Project updated successfully");
       return data;
     },
@@ -81,11 +93,22 @@ export const useDeleteProject = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (projectId: string) =>
-      projectApi.deleteProject({ urlParams: { projectId } }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["projects"] });
+    mutationFn: (data: { id: string | number }) => {
+      if (!data.id) {
+        throw new Error("Project ID is required for project deletion");
+      }
+
+      return projectApi.deleteProject({
+        urlParams: {
+          id: data.id,
+        },
+      });
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["projects-by-user"] });
+      queryClient.invalidateQueries({ queryKey: ["projects-discover"] });
       toast.success("Project deleted successfully");
+      return data;
     },
     onError: (error: AxiosError) => {
       if (error.response?.data) {
@@ -97,7 +120,7 @@ export const useDeleteProject = () => {
           "Project deletion failed";
 
         toast.error(errorMessage, {
-          description: "Please try again later.",
+          description: "Please check your input and try again.",
         });
       } else if (error.request) {
         toast.error("Network error", {

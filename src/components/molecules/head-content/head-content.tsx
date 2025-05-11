@@ -5,7 +5,7 @@ export default function HeadContent({
   description,
 }: {
   title: string;
-  description: string;
+  description?: string;
 }) {
   return (
     <div>
