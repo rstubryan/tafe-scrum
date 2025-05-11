@@ -72,8 +72,8 @@ export function NavUser({
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup asChild>
-              <Link href={"/account"} className={"cursor-pointer"}>
-                <DropdownMenuItem>
+              <Link href={"/dashboard/account"}>
+                <DropdownMenuItem className={"cursor-pointer"}>
                   <BadgeCheck />
                   Account
                 </DropdownMenuItem>
