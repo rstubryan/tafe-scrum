@@ -9,28 +9,55 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import CreateProjectForm from "@/components/organisms/project/form/create-project";
-import { Plus } from "lucide-react";
+import ProjectForm from "@/components/organisms/project/form/project-form";
+import { Edit, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ProjectResponseProps } from "@/api/project/type";
 
-export default function DialogProject() {
+interface DialogProjectProps {
+  mode: "create" | "edit";
+  project?: ProjectResponseProps;
+  trigger?: React.ReactNode;
+}
+
+export default function DialogProject({
+  mode = "create",
+  project,
+  trigger,
+}: DialogProjectProps) {
   const [open, setOpen] = useState(false);
+
+  const defaultTrigger =
+    mode === "create" ? (
+      <Button variant="outline" className="sm:w-max w-full">
+        <Plus className="mr-2" />
+        Create Project
+      </Button>
+    ) : (
+      <Button variant="outline" size="sm">
+        <Edit className="h-4 w-4 mr-2" />
+        Edit Project
+      </Button>
+    );
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="outline" className="sm:w-max w-full">
-          <Plus />
-          Create Project
-        </Button>
-      </DialogTrigger>
+      <DialogTrigger asChild>{trigger || defaultTrigger}</DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Create Project</DialogTitle>
+          <DialogTitle>
+            {mode === "create" ? "Create Project" : "Edit Project"}
+          </DialogTitle>
           <DialogDescription>
-            Fill in the details below to create a project.
+            {mode === "create"
+              ? "Fill in the details below to create a project."
+              : "Update the details of your project."}
           </DialogDescription>
-          <CreateProjectForm onSuccess={() => setOpen(false)} />
+          <ProjectForm
+            mode={mode}
+            project={project}
+            onSuccess={() => setOpen(false)}
+          />
         </DialogHeader>
       </DialogContent>
     </Dialog>

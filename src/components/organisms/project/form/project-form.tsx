@@ -16,18 +16,26 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { projectFormFields, projectFormSchema } from "@/api/project/schema";
-import { useCreateProject } from "@/api/project/mutation";
+import { useCreateProject, useEditProject } from "@/api/project/mutation";
 import { z } from "zod";
 import { Label } from "@/components/ui/label";
+import { ProjectResponseProps } from "@/api/project/type";
+import { useEffect } from "react";
 
-interface CreateProjectFormProps {
+interface ProjectFormProps {
   onSuccess?: () => void;
+  project?: ProjectResponseProps;
+  mode: "create" | "edit";
 }
 
-export default function CreateProjectForm({
+export default function ProjectForm({
   onSuccess,
-}: CreateProjectFormProps) {
-  const { mutate: createProject, isPending } = useCreateProject();
+  project,
+  mode,
+}: ProjectFormProps) {
+  const { mutate: createProject, isPending: isCreating } = useCreateProject();
+  const { mutate: editProject, isPending: isEditing } = useEditProject();
+  const isPending = isCreating || isEditing;
 
   const form = useForm({
     resolver: zodResolver(projectFormSchema),
@@ -39,21 +47,47 @@ export default function CreateProjectForm({
     },
   });
 
-  const onSubmit = (data: z.infer<typeof projectFormSchema>) => {
-    createProject(data, {
-      onSuccess: () => {
-        form.reset({
-          name: "",
-          description: "",
-          is_private: false,
-          is_epics_activated: true,
-        });
+  // Load project data when in edit mode
+  useEffect(() => {
+    if (mode === "edit" && project) {
+      form.setValue("name", project.name || "");
+      form.setValue("description", project.description || "");
+      form.setValue("is_private", project.is_private || false);
+      form.setValue("is_epics_activated", project.is_epics_activated || true);
+    }
+  }, [project, mode, form]);
 
-        if (onSuccess) {
-          onSuccess();
-        }
-      },
-    });
+  const onSubmit = (data: z.infer<typeof projectFormSchema>) => {
+    if (mode === "create") {
+      createProject(data, {
+        onSuccess: () => {
+          form.reset({
+            name: "",
+            description: "",
+            is_private: false,
+            is_epics_activated: true,
+          });
+
+          if (onSuccess) {
+            onSuccess();
+          }
+        },
+      });
+    } else if (mode === "edit" && project?.id) {
+      editProject(
+        {
+          ...data,
+          id: project.id,
+        },
+        {
+          onSuccess: () => {
+            if (onSuccess) {
+              onSuccess();
+            }
+          },
+        },
+      );
+    }
   };
 
   return (
@@ -118,11 +152,15 @@ export default function CreateProjectForm({
         >
           {isPending ? (
             <>
-              <LoaderCircle className="animate-spin" />
-              Creating Project...
+              <LoaderCircle className="animate-spin mr-2" />
+              {mode === "create"
+                ? "Creating Project..."
+                : "Updating Project..."}
             </>
-          ) : (
+          ) : mode === "create" ? (
             "Create Project"
+          ) : (
+            "Update Project"
           )}
         </Button>
       </form>
