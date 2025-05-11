@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { LoaderCircle, Trash2, Edit } from "lucide-react";
+import { LoaderCircle, Eye, Pencil, Trash2 } from "lucide-react";
 import { ProjectResponseProps } from "@/api/project/type";
 import { PaginationLayout } from "@/components/templates/layout/pagination-layout";
 import { useGetProjectsByUser } from "@/api/project/queries";
@@ -9,6 +9,8 @@ import { useDeleteProject } from "@/api/project/mutation";
 import DialogProject from "@/components/organisms/project/dialog-project";
 import { Button } from "@/components/ui/button";
 import { useCurrentUser } from "@/hooks/use-current-user";
+import { getInitials } from "@/utils/avatar-initials";
+import Link from "next/link";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -20,13 +22,13 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import Link from "next/link";
+import { formatDate } from "@/utils";
 
 export default function TabMyProject() {
   const [mounted, setMounted] = useState(false);
   const { currentUserId } = useCurrentUser();
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 3;
+  const itemsPerPage = 6;
 
   useEffect(() => {
     setMounted(true);
@@ -96,45 +98,92 @@ export default function TabMyProject() {
 
   return (
     <>
-      <div className="space-y-4 my-4">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 my-3">
         {paginatedProjects.map((project: ProjectResponseProps) => (
           <div
             key={project.id}
-            className="border rounded-lg p-4 bg-card shadow-sm"
+            className="bg-card text-card-foreground rounded-lg border shadow-sm flex h-full flex-col"
           >
-            <div className="flex justify-between mb-3">
-              <div className="flex justify-between items-start flex-1">
-                <h3 className="text-lg font-medium">{project.name}</h3>
-                {project.is_private && (
-                  <span className="bg-muted px-2 py-1 text-xs rounded">
-                    Private
+            <div className="flex flex-col space-y-1.5 p-6 pb-0">
+              <div className="flex items-center gap-2">
+                <div className="relative flex size-10 shrink-0 overflow-hidden h-10 w-10 rounded-md">
+                  <span className="flex h-full w-full items-center justify-center rounded-md bg-primary/10 font-bold text-primary">
+                    {getInitials(
+                      project.owner?.full_name_display ||
+                        project.owner?.username,
+                    )}
                   </span>
-                )}
+                </div>
+                <div>
+                  <div
+                    role="heading"
+                    aria-level={3}
+                    className="text-2xl font-semibold leading-none tracking-tight line-clamp-1"
+                  >
+                    {project.name}
+                  </div>
+                  <p className="text-muted-foreground flex gap-1 text-xs">
+                    {project.is_private && (
+                      <span className="text-amber-500">Private</span>
+                    )}
+                    {project.is_private && <span>•</span>}
+                    <span className="font-medium">Owner</span>
+                  </p>
+                </div>
               </div>
+            </div>
 
-              <Link href={`/dashboard/projects/${project.slug}`}>
-                <Button variant="outline" size="sm">
-                  View
-                </Button>
-              </Link>
+            <div className="p-6 flex-1">
+              <p className="scroll-m-20 mb-2 line-clamp-2 text-sm text-muted-foreground">
+                {project.description || "No description"}
+              </p>
+              <div className="mt-2 text-xs text-muted-foreground">
+                <div className="flex items-center gap-1">
+                  <span>
+                    Created:{" "}
+                    {project.created_date
+                      ? formatDate(project.created_date)
+                      : "Unknown"}
+                  </span>
+                </div>
+                <p className="leading-7 scroll-m-20 text-muted-foreground">
+                  {project.tags?.length
+                    ? project.tags.join(", ")
+                    : "No tags available"}
+                </p>
+              </div>
+            </div>
 
-              <div className="flex gap-2 ml-4">
+            <div className="flex items-center p-6 pt-0">
+              <div className="flex w-full gap-2">
+                <Link
+                  href={`/dashboard/projects/${project.slug}`}
+                  className="ring-offset-background focus-visible:ring-ring inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 flex-1"
+                >
+                  <Eye />
+                  View Project
+                </Link>
+
                 <DialogProject
                   mode="edit"
                   project={project}
                   trigger={
-                    <Button variant="outline" size="sm">
-                      <Edit size={16} className="mr-1" />
-                      Edit
+                    <Button variant="outline" size="icon" className="h-10 w-10">
+                      <p className="text-primary leading-7 scroll-m-20 sr-only">
+                        Edit
+                      </p>
+                      <Pencil />
                     </Button>
                   }
                 />
 
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
-                    <Button variant="destructive" size="sm">
-                      <Trash2 size={16} className="mr-1" />
-                      Delete
+                    <Button variant="outline" size="icon" className="h-10 w-10">
+                      <p className="text-primary leading-7 scroll-m-20 sr-only">
+                        Delete
+                      </p>
+                      <Trash2 />
                     </Button>
                   </AlertDialogTrigger>
                   <AlertDialogContent>
@@ -165,29 +214,17 @@ export default function TabMyProject() {
                 </AlertDialog>
               </div>
             </div>
-
-            <p className="text-muted-foreground text-sm mt-2">
-              {project.description || "No description"}
-            </p>
-            <div className="flex items-center mt-4 text-xs text-muted-foreground">
-              <span>
-                Owner:{" "}
-                {project.owner?.full_name_display || project.owner?.username}
-              </span>
-              <span className="mx-2">•</span>
-              <span>Members: {project.members?.length || 0}</span>
-              <span className="mx-2">•</span>
-              <span>Activity: {project.total_activity || 0}</span>
-            </div>
           </div>
         ))}
       </div>
       {totalPages > 1 && (
-        <PaginationLayout
-          currentPage={currentPage}
-          totalPages={totalPages}
-          setCurrentPage={setCurrentPage}
-        />
+        <div className="mt-6">
+          <PaginationLayout
+            currentPage={currentPage}
+            totalPages={totalPages}
+            setCurrentPage={setCurrentPage}
+          />
+        </div>
       )}
     </>
   );
