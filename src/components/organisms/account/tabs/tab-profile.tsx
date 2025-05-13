@@ -48,10 +48,8 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { useRouter } from "next/navigation";
 
 export default function TabProfile() {
-  const router = useRouter();
   const { data, isLoading, isError } = useGetUserAuth();
   const { mutate: updateProfile, isPending: isUpdatingProfile } =
     useEditUserInfo();
