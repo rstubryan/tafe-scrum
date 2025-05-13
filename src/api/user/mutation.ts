@@ -4,6 +4,8 @@ import { toast } from "sonner";
 import { userApi } from "@/api/user/api";
 import { UserEditProfileProps, ChangePasswordProps } from "@/api/user/type";
 import type { ErrorResponse } from "@/api/base/global-type";
+import { useRouter } from "next/navigation";
+import Cookies from "js-cookie";
 
 export const useEditUserInfo = () => {
   const queryClient = useQueryClient();
@@ -111,6 +113,50 @@ export const useChangePassword = () => {
         });
       } else {
         toast.error("Password change failed", {
+          description: "Please try again later.",
+        });
+      }
+    },
+  });
+};
+
+export const useDeleteAccount = () => {
+  const queryClient = useQueryClient();
+  const router = useRouter();
+
+  return useMutation({
+    mutationFn: (id: string) =>
+      userApi.deleteAccount({
+        urlParams: { id },
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["user-auth"] });
+      toast.success("Account deleted successfully");
+
+      Cookies.remove("user_info", { path: "/" });
+      Cookies.remove("auth_token", { path: "/" });
+      Cookies.remove("refresh", { path: "/refresh_token" });
+
+      router.push("/login");
+    },
+    onError: (error: AxiosError) => {
+      if (error.response?.data) {
+        const responseData = error.response.data as ErrorResponse;
+        const errorMessage =
+          responseData.detail ||
+          responseData.error ||
+          responseData.code ||
+          "Account deletion failed";
+
+        toast.error(errorMessage, {
+          description: "Please try again later.",
+        });
+      } else if (error.request) {
+        toast.error("Network error", {
+          description: "Please check your connection.",
+        });
+      } else {
+        toast.error("Account deletion failed", {
           description: "Please try again later.",
         });
       }

@@ -41,6 +41,10 @@ export interface UserEditProfileProps {
   timezone?: string;
 }
 
+export interface UserDeleteAccountProps {
+  id: string;
+}
+
 export interface ChangePasswordProps {
   current_password: string;
   password: string;
