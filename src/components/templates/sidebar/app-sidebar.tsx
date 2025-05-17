@@ -93,10 +93,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   const activeProject =
     projectSlug && projectsList.length > 0
-      ? projectsList.find((p) => p.slug === projectSlug) || projectsList[0]
-      : projectsList.length > 0
-        ? projectsList[0]
-        : undefined;
+      ? projectsList.find((p) => p.slug === projectSlug)
+      : undefined;
 
   const totalProjects = projectsList.length;
   const totalPages = Math.ceil(totalProjects / itemsPerPage);

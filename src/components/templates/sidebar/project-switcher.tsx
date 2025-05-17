@@ -59,7 +59,7 @@ export function ProjectSwitcher({
   };
 }) {
   const { isMobile } = useSidebar();
-  const [active, setActive] = React.useState(activeProject || projects[0]);
+  const [active, setActive] = React.useState(activeProject);
   const [filteredProjects, setFilteredProjects] = React.useState(projects);
 
   const form = useForm<z.infer<typeof searchSchema>>({
@@ -70,9 +70,7 @@ export function ProjectSwitcher({
   });
 
   React.useEffect(() => {
-    if (activeProject) {
-      setActive(activeProject);
-    }
+    setActive(activeProject);
   }, [activeProject]);
 
   React.useEffect(() => {
@@ -99,10 +97,6 @@ export function ProjectSwitcher({
     return () => subscription.unsubscribe();
   }, [form, projects]);
 
-  if (!active) {
-    return null;
-  }
-
   return (
     <SidebarMenu>
       <SidebarMenuItem>
@@ -112,15 +106,33 @@ export function ProjectSwitcher({
               size="lg"
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
-              <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
-                <active.logo className="size-4" />
-              </div>
-              <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">
-                  {active.name || "Project"}
-                </span>
-                <span className="truncate text-xs">{active.plan}</span>
-              </div>
+              {active ? (
+                <>
+                  <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
+                    <active.logo className="size-4" />
+                  </div>
+                  <div className="grid flex-1 text-left text-sm leading-tight">
+                    <span className="truncate font-medium">
+                      {active.name || "Project"}
+                    </span>
+                    <span className="truncate text-xs">{active.plan}</span>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
+                    <Plus className="size-4" />
+                  </div>
+                  <div className="grid flex-1 text-left text-sm leading-tight">
+                    <span className="truncate font-medium">
+                      Select a project
+                    </span>
+                    <span className="truncate text-xs">
+                      No project selected
+                    </span>
+                  </div>
+                </>
+              )}
               <ChevronsUpDown className="ml-auto" />
             </SidebarMenuButton>
           </DropdownMenuTrigger>
@@ -210,7 +222,7 @@ export function ProjectSwitcher({
             )}
             <DropdownMenuSeparator />
             <DropdownMenuItem className="gap-2 p-2" asChild>
-              <Link href="/dashboard/projects/new">
+              <Link href="/dashboard/projects">
                 <div className="flex size-6 items-center justify-center rounded-md border bg-transparent">
                   <Plus className="size-4" />
                 </div>
