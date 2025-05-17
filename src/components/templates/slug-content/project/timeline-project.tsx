@@ -2,12 +2,19 @@
 
 import { useParams } from "next/navigation";
 import { useGetProjectBySlug } from "@/api/project/queries";
+import { useGetTimelineByProjectId } from "@/api/timeline/queries";
 
 export default function TimelineProject() {
   const params = useParams();
   const slug = params.slug as string;
+  const { data: project } = useGetProjectBySlug(slug);
+  const { data: timelines, isLoading } = useGetTimelineByProjectId(
+    project?.id?.toString() || "",
+  );
 
-  const { data: project, isLoading } = useGetProjectBySlug(slug);
+  if (!project) {
+    return <div>Loading project...</div>;
+  }
 
   if (isLoading) {
     return <div>Loading project details...</div>;
@@ -15,10 +22,10 @@ export default function TimelineProject() {
 
   return (
     <div className="flex flex-col gap-4">
-      {project && (
+      {timelines && (
         <div>
           <pre className="bg-muted p-4 rounded-md">
-            {JSON.stringify(project, null, 2)}
+            {JSON.stringify(timelines, null, 2)}
           </pre>
         </div>
       )}

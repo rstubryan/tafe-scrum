@@ -44,7 +44,7 @@ export const projectApi = {
 
   getProjectBySlug: createApiRequest<
     { urlParams: { slug: string } },
-    ResponseProps<ProjectResponseProps>
+    ProjectResponseProps
   >({
     endpoint: `${BASE_URL}/by_slug`,
     method: "GET",
@@ -56,15 +56,14 @@ export const projectApi = {
   }),
 
   getProjectById: createApiRequest<
-    { urlParams: { projectId: string } },
+    { urlParams: { id: string } },
     ResponseProps<ProjectResponseProps>
   >({
-    endpoint: `/timeline/project/{projectId}`,
+    endpoint: `${BASE_URL}/{id}`,
     method: "GET",
     extraConfig: ({ urlParams }) => ({
       params: {
-        only_relevant: true,
-        project: urlParams?.projectId,
+        id: urlParams?.id,
       },
     }),
   }),
