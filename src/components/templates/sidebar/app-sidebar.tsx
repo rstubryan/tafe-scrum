@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useParams } from "next/navigation";
 import {
   AudioWaveform,
   Command,
@@ -26,86 +27,10 @@ import {
 import { useGetUserAuth } from "@/api/user/queries";
 import { UserProps } from "@/api/user/type";
 
-const sidebarNavData = {
-  projects: [
-    {
-      name: "Acme Inc",
-      logo: GalleryVerticalEnd,
-      plan: "Enterprise",
-    },
-    {
-      name: "Acme Corp.",
-      logo: AudioWaveform,
-      plan: "Startup",
-    },
-    {
-      name: "Evil Corp.",
-      logo: Command,
-      plan: "Free",
-    },
-  ],
-  project_list: [
-    {
-      name: "Projects",
-      url: "/dashboard/projects",
-      icon: GalleryVerticalEnd,
-    },
-  ],
-  navMain: [
-    {
-      title: "Scrum",
-      url: "#",
-      icon: SquareTerminal,
-      isActive: true,
-      items: [
-        {
-          title: "Backlogs",
-          url: "/dashboard/projects/[slug]/backlogs",
-        },
-        {
-          title: "Tasks",
-          url: "/dashboard/projects/[slug]/tasks",
-        },
-        {
-          title: "Epics",
-          url: "/dashboard/projects/[slug]/epics",
-        },
-        {
-          title: "Sprints",
-          url: "/dashboard/projects/[slug]/sprints",
-        },
-        {
-          title: "Issues",
-          url: "/dashboard/projects/[slug]/issues",
-        },
-      ],
-    },
-  ],
-  documentation: [
-    {
-      name: "Introduction",
-      url: "/dashboard/documentation/[slug]",
-      icon: Frame,
-    },
-    {
-      name: "Get Started",
-      url: "/dashboard/documentation/[slug]",
-      icon: Map,
-    },
-    {
-      name: "Tutorials",
-      url: "/dashboard/documentation/[slug]",
-      icon: Settings2,
-    },
-    {
-      name: "Changelog",
-      url: "/dashboard/documentation/[slug]",
-      icon: GalleryVerticalEnd,
-    },
-  ],
-};
-
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const params = useParams();
+  const projectSlug = (params?.slug as string) || "";
+
   const { data } = useGetUserAuth();
 
   const extractUserData = (): UserProps => {
@@ -124,6 +49,85 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     name: userData.full_name_display || userData.username || "User",
     email: userData.email || "",
     avatar: userData.photo || "",
+  };
+
+  const sidebarNavData = {
+    projects: [
+      {
+        name: "Acme Inc",
+        logo: GalleryVerticalEnd,
+        plan: "Enterprise",
+      },
+      {
+        name: "Acme Corp.",
+        logo: AudioWaveform,
+        plan: "Startup",
+      },
+      {
+        name: "Evil Corp.",
+        logo: Command,
+        plan: "Free",
+      },
+    ],
+    project_list: [
+      {
+        name: "Projects",
+        url: "/dashboard/projects",
+        icon: GalleryVerticalEnd,
+      },
+    ],
+    navMain: [
+      {
+        title: "Scrum",
+        url: "#",
+        icon: SquareTerminal,
+        isActive: true,
+        items: [
+          {
+            title: "Backlogs",
+            url: `/dashboard/projects/${projectSlug}/backlogs`,
+          },
+          {
+            title: "Tasks",
+            url: `/dashboard/projects/${projectSlug}/tasks`,
+          },
+          {
+            title: "Epics",
+            url: `/dashboard/projects/${projectSlug}/epics`,
+          },
+          {
+            title: "Sprints",
+            url: `/dashboard/projects/${projectSlug}/sprints`,
+          },
+          {
+            title: "Issues",
+            url: `/dashboard/projects/${projectSlug}/issues`,
+          },
+        ],
+      },
+    ],
+    documentation: [
+      {
+        name: "Introduction",
+        url: "/dashboard/documentation/[slug]",
+        icon: Frame,
+      },
+      {
+        name: "Get Started",
+        url: "/dashboard/documentation/[slug]",
+        icon: Map,
+      },
+      {
+        name: "Tutorials",
+        url: "/dashboard/documentation/[slug]",
+        icon: Settings2,
+      },
+      {
+        name: "Changelog",
+        url: "/dashboard/documentation/[slug]",
+        icon: GalleryVerticalEnd,
+      },
+    ],
   };
 
   return (
