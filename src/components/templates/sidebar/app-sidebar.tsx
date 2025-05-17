@@ -3,10 +3,9 @@
 import * as React from "react";
 import { useParams } from "next/navigation";
 import {
-  AudioWaveform,
-  Command,
   Frame,
   GalleryVerticalEnd,
+  LoaderCircle,
   Map,
   Settings2,
   SquareTerminal,
@@ -25,11 +24,32 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar";
 import { useGetUserAuth } from "@/api/user/queries";
+import { useGetProjectsByUser } from "@/api/project/queries";
 import { UserProps } from "@/api/user/type";
+import { useCurrentUser } from "@/hooks/use-current-user";
+import { useState, useEffect } from "react";
+import { ProjectResponseProps } from "@/api/project/type";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const params = useParams();
   const projectSlug = (params?.slug as string) || "";
+  const [mounted, setMounted] = useState(false);
+  const { currentUserId } = useCurrentUser();
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const canFetchProjects = mounted && !!currentUserId;
+
+  const { data: myProjects, isLoading: isLoadingMyProjects } =
+    useGetProjectsByUser(currentUserId?.toString() || "", {
+      enabled: canFetchProjects,
+      retry: 3,
+      retryDelay: 300,
+    });
 
   const { data } = useGetUserAuth();
 
@@ -51,24 +71,48 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     avatar: userData.photo || "",
   };
 
+  const processProjects = () => {
+    if (!Array.isArray(myProjects) || myProjects.length === 0) {
+      return [] as {
+        name: string | undefined;
+        logo: React.ElementType;
+        plan: string;
+        slug: string | undefined;
+      }[];
+    }
+
+    return myProjects.map((project: ProjectResponseProps) => ({
+      name: project.name,
+      logo: GalleryVerticalEnd, // Default icon
+      plan: project.is_private ? "Private" : "Public",
+      slug: project.slug,
+    }));
+  };
+
+  const projectsList = processProjects();
+
+  const activeProject =
+    projectSlug && projectsList.length > 0
+      ? projectsList.find((p) => p.slug === projectSlug) || projectsList[0]
+      : projectsList.length > 0
+        ? projectsList[0]
+        : undefined;
+
+  const totalProjects = projectsList.length;
+  const totalPages = Math.ceil(totalProjects / itemsPerPage);
+
+  const getPaginatedProjects = () => {
+    if (projectsList.length === 0) return [];
+
+    const startIdx = (currentPage - 1) * itemsPerPage;
+    const endIdx = startIdx + itemsPerPage;
+    return projectsList.slice(startIdx, endIdx);
+  };
+
+  const paginatedProjects = getPaginatedProjects();
+
   const sidebarNavData = {
-    projects: [
-      {
-        name: "Acme Inc",
-        logo: GalleryVerticalEnd,
-        plan: "Enterprise",
-      },
-      {
-        name: "Acme Corp.",
-        logo: AudioWaveform,
-        plan: "Startup",
-      },
-      {
-        name: "Evil Corp.",
-        logo: Command,
-        plan: "Free",
-      },
-    ],
+    projects: paginatedProjects,
     project_list: [
       {
         name: "Projects",
@@ -130,10 +174,24 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     ],
   };
 
+  if (isLoadingMyProjects && mounted) {
+    return (
+      <div className="flex justify-center py-8">
+        <LoaderCircle className="animate-spin" />
+      </div>
+    );
+  }
+
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        <ProjectSwitcher projects={sidebarNavData.projects} />
+        <ProjectSwitcher
+          projects={paginatedProjects}
+          currentPage={currentPage}
+          totalPages={totalPages}
+          setCurrentPage={setCurrentPage}
+          activeProject={activeProject}
+        />
       </SidebarHeader>
       <SidebarContent>
         <NavProject project_list={sidebarNavData.project_list} />
