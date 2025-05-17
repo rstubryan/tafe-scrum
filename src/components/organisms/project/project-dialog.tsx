@@ -20,7 +20,7 @@ interface DialogProjectProps {
   trigger?: React.ReactNode;
 }
 
-export default function DialogProject({
+export default function ProjectDialog({
   mode = "create",
   project,
   trigger,

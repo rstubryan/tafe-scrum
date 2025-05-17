@@ -1,6 +1,6 @@
 import MainContent from "@/components/templates/content/main-content";
-import DialogProject from "@/components/organisms/project/dialog-project";
-import TabsProject from "@/components/organisms/project/tabs-project";
+import ProjectDialog from "@/components/organisms/project/project-dialog";
+import ProjectTabs from "@/components/organisms/project/project-tabs";
 import HeadContent from "@/components/molecules/head-content/head-content";
 
 export default function ProjectsPage() {
@@ -11,9 +11,9 @@ export default function ProjectsPage() {
           title={"Projects"}
           description={"Create and manage your projects."}
         />
-        <DialogProject mode={"create"} />
+        <ProjectDialog mode={"create"} />
       </section>
-      <TabsProject />
+      <ProjectTabs />
     </MainContent>
   );
 }

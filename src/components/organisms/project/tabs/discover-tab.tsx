@@ -1,15 +1,16 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { LoaderCircle, Eye, Pencil, Trash2 } from "lucide-react";
 import { ProjectResponseProps } from "@/api/project/type";
 import { PaginationLayout } from "@/components/templates/layout/pagination-layout";
-import { useGetProjectsByUser } from "@/api/project/queries";
+import { useGetProjectDiscover } from "@/api/project/queries";
 import { useDeleteProject } from "@/api/project/mutation";
-import DialogProject from "@/components/organisms/project/dialog-project";
+import ProjectDialog from "@/components/organisms/project/project-dialog";
 import { Button } from "@/components/ui/button";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import { getInitials } from "@/utils/avatar-initials";
+import { formatDate } from "@/utils";
 import Link from "next/link";
 import {
   AlertDialog,
@@ -22,42 +23,39 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { formatDate } from "@/utils";
 import { Typography } from "@/components/atoms/typography/typography";
 
-export default function TabMyProject() {
-  const [mounted, setMounted] = useState(false);
-  const { currentUserId } = useCurrentUser();
+export default function DiscoverTab() {
+  const { data: discoverProjects, isLoading: isLoadingDiscoverProjects } =
+    useGetProjectDiscover();
+  const { mutate: deleteProject } = useDeleteProject();
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 6;
+  const { currentUserId } = useCurrentUser();
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  const canFetchProjects = mounted && !!currentUserId;
-
-  const { data: myProjects, isLoading: isLoadingMyProjects } =
-    useGetProjectsByUser(currentUserId?.toString() || "", {
-      enabled: canFetchProjects,
-      retry: 3,
-      retryDelay: 300,
-    });
-
-  const { mutate: deleteProject } = useDeleteProject();
-
-  const totalProjects = Array.isArray(myProjects) ? myProjects.length : 0;
+  const totalProjects = Array.isArray(discoverProjects)
+    ? discoverProjects.length
+    : 0;
   const totalPages = Math.ceil(totalProjects / itemsPerPage);
 
   const getPaginatedProjects = () => {
-    if (!Array.isArray(myProjects)) return [];
+    if (!Array.isArray(discoverProjects)) return [];
 
     const startIdx = (currentPage - 1) * itemsPerPage;
     const endIdx = startIdx + itemsPerPage;
-    return myProjects.slice(startIdx, endIdx);
+    return discoverProjects.slice(startIdx, endIdx);
   };
 
   const paginatedProjects = getPaginatedProjects();
+
+  const canEditProject = (project: ProjectResponseProps) => {
+    if (!currentUserId) return false;
+    const isOwner =
+      project.owner?.id === currentUserId || project.i_am_owner === true;
+    const isAdmin = project.i_am_admin === true;
+
+    return isOwner || isAdmin;
+  };
 
   const handleDeleteProject = (projectId: number | string) => {
     if (projectId) {
@@ -65,7 +63,7 @@ export default function TabMyProject() {
     }
   };
 
-  if (!mounted) {
+  if (isLoadingDiscoverProjects) {
     return (
       <div className="flex justify-center py-8">
         <LoaderCircle className="animate-spin" />
@@ -73,26 +71,10 @@ export default function TabMyProject() {
     );
   }
 
-  if (!currentUserId) {
+  if (!Array.isArray(discoverProjects) || discoverProjects.length === 0) {
     return (
       <div className="text-center py-8 text-muted-foreground">
-        <Typography>Please log in to view your projects.</Typography>
-      </div>
-    );
-  }
-
-  if (isLoadingMyProjects) {
-    return (
-      <div className="flex justify-center py-8">
-        <LoaderCircle className="animate-spin" />
-      </div>
-    );
-  }
-
-  if (!Array.isArray(myProjects) || myProjects.length === 0) {
-    return (
-      <div className="text-center py-8 text-muted-foreground">
-        <Typography>You don&#39;t have any projects yet.</Typography>
+        <Typography>No projects available to discover.</Typography>
       </div>
     );
   }
@@ -128,11 +110,14 @@ export default function TabMyProject() {
                       <span className="text-amber-500">Private</span>
                     )}
                     {project.is_private && <span>•</span>}
-                    <span className="font-medium">Owner</span>
+                    <span className="font-medium">
+                      {project.i_am_owner ? "Owner" : "Member"}
+                    </span>
                   </Typography>
                 </div>
               </div>
             </div>
+
             <div className="p-6 flex-1">
               <Typography className="mb-2 line-clamp-2 text-sm text-muted-foreground">
                 {project.description || "No description"}
@@ -153,72 +138,77 @@ export default function TabMyProject() {
                 </Typography>
               </div>
             </div>
+
             <div className="flex items-center p-6 pt-0">
               <div className="grid grid-cols-1 sm:grid-cols-3 w-full gap-2">
                 <Link
                   href={`/dashboard/projects/${project.slug}`}
-                  className="sm:col-span-2 inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-3 py-2"
+                  className={`sm:col-span-${
+                    canEditProject(project) ? "2" : "3"
+                  } inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-3 py-2`}
                 >
                   <Eye className="size-4 shrink-0" />
                   <span className="truncate">View Project</span>
                 </Link>
 
-                <div className="grid grid-cols-2 gap-2">
-                  <DialogProject
-                    mode="edit"
-                    project={project}
-                    trigger={
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        className="h-10 w-full"
-                      >
-                        <Typography className="sr-only">Edit</Typography>
-                        <Pencil />
-                      </Button>
-                    }
-                  />
-
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        className="h-10 w-full"
-                      >
-                        <Typography className="sr-only">Delete</Typography>
-                        <Trash2 />
-                      </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>Delete Project</AlertDialogTitle>
-                        <AlertDialogDescription>
-                          Are you sure you want to delete{" "}
-                          <span className="font-bold">
-                            &#34;{project.name}
-                            &#34;
-                          </span>
-                          ? This action cannot be undone and will permanently
-                          remove the project and all its associated data.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction
-                          onClick={() =>
-                            project.id && handleDeleteProject(project.id)
-                          }
-                          className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                {canEditProject(project) && (
+                  <div className="grid grid-cols-2 gap-2">
+                    <ProjectDialog
+                      mode="edit"
+                      project={project}
+                      trigger={
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          className="h-10 w-full"
                         >
-                          Delete
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
-                </div>
+                          <Typography className="sr-only">Edit</Typography>
+                          <Pencil className="size-4" />
+                        </Button>
+                      }
+                    />
+
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          className="h-10 w-full"
+                        >
+                          <Typography className="sr-only">Delete</Typography>
+                          <Trash2 className="size-4" />
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Delete Project</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Are you sure you want to delete{" "}
+                            <span className="font-bold">
+                              &#34;{project.name}
+                              &#34;
+                            </span>
+                            ? This action cannot be undone and will permanently
+                            remove the project and all its associated data.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={() =>
+                              project.id && handleDeleteProject(project.id)
+                            }
+                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                          >
+                            Delete
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </div>
+                )}
               </div>
-            </div>{" "}
+            </div>
           </div>
         ))}
       </div>
