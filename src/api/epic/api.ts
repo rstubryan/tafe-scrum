@@ -66,10 +66,7 @@ export const epicApi = {
     }),
   }),
 
-  deleteEpic: createApiRequest<
-    { urlParams: { id: string } },
-    ResponseProps<void>
-  >({
+  deleteEpic: createApiRequest<void, ResponseProps<null>>({
     endpoint: `${BASE_URL}/{id}`,
     method: "DELETE",
     extraConfig: ({ urlParams }) => ({

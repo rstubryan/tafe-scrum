@@ -59,10 +59,7 @@ export const userStoryApi = {
     }),
   }),
 
-  deleteUserStory: createApiRequest<
-    { urlParams: { id: string } },
-    ResponseProps<UserStoryProps>
-  >({
+  deleteUserStory: createApiRequest<void, ResponseProps<null>>({
     endpoint: `${BASE_URL}/{id}`,
     method: "DELETE",
     extraConfig: ({ urlParams }) => ({
