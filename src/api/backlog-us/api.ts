@@ -1,5 +1,9 @@
 import { createApiRequest } from "../base/api-factory";
-import type { UserStoryProps } from "./type";
+import type {
+  UserStoryProps,
+  CreateUserStoryProps,
+  EditUserStoryProps,
+} from "./type";
 import type { ResponseProps } from "../base/global-type";
 
 const BASE_URL = `/user_stories`;
@@ -14,7 +18,7 @@ export const userStoryApi = {
     { urlParams: { id: string } },
     ResponseProps<UserStoryProps>
   >({
-    endpoint: `${BASE_URL}/{userStoryId}`,
+    endpoint: `${BASE_URL}/{id}`,
     method: "GET",
     extraConfig: ({ urlParams }) => ({
       params: {
@@ -36,16 +40,19 @@ export const userStoryApi = {
     }),
   }),
 
-  createUserStory: createApiRequest<ResponseProps<UserStoryProps>>({
+  createUserStory: createApiRequest<
+    CreateUserStoryProps,
+    ResponseProps<UserStoryProps>
+  >({
     endpoint: `${BASE_URL}`,
     method: "POST",
   }),
 
   updateUserStory: createApiRequest<
-    { urlParams: { id: string }; body: UserStoryProps },
+    Partial<EditUserStoryProps>,
     ResponseProps<UserStoryProps>
   >({
-    endpoint: `${BASE_URL}/{userStoryId}`,
+    endpoint: `${BASE_URL}/{id}`,
     method: "PUT",
     extraConfig: ({ urlParams }) => ({
       url: `${BASE_URL}/${urlParams?.id}`,
@@ -56,7 +63,7 @@ export const userStoryApi = {
     { urlParams: { id: string } },
     ResponseProps<UserStoryProps>
   >({
-    endpoint: `${BASE_URL}/{userStoryId}`,
+    endpoint: `${BASE_URL}/{id}`,
     method: "DELETE",
     extraConfig: ({ urlParams }) => ({
       url: `${BASE_URL}/${urlParams?.id}`,

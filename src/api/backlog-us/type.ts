@@ -1,3 +1,28 @@
+export interface CreateUserStoryProps {
+  project: number;
+  subject: string;
+  assigned_to?: number | null;
+  backlog_order?: number;
+  blocked_note?: string;
+  client_requirement?: boolean;
+  description?: string;
+  is_blocked?: boolean;
+  is_closed?: boolean;
+  kanban_order?: number;
+  milestone?: number | null;
+  points?: Record<string, number>;
+  sprint_order?: number;
+  status?: number;
+  tags?: string[];
+  team_requirement?: boolean;
+  watchers?: number[];
+}
+
+export interface EditUserStoryProps extends CreateUserStoryProps {
+  id?: number;
+  version?: number;
+}
+
 export interface UserStoryProps {
   id?: number;
   ref?: number;
@@ -87,36 +112,4 @@ export interface UserStoryProps {
   generated_from_issue?: null | number;
   generated_from_task?: null | number;
   from_task_ref?: null | string;
-}
-
-export interface UserStoryByPidProps {
-  subject: string;
-  description?: string;
-  project?: number;
-  status?: number;
-  is_closed?: boolean;
-  assigned_to?: null | number;
-  assigned_users?: number[];
-  milestone?: null | number;
-  points?: Record<string, number>;
-  backlog_order?: number;
-  sprint_order?: number;
-  kanban_order?: number;
-  is_blocked?: boolean;
-  blocked_note?: string;
-  tags?: Array<string>;
-  client_requirement?: boolean;
-  team_requirement?: boolean;
-  version?: number;
-  watchers?: number[];
-  due_date?: null | string;
-}
-
-export interface UserStoryApiRequest {
-  data?: UserStoryByPidProps;
-}
-
-export interface UserStoryApiUpdateRequest {
-  data?: Partial<UserStoryByPidProps>;
-  urlParams: { id: string };
 }
