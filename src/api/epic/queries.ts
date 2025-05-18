@@ -10,7 +10,7 @@ export const useGetAllEpics = () => {
 
 export const useGetEpicById = (id: string) => {
   return useQuery({
-    queryKey: ["epic-by-id", id],
+    queryKey: ["epic", id],
     queryFn: () => epicApi.getEpicById({ urlParams: { id } }),
     enabled: !!id,
   });

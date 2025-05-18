@@ -10,7 +10,7 @@ export const useGetAllIssues = () => {
 
 export const useGetIssueById = (id: string) => {
   return useQuery({
-    queryKey: ["issue-by-id", id],
+    queryKey: ["issue", id],
     queryFn: () => issueApi.getIssueById({ urlParams: { id } }),
     enabled: !!id,
   });

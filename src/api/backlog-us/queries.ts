@@ -10,7 +10,7 @@ export const useGetAllUserStories = () => {
 
 export const useGetUserStoryById = (id: string) => {
   return useQuery({
-    queryKey: ["user-story-by-id", id],
+    queryKey: ["user-story", id],
     queryFn: () => userStoryApi.getUserStoryById({ urlParams: { id } }),
     enabled: !!id,
   });
