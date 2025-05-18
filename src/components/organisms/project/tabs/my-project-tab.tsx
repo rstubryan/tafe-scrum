@@ -209,7 +209,6 @@ export default function MyProjectTab() {
                           onClick={() =>
                             project.id && handleDeleteProject(project.id)
                           }
-                          className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                         >
                           Delete
                         </AlertDialogAction>

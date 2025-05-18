@@ -198,7 +198,6 @@ export default function DiscoverTab() {
                             onClick={() =>
                               project.id && handleDeleteProject(project.id)
                             }
-                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                           >
                             Delete
                           </AlertDialogAction>
