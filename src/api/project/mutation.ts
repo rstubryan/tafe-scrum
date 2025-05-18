@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { toast } from "sonner";
 import { projectApi } from "@/api/project/api";
-import { ProjectEditProps, ProjectProps } from "@/api/project/type";
+import { EditProjectProps, ProjectProps } from "@/api/project/type";
 import { handleApiError } from "@/api/base/axios-error";
 
 export const useCreateProject = () => {
@@ -30,7 +30,7 @@ export const useEditProject = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: ProjectEditProps) => {
+    mutationFn: (data: EditProjectProps) => {
       if (!data.id) {
         throw new Error("Project ID is required for project update");
       }

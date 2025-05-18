@@ -15,7 +15,7 @@ export interface CreateProjectProps {
   creation_template?: number;
 }
 
-export interface ProjectEditProps extends CreateProjectProps {
+export interface EditProjectProps extends CreateProjectProps {
   id?: number;
 }
 

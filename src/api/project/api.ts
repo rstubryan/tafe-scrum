@@ -2,7 +2,7 @@ import { createApiRequest } from "../base/api-factory";
 import type {
   ProjectProps,
   CreateProjectProps,
-  ProjectEditProps,
+  EditProjectProps,
 } from "./type";
 import type { ResponseProps } from "../base/global-type";
 
@@ -72,7 +72,7 @@ export const projectApi = {
   }),
 
   updateProject: createApiRequest<
-    Partial<ProjectEditProps>,
+    Partial<EditProjectProps>,
     ResponseProps<ProjectProps>
   >({
     endpoint: `${BASE_URL}/{id}`,
