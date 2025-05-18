@@ -118,36 +118,38 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         icon: GalleryVerticalEnd,
       },
     ],
-    navMain: [
-      {
-        title: "Scrum",
-        url: "#",
-        icon: SquareTerminal,
-        isActive: true,
-        items: [
+    navMain: projectSlug
+      ? [
           {
-            title: "Backlogs",
-            url: `/dashboard/projects/${projectSlug}/backlogs`,
+            title: "Scrum",
+            url: "#",
+            icon: SquareTerminal,
+            isActive: true,
+            items: [
+              {
+                title: "Backlogs",
+                url: `/dashboard/projects/${projectSlug}/backlogs`,
+              },
+              {
+                title: "Tasks",
+                url: `/dashboard/projects/${projectSlug}/tasks`,
+              },
+              {
+                title: "Epics",
+                url: `/dashboard/projects/${projectSlug}/epics`,
+              },
+              {
+                title: "Sprints",
+                url: `/dashboard/projects/${projectSlug}/sprints`,
+              },
+              {
+                title: "Issues",
+                url: `/dashboard/projects/${projectSlug}/issues`,
+              },
+            ],
           },
-          {
-            title: "Tasks",
-            url: `/dashboard/projects/${projectSlug}/tasks`,
-          },
-          {
-            title: "Epics",
-            url: `/dashboard/projects/${projectSlug}/epics`,
-          },
-          {
-            title: "Sprints",
-            url: `/dashboard/projects/${projectSlug}/sprints`,
-          },
-          {
-            title: "Issues",
-            url: `/dashboard/projects/${projectSlug}/issues`,
-          },
-        ],
-      },
-    ],
+        ]
+      : [],
     documentation: [
       {
         name: "Introduction",
