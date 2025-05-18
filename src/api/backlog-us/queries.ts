@@ -12,6 +12,7 @@ export const useGetUserStoryById = (id: string) => {
   return useQuery({
     queryKey: ["user-story-by-id", id],
     queryFn: () => userStoryApi.getUserStoryById({ urlParams: { id } }),
+    enabled: !!id,
   });
 };
 
@@ -19,5 +20,6 @@ export const useGetUserStoryByRef = (ref: string) => {
   return useQuery({
     queryKey: ["user-story-by-ref", ref],
     queryFn: () => userStoryApi.getUserStoryByRef({ urlParams: { ref } }),
+    enabled: !!ref,
   });
 };

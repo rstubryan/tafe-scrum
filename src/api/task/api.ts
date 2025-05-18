@@ -50,7 +50,7 @@ export const taskApi = {
     { urlParams: { projectId: string; userStoryId: string } },
     ResponseProps<TaskProps[]>
   >({
-    endpoint: `${BASE_URL}/{projectId}/{userStoryId}`,
+    endpoint: `${BASE_URL}`,
     method: "GET",
     extraConfig: ({ urlParams }) => ({
       params: {
@@ -64,7 +64,7 @@ export const taskApi = {
     { urlParams: { projectId: string; userStoryId: string; ref: string } },
     ResponseProps<TaskProps>
   >({
-    endpoint: `${BASE_URL}/by_ref/{projectId}/{userStoryId}`,
+    endpoint: `${BASE_URL}/by_ref`,
     method: "GET",
     extraConfig: ({ urlParams }) => ({
       params: {
