@@ -3,9 +3,9 @@ import { AxiosError } from "axios";
 import { toast } from "sonner";
 import { userApi } from "@/api/user/api";
 import { UserEditProfileProps, ChangePasswordProps } from "@/api/user/type";
-import type { ErrorResponse } from "@/api/base/global-type";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
+import { handleApiError } from "@/api/base/axios-error";
 
 export const useEditUserInfo = () => {
   const queryClient = useQueryClient();
@@ -29,26 +29,11 @@ export const useEditUserInfo = () => {
       return data;
     },
     onError: (error: AxiosError) => {
-      if (error.response?.data) {
-        const responseData = error.response.data as ErrorResponse;
-        const errorMessage =
-          responseData.detail ||
-          responseData.error ||
-          responseData.code ||
-          "Profile update failed";
-
-        toast.error(errorMessage, {
-          description: "Please check your input and try again.",
-        });
-      } else if (error.request) {
-        toast.error("Network error", {
-          description: "Please check your connection.",
-        });
-      } else {
-        toast.error("Profile update failed", {
-          description: "Please try again later.",
-        });
-      }
+      handleApiError(
+        error,
+        "Profile update failed",
+        "Please check your input and try again.",
+      );
     },
   });
 };
@@ -65,26 +50,11 @@ export const useChangeProfilePicture = () => {
       return data;
     },
     onError: (error: AxiosError) => {
-      if (error.response?.data) {
-        const responseData = error.response.data as ErrorResponse;
-        const errorMessage =
-          responseData.detail ||
-          responseData.error ||
-          responseData.code ||
-          "Profile picture update failed";
-
-        toast.error(errorMessage, {
-          description: "Please check your image and try again.",
-        });
-      } else if (error.request) {
-        toast.error("Network error", {
-          description: "Please check your connection.",
-        });
-      } else {
-        toast.error("Profile picture update failed", {
-          description: "Please try again later.",
-        });
-      }
+      handleApiError(
+        error,
+        "Profile picture update failed",
+        "Please check your input and try again.",
+      );
     },
   });
 };
@@ -96,26 +66,11 @@ export const useChangePassword = () => {
       toast.success("Password changed successfully");
     },
     onError: (error: AxiosError) => {
-      if (error.response?.data) {
-        const responseData = error.response.data as ErrorResponse;
-        const errorMessage =
-          responseData.detail ||
-          responseData.error ||
-          responseData.code ||
-          "Password change failed";
-
-        toast.error(errorMessage, {
-          description: "Please check your input and try again.",
-        });
-      } else if (error.request) {
-        toast.error("Network error", {
-          description: "Please check your connection.",
-        });
-      } else {
-        toast.error("Password change failed", {
-          description: "Please try again later.",
-        });
-      }
+      handleApiError(
+        error,
+        "Password change failed",
+        "Please check your input and try again.",
+      );
     },
   });
 };
@@ -140,26 +95,11 @@ export const useDeleteAccount = () => {
       router.push("/login");
     },
     onError: (error: AxiosError) => {
-      if (error.response?.data) {
-        const responseData = error.response.data as ErrorResponse;
-        const errorMessage =
-          responseData.detail ||
-          responseData.error ||
-          responseData.code ||
-          "Account deletion failed";
-
-        toast.error(errorMessage, {
-          description: "Please try again later.",
-        });
-      } else if (error.request) {
-        toast.error("Network error", {
-          description: "Please check your connection.",
-        });
-      } else {
-        toast.error("Account deletion failed", {
-          description: "Please try again later.",
-        });
-      }
+      handleApiError(
+        error,
+        "Account deletion failed",
+        "Please check your input and try again.",
+      );
     },
   });
 };

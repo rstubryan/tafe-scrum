@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
 import { authApi } from "./api";
-import type { ErrorResponse } from "../base/global-type";
+import { handleApiError } from "@/api/base/axios-error";
 
 export const useAuthLogin = () => {
   const router = useRouter();
@@ -25,26 +25,11 @@ export const useAuthLogin = () => {
       router.push("/dashboard");
     },
     onError: (error: AxiosError) => {
-      if (error.response?.data) {
-        const responseData = error.response.data as ErrorResponse;
-        const errorMessage =
-          responseData.detail ||
-          responseData.error ||
-          responseData.code ||
-          "Authentication failed";
-
-        toast.error(errorMessage, {
-          description: "Please check your credentials and try again.",
-        });
-      } else if (error.request) {
-        toast.error("Network error", {
-          description: "Please check your connection.",
-        });
-      } else {
-        toast.error("Authentication failed", {
-          description: "Please try again later.",
-        });
-      }
+      handleApiError(
+        error,
+        "Login failed",
+        "Please check your email and password and try again.",
+      );
     },
   });
 };
@@ -74,26 +59,11 @@ export const useAuthRegister = () => {
       router.push("/dashboard");
     },
     onError: (error: AxiosError) => {
-      if (error.response?.data) {
-        const responseData = error.response.data as ErrorResponse;
-        const errorMessage =
-          responseData.detail ||
-          responseData.error ||
-          responseData.code ||
-          "Registration failed";
-
-        toast.error(errorMessage, {
-          description: "Please check your information and try again.",
-        });
-      } else if (error.request) {
-        toast.error("Network error", {
-          description: "Please check your connection.",
-        });
-      } else {
-        toast.error("Registration failed", {
-          description: "Please try again later.",
-        });
-      }
+      handleApiError(
+        error,
+        "Registration failed",
+        "Please check your input and try again.",
+      );
     },
   });
 };

@@ -3,7 +3,7 @@ import { AxiosError } from "axios";
 import { toast } from "sonner";
 import { projectApi } from "@/api/project/api";
 import { ProjectEditProps, ProjectResponseProps } from "@/api/project/type";
-import type { ErrorResponse } from "@/api/base/global-type";
+import { handleApiError } from "@/api/base/axios-error";
 
 export const useCreateProject = () => {
   const queryClient = useQueryClient();
@@ -18,26 +18,11 @@ export const useCreateProject = () => {
       return data;
     },
     onError: (error: AxiosError) => {
-      if (error.response?.data) {
-        const responseData = error.response.data as ErrorResponse;
-        const errorMessage =
-          responseData.detail ||
-          responseData.error ||
-          responseData.code ||
-          "Project creation failed";
-
-        toast.error(errorMessage, {
-          description: "Please check your input and try again.",
-        });
-      } else if (error.request) {
-        toast.error("Network error", {
-          description: "Please check your connection.",
-        });
-      } else {
-        toast.error("Project creation failed", {
-          description: "Please try again later.",
-        });
-      }
+      handleApiError(
+        error,
+        "Project creation failed",
+        "Please check your input and try again.",
+      );
     },
   });
 };
@@ -65,26 +50,11 @@ export const useEditProject = () => {
       return data;
     },
     onError: (error: AxiosError) => {
-      if (error.response?.data) {
-        const responseData = error.response.data as ErrorResponse;
-        const errorMessage =
-          responseData.detail ||
-          responseData.error ||
-          responseData.code ||
-          "Project update failed";
-
-        toast.error(errorMessage, {
-          description: "Please check your input and try again.",
-        });
-      } else if (error.request) {
-        toast.error("Network error", {
-          description: "Please check your connection.",
-        });
-      } else {
-        toast.error("Project update failed", {
-          description: "Please try again later.",
-        });
-      }
+      handleApiError(
+        error,
+        "Project update failed",
+        "Please check your input and try again.",
+      );
     },
   });
 };
@@ -111,26 +81,11 @@ export const useDeleteProject = () => {
       return data;
     },
     onError: (error: AxiosError) => {
-      if (error.response?.data) {
-        const responseData = error.response.data as ErrorResponse;
-        const errorMessage =
-          responseData.detail ||
-          responseData.error ||
-          responseData.code ||
-          "Project deletion failed";
-
-        toast.error(errorMessage, {
-          description: "Please check your input and try again.",
-        });
-      } else if (error.request) {
-        toast.error("Network error", {
-          description: "Please check your connection.",
-        });
-      } else {
-        toast.error("Project deletion failed", {
-          description: "Please try again later.",
-        });
-      }
+      handleApiError(
+        error,
+        "Project deletion failed",
+        "Please check your input and try again.",
+      );
     },
   });
 };
