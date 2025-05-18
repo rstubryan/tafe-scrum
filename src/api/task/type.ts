@@ -1,3 +1,28 @@
+export interface CreateTaskProps {
+  subject: string;
+  description?: string;
+  project?: number;
+  user_story?: number;
+  status?: number;
+  is_closed?: boolean;
+  assigned_to?: null | number;
+  milestone?: null | number;
+  is_blocked?: boolean;
+  blocked_note?: string;
+  tags?: Array<string>;
+  watchers?: number[];
+  due_date?: null | string;
+  us_order?: number;
+  taskboard_order?: number;
+  is_iocaine?: boolean;
+  version?: number;
+}
+
+export interface UpdateTaskProps extends CreateTaskProps {
+  id?: number;
+  version?: number;
+}
+
 export interface TaskProps {
   id?: number;
   ref?: number;
@@ -71,33 +96,4 @@ export interface TaskProps {
   blocked_note_html?: string;
   description_html?: string;
   generated_user_stories?: null | never;
-}
-
-export interface TaskCreateEditProps {
-  subject: string;
-  description?: string;
-  project?: number;
-  user_story?: number;
-  status?: number;
-  is_closed?: boolean;
-  assigned_to?: null | number;
-  milestone?: null | number;
-  is_blocked?: boolean;
-  blocked_note?: string;
-  tags?: Array<string>;
-  watchers?: number[];
-  due_date?: null | string;
-  us_order?: number;
-  taskboard_order?: number;
-  is_iocaine?: boolean;
-  version?: number;
-}
-
-export interface TaskApiRequest {
-  data?: TaskCreateEditProps;
-}
-
-export interface TaskApiUpdateRequest {
-  data?: Partial<TaskCreateEditProps>;
-  urlParams: { id: string };
 }

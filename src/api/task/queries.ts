@@ -1,0 +1,62 @@
+import { useQuery } from "@tanstack/react-query";
+import { taskApi } from "@/api/task/api";
+
+export const useGetAllTasks = () => {
+  return useQuery({
+    queryKey: ["tasks"],
+    queryFn: () => taskApi.getAllTasks(),
+  });
+};
+
+export const useGetTaskById = (id: string) => {
+  return useQuery({
+    queryKey: ["task", id],
+    queryFn: () => taskApi.getTaskById({ urlParams: { id } }),
+    enabled: !!id,
+  });
+};
+
+export const useGetTaskByProjectId = (projectId: string) => {
+  return useQuery({
+    queryKey: ["tasks", projectId],
+    queryFn: () => taskApi.getTaskByProjectId({ urlParams: { projectId } }),
+    enabled: !!projectId,
+  });
+};
+
+export const useGetTaskByUserStoryId = (userStoryId: string) => {
+  return useQuery({
+    queryKey: ["tasks", userStoryId],
+    queryFn: () => taskApi.getTaskByUserStoryId({ urlParams: { userStoryId } }),
+    enabled: !!userStoryId,
+  });
+};
+
+export const useGetTaskByProjectIdAndUserStoryId = (
+  projectId: string,
+  userStoryId: string,
+) => {
+  return useQuery({
+    queryKey: ["tasks", projectId, userStoryId],
+    queryFn: () =>
+      taskApi.getTaskByProjectIdAndUserStoryId({
+        urlParams: { projectId, userStoryId },
+      }),
+    enabled: !!projectId && !!userStoryId,
+  });
+};
+
+export const useGetTaskByRefWithProjectIdAndUserStoryId = (
+  projectId: string,
+  userStoryId: string,
+  ref: string,
+) => {
+  return useQuery({
+    queryKey: ["tasks", projectId, userStoryId, ref],
+    queryFn: () =>
+      taskApi.getTaskByRefWithProjectIdAndUserStoryId({
+        urlParams: { projectId, userStoryId, ref },
+      }),
+    enabled: !!projectId && !!userStoryId && !!ref,
+  });
+};
