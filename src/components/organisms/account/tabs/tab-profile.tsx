@@ -68,7 +68,13 @@ export default function TabProfile() {
 
   useEffect(() => {
     if (data && !isLoading) {
-      const userData = (data as ResponseProps<UserProps>).data || data;
+      let userData: UserProps;
+
+      if ("data" in data) {
+        userData = (data as ResponseProps<UserProps>).data as UserProps;
+      } else {
+        userData = data as UserProps;
+      }
 
       form.setValue("username", userData?.username || "");
       form.setValue("email", userData?.email || "");
@@ -78,7 +84,15 @@ export default function TabProfile() {
   }, [data, isLoading, form]);
 
   const onSubmit = (values: z.infer<typeof profileFormSchema>) => {
-    const userData = (data as ResponseProps<UserProps>).data || data;
+    if (!data) return;
+
+    let userData: UserProps;
+
+    if ("data" in data) {
+      userData = (data as ResponseProps<UserProps>).data as UserProps;
+    } else {
+      userData = data as UserProps;
+    }
 
     updateProfile({
       id: userData?.id,
@@ -88,7 +102,15 @@ export default function TabProfile() {
   };
 
   const handleDeleteAccount = () => {
-    const userData = (data as ResponseProps<UserProps>).data || data;
+    if (!data) return;
+
+    let userData: UserProps;
+
+    if ("data" in data) {
+      userData = (data as ResponseProps<UserProps>).data as UserProps;
+    } else {
+      userData = data as UserProps;
+    }
 
     if (userData?.id) {
       deleteAccount(userData.id.toString(), {});
