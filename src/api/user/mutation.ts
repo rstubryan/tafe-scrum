@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { toast } from "sonner";
 import { userApi } from "@/api/user/api";
-import { UserEditProfileProps, ChangePasswordProps } from "@/api/user/type";
+import { EditUserProfileProps, ChangePasswordProps } from "@/api/user/type";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 import { handleApiError } from "@/api/base/axios-error";
@@ -11,7 +11,7 @@ export const useEditUserInfo = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: UserEditProfileProps) => {
+    mutationFn: (data: EditUserProfileProps) => {
       if (!data.id) {
         throw new Error("User ID is required for profile update");
       }

@@ -1,9 +1,9 @@
 import { createApiRequest } from "../base/api-factory";
 import {
   UserProps,
-  UserEditProfileProps,
+  EditUserProfileProps,
   ChangePasswordProps,
-  UserDeleteAccountProps,
+  DeleteUserAccountProps,
 } from "./type";
 import type { ResponseProps } from "../base/global-type";
 
@@ -21,7 +21,7 @@ export const userApi = {
   }),
 
   updateUserProfile: createApiRequest<
-    UserEditProfileProps,
+    EditUserProfileProps,
     ResponseProps<UserProps>
   >({
     endpoint: `${BASE_URL}/{id}`,
@@ -41,7 +41,7 @@ export const userApi = {
     method: "POST",
   }),
 
-  deleteAccount: createApiRequest<UserDeleteAccountProps, ResponseProps<null>>({
+  deleteAccount: createApiRequest<DeleteUserAccountProps, ResponseProps<null>>({
     endpoint: `${BASE_URL}/{id}`,
     method: "DELETE",
     extraConfig: ({ urlParams }) => ({
