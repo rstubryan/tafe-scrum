@@ -1,4 +1,4 @@
-export interface ProjectCreateProps {
+export interface CreateProjectProps {
   name?: string;
   slug?: string;
   description?: string;
@@ -15,11 +15,11 @@ export interface ProjectCreateProps {
   creation_template?: number;
 }
 
-export interface ProjectEditProps extends ProjectCreateProps {
+export interface ProjectEditProps extends CreateProjectProps {
   id?: number;
 }
 
-export interface ProjectResponseProps {
+export interface ProjectProps {
   id?: number;
   name?: string;
   slug?: string;
@@ -86,13 +86,4 @@ export interface ProjectResponseProps {
   logo_big_url?: string | null;
   is_fan?: boolean;
   my_homepage?: boolean;
-}
-
-export interface ProjectApiRequest {
-  data?: ProjectCreateProps;
-}
-
-export interface ProjectApiUpdateRequest {
-  data?: Partial<ProjectEditProps>;
-  urlParams: { id: string };
 }

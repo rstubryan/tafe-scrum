@@ -12,11 +12,11 @@ import {
 import ProjectForm from "@/components/organisms/project/form/project-form";
 import { Edit, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { ProjectResponseProps } from "@/api/project/type";
+import { ProjectProps } from "@/api/project/type";
 
 interface DialogProjectProps {
   mode: "create" | "edit";
-  project?: ProjectResponseProps;
+  project?: ProjectProps;
   trigger?: React.ReactNode;
 }
 

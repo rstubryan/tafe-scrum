@@ -1,7 +1,7 @@
 import { createApiRequest } from "../base/api-factory";
 import type {
-  ProjectResponseProps,
-  ProjectCreateProps,
+  ProjectProps,
+  CreateProjectProps,
   ProjectEditProps,
 } from "./type";
 import type { ResponseProps } from "../base/global-type";
@@ -9,17 +9,12 @@ import type { ResponseProps } from "../base/global-type";
 const BASE_URL = `/projects`;
 
 export const projectApi = {
-  getAllProjects: createApiRequest<void, ResponseProps<ProjectResponseProps[]>>(
-    {
-      endpoint: `${BASE_URL}`,
-      method: "GET",
-    },
-  ),
+  getAllProjects: createApiRequest<void, ResponseProps<ProjectProps[]>>({
+    endpoint: `${BASE_URL}`,
+    method: "GET",
+  }),
 
-  getProjectDiscover: createApiRequest<
-    void,
-    ResponseProps<ProjectResponseProps[]>
-  >({
+  getProjectDiscover: createApiRequest<void, ResponseProps<ProjectProps[]>>({
     endpoint: `${BASE_URL}`,
     method: "GET",
     extraConfig: () => ({
@@ -31,7 +26,7 @@ export const projectApi = {
 
   getProjectsByUser: createApiRequest<
     { urlParams: { memberId: string } },
-    ResponseProps<ProjectResponseProps[]>
+    ResponseProps<ProjectProps[]>
   >({
     endpoint: `${BASE_URL}`,
     method: "GET",
@@ -44,7 +39,7 @@ export const projectApi = {
 
   getProjectBySlug: createApiRequest<
     { urlParams: { slug: string } },
-    ProjectResponseProps
+    ProjectProps
   >({
     endpoint: `${BASE_URL}/by_slug`,
     method: "GET",
@@ -57,7 +52,7 @@ export const projectApi = {
 
   getProjectById: createApiRequest<
     { urlParams: { id: string } },
-    ResponseProps<ProjectResponseProps>
+    ResponseProps<ProjectProps>
   >({
     endpoint: `${BASE_URL}/{id}`,
     method: "GET",
@@ -69,8 +64,8 @@ export const projectApi = {
   }),
 
   createProject: createApiRequest<
-    ProjectCreateProps,
-    ResponseProps<ProjectResponseProps>
+    CreateProjectProps,
+    ResponseProps<ProjectProps>
   >({
     endpoint: `${BASE_URL}`,
     method: "POST",
@@ -78,7 +73,7 @@ export const projectApi = {
 
   updateProject: createApiRequest<
     Partial<ProjectEditProps>,
-    ResponseProps<ProjectResponseProps>
+    ResponseProps<ProjectProps>
   >({
     endpoint: `${BASE_URL}/{id}`,
     method: "PATCH",

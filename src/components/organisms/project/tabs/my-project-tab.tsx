@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { LoaderCircle, Eye, Pencil, Trash2 } from "lucide-react";
-import { ProjectResponseProps } from "@/api/project/type";
+import { ProjectProps } from "@/api/project/type";
 import { PaginationLayout } from "@/components/templates/layout/pagination-layout";
 import { useGetProjectsByUser } from "@/api/project/queries";
 import { useDeleteProject } from "@/api/project/mutation";
@@ -100,7 +100,7 @@ export default function MyProjectTab() {
   return (
     <>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 my-3">
-        {paginatedProjects.map((project: ProjectResponseProps) => (
+        {paginatedProjects.map((project: ProjectProps) => (
           <div
             key={project.id}
             className="bg-card text-card-foreground rounded-lg border shadow-sm flex h-full flex-col"

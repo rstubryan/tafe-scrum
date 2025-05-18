@@ -28,7 +28,7 @@ import { useGetProjectsByUser } from "@/api/project/queries";
 import { UserProps } from "@/api/user/type";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import { useState, useEffect } from "react";
-import { ProjectResponseProps } from "@/api/project/type";
+import { ProjectProps } from "@/api/project/type";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const params = useParams();
@@ -81,9 +81,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       }[];
     }
 
-    return myProjects.map((project: ProjectResponseProps) => ({
+    return myProjects.map((project: ProjectProps) => ({
       name: project.name,
-      logo: GalleryVerticalEnd, // Default icon
+      logo: GalleryVerticalEnd,
       plan: project.is_private ? "Private" : "Public",
       slug: project.slug,
     }));
