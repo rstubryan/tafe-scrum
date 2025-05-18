@@ -2,14 +2,15 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { toast } from "sonner";
 import { projectApi } from "@/api/project/api";
-import { EditProjectProps, ProjectProps } from "@/api/project/type";
+import { CreateProjectProps, EditProjectProps } from "@/api/project/type";
 import { handleApiError } from "@/api/base/axios-error";
 
 export const useCreateProject = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: ProjectProps) => projectApi.createProject({ data }),
+    mutationFn: (data: CreateProjectProps) =>
+      projectApi.createProject({ data }),
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["projects-by-user"] });
       queryClient.invalidateQueries({ queryKey: ["projects-discover"] });
