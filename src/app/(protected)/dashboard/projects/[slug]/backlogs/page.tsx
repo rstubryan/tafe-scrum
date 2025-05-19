@@ -1,5 +1,6 @@
 import MainContent from "@/components/templates/content/main-content";
 import HeadContent from "@/components/molecules/head-content/head-content";
+import BacklogContent from "@/components/organisms/backlog/backlog-content";
 
 export default function BacklogsPage() {
   return (
@@ -11,6 +12,7 @@ export default function BacklogsPage() {
             description={"Create and manage user stories for your project."}
           />
         </section>
+        <BacklogContent />
       </MainContent>
     </div>
   );

@@ -6,7 +6,7 @@ import type {
 } from "./type";
 import type { ResponseProps } from "../base/global-type";
 
-const BASE_URL = `/user_stories`;
+const BASE_URL = `/userstories`;
 
 export const userStoryApi = {
   getAllUserStories: createApiRequest<void, ResponseProps<UserStoryProps[]>>({
@@ -23,6 +23,19 @@ export const userStoryApi = {
     extraConfig: ({ urlParams }) => ({
       params: {
         id: urlParams?.id,
+      },
+    }),
+  }),
+
+  getUserStoryByProjectId: createApiRequest<
+    { urlParams: { projectId: string } },
+    ResponseProps<UserStoryProps[]>
+  >({
+    endpoint: `${BASE_URL}`,
+    method: "GET",
+    extraConfig: ({ urlParams }) => ({
+      params: {
+        project: urlParams?.projectId,
       },
     }),
   }),
