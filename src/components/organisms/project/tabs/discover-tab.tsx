@@ -24,6 +24,14 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Typography } from "@/components/atoms/typography/typography";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
 export default function DiscoverTab() {
   const { data: discoverProjects, isLoading: isLoadingDiscoverProjects } =
@@ -83,11 +91,8 @@ export default function DiscoverTab() {
     <>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 my-3">
         {paginatedProjects.map((project: ProjectProps) => (
-          <div
-            key={project.id}
-            className="bg-card text-card-foreground rounded-lg border shadow-sm flex h-full flex-col"
-          >
-            <div className="flex flex-col space-y-1.5 p-6 pb-0">
+          <Card key={project.id} className="flex h-full flex-col">
+            <CardHeader className="pb-0">
               <div className="flex items-center gap-2">
                 <div className="relative flex size-10 shrink-0 overflow-hidden h-10 w-10 rounded-md">
                   <span className="flex h-full w-full items-center justify-center rounded-md bg-primary/10 font-bold text-primary">
@@ -98,14 +103,8 @@ export default function DiscoverTab() {
                   </span>
                 </div>
                 <div>
-                  <div
-                    role="heading"
-                    aria-level={3}
-                    className="text-2xl font-semibold leading-none tracking-tight line-clamp-1"
-                  >
-                    {project.name}
-                  </div>
-                  <Typography className="flex gap-1 text-xs text-muted-foreground">
+                  <CardTitle className="line-clamp-1">{project.name}</CardTitle>
+                  <CardDescription className="flex gap-1">
                     {project.is_private && (
                       <span className="text-amber-500">Private</span>
                     )}
@@ -113,12 +112,12 @@ export default function DiscoverTab() {
                     <span className="font-medium">
                       {project.i_am_owner ? "Owner" : "Member"}
                     </span>
-                  </Typography>
+                  </CardDescription>
                 </div>
               </div>
-            </div>
+            </CardHeader>
 
-            <div className="p-6 flex-1">
+            <CardContent className="flex-1">
               <Typography className="mb-2 line-clamp-2 text-sm text-muted-foreground">
                 {project.description || "No description"}
               </Typography>
@@ -137,9 +136,9 @@ export default function DiscoverTab() {
                     : "No tags available"}
                 </Typography>
               </div>
-            </div>
+            </CardContent>
 
-            <div className="flex items-center p-6 pt-0">
+            <CardFooter className="pt-0">
               <div className="grid grid-cols-1 sm:grid-cols-3 w-full gap-2">
                 <Link
                   href={`/dashboard/projects/${project.slug}`}
@@ -207,8 +206,8 @@ export default function DiscoverTab() {
                   </div>
                 )}
               </div>
-            </div>
-          </div>
+            </CardFooter>
+          </Card>
         ))}
       </div>
       {totalPages > 1 && (
