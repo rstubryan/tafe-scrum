@@ -1,6 +1,6 @@
 import MainContent from "@/components/templates/content/main-content";
 import HeadContent from "@/components/molecules/head-content/head-content";
-import SlugBacklogContent from "@/components/organisms/slug-content/backlog/slug-backlog";
+import SlugBacklogContent from "@/components/organisms/slug-content/backlog/slug-backlog-content";
 
 export default function BacklogsDetailPage() {
   return (

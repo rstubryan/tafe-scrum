@@ -11,7 +11,9 @@ export const useCreateTask = () => {
   return useMutation({
     mutationFn: (data: CreateTaskProps) => taskApi.createTask({ data }),
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ["tasks"] });
+      queryClient.invalidateQueries({
+        queryKey: ["task-by-project-id-and-user-story-id"],
+      });
       toast.success("Task created successfully");
       return data;
     },
@@ -42,7 +44,9 @@ export const useEditTask = () => {
       });
     },
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ["tasks"] });
+      queryClient.invalidateQueries({
+        queryKey: ["task-by-project-id-and-user-story-id"],
+      });
       toast.success("Task updated successfully");
       return data;
     },
@@ -62,7 +66,9 @@ export const useDeleteTask = () => {
   return useMutation({
     mutationFn: (id: string) => taskApi.deleteTask({ urlParams: { id } }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["tasks"] });
+      queryClient.invalidateQueries({
+        queryKey: ["task-by-project-id-and-user-story-id"],
+      });
       toast.success("Task deleted successfully");
     },
     onError: (error: AxiosError) => {

@@ -1,4 +1,3 @@
-// First, let's modify the schema to use string[] for form handling
 import { z } from "zod";
 import { FormFieldDefinition } from "@/api/base/global-type";
 
