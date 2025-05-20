@@ -47,6 +47,9 @@ export const useEditUserStory = () => {
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["user-stories-by-project"] });
+      queryClient.invalidateQueries({
+        queryKey: ["user-story-by-ref-and-project"],
+      });
       toast.success("User story updated successfully");
       return data;
     },

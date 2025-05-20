@@ -21,7 +21,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import SlugBacklogDialog from "./dialog/backlog/slug-backlog-dialog";
+import SlugTaskDialog from "./dialog/task/slug-task-dialog";
 
 interface SlugBacklogTaskProps {
   projectId: string;
@@ -76,7 +76,7 @@ export default function SlugBacklogTask({
           Tasks ({taskCount})
         </p>
 
-        <SlugBacklogDialog
+        <SlugTaskDialog
           mode="create"
           userStoryId={userStoryId}
           trigger={
@@ -160,7 +160,7 @@ export default function SlugBacklogTask({
                     </div>
                   </div>
                   <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    <SlugBacklogDialog
+                    <SlugTaskDialog
                       mode="edit"
                       task={task}
                       userStoryId={userStoryId}

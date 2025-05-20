@@ -10,6 +10,9 @@ import { useGetUserStoryByRefAndProjectId } from "@/api/backlog-us/queries";
 import { formatDate } from "@/utils";
 import SlugBacklogTask from "@/components/organisms/slug-content/backlog/slug-backlog-task";
 import { Separator } from "@/components/ui/separator";
+import { Button } from "@/components/ui/button";
+import { Pencil } from "lucide-react";
+import SlugBacklogDialog from "@/components/organisms/slug-content/backlog/dialog/backlog/slug-backlog-dialog";
 
 export default function SlugBacklogContent() {
   const params = useParams();
@@ -40,38 +43,50 @@ export default function SlugBacklogContent() {
     <div className="grid auto-rows-min">
       <Card className="my-6">
         <CardHeader className="pb-0">
-          <div className="flex items-center gap-2">
-            <div
-              className="flex h-10 w-10 items-center justify-center rounded-md"
-              style={{
-                backgroundColor:
-                  userStory.status_extra_info?.color || "#70728F",
-              }}
-            >
-              <Typography className="font-bold text-white">
-                #{userStory.ref}
-              </Typography>
-            </div>
-            <div>
-              <CardTitle className="line-clamp-1">
-                {userStory.subject}
-              </CardTitle>
-              <CardContent className="p-0">
-                <Typography className="flex gap-1 text-xs text-muted-foreground">
-                  <span
-                    style={{
-                      color: userStory.status_extra_info?.color || "#70728F",
-                    }}
-                  >
-                    {userStory.status_extra_info?.name || "New"}
-                  </span>
-                  <span>•</span>
-                  <span className="font-medium">
-                    {userStory.is_closed ? "Closed" : "Open"}
-                  </span>
+          <div className="flex items-center justify-between w-full">
+            <div className="flex items-center gap-2">
+              <div
+                className="flex h-10 w-10 items-center justify-center rounded-md"
+                style={{
+                  backgroundColor:
+                    userStory.status_extra_info?.color || "#70728F",
+                }}
+              >
+                <Typography className="font-bold text-white">
+                  #{userStory.ref}
                 </Typography>
-              </CardContent>
+              </div>
+              <div>
+                <CardTitle className="line-clamp-1">
+                  {userStory.subject}
+                </CardTitle>
+                <CardContent className="p-0">
+                  <Typography className="flex gap-1 text-xs text-muted-foreground">
+                    <span
+                      style={{
+                        color: userStory.status_extra_info?.color || "#70728F",
+                      }}
+                    >
+                      {userStory.status_extra_info?.name || "New"}
+                    </span>
+                    <span>•</span>
+                    <span className="font-medium">
+                      {userStory.is_closed ? "Closed" : "Open"}
+                    </span>
+                  </Typography>
+                </CardContent>
+              </div>
             </div>
+            <SlugBacklogDialog
+              trigger={
+                <Button variant="outline" size="sm">
+                  <Pencil className="h-4 w-4 mr-1" />
+                  Edit
+                </Button>
+              }
+              mode="edit"
+              userStory={userStory}
+            />
           </div>
         </CardHeader>
 
@@ -97,6 +112,13 @@ export default function SlugBacklogContent() {
                 {userStory.due_date
                   ? formatDate(userStory.due_date)
                   : "Not available"}
+              </span>
+              <span>•</span>
+              <span>
+                Assigned to:{" "}
+                {userStory.assigned_to_extra_info
+                  ? userStory.assigned_to_extra_info.full_name_display
+                  : "No reason provided"}
               </span>
             </div>
 

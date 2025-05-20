@@ -48,3 +48,50 @@ export const userStoryFormFields: FormFieldDefinition<
     required: false,
   },
 ];
+
+export const userStoryDetailFormSchema = z.object({
+  description: z.string().optional(),
+  project_id: z.string(),
+  version: z.string().optional(),
+  assigned_to: z.string().optional(),
+  assigned_users: z.array(z.string()).optional(),
+});
+
+export type UserStoryDetailFormSchema = typeof userStoryDetailFormSchema;
+
+export const userStoryDetailFormFields: FormFieldDefinition<
+  typeof userStoryDetailFormSchema
+>[] = [
+  {
+    name: "project_id",
+    label: "Project ID",
+    type: "text",
+    required: true,
+    hidden: true,
+  },
+  {
+    name: "version",
+    label: "Version",
+    type: "text",
+    required: false,
+    hidden: true,
+  },
+  {
+    name: "description",
+    label: "Description",
+    type: "textarea",
+    required: false,
+  },
+  {
+    name: "assigned_to",
+    label: "Assigned To",
+    type: "select",
+    required: false,
+  },
+  {
+    name: "assigned_users",
+    label: "Assigned Users",
+    type: "multi-select",
+    required: false,
+  },
+];

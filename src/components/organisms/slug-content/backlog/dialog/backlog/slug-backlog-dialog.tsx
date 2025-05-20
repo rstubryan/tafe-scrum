@@ -9,16 +9,15 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { TaskProps } from "@/api/task/type";
-import SlugTaskForm from "@/components/organisms/slug-content/backlog/form/task/slug-task-form";
+import { UserStoryProps } from "@/api/backlog-us/type";
+import SlugBacklogForm from "@/components/organisms/slug-content/backlog/form/backlog/slug-backlog-form";
 
 interface SlugBacklogDialogProps {
   trigger: ReactNode;
   title?: string;
   description?: string;
   mode: "create" | "edit";
-  task?: TaskProps;
-  userStoryId: string;
+  userStory?: UserStoryProps;
   onSuccess?: () => void;
 }
 
@@ -27,8 +26,7 @@ export default function SlugBacklogDialog({
   title,
   description,
   mode,
-  task,
-  userStoryId,
+  userStory,
   onSuccess,
 }: SlugBacklogDialogProps) {
   const [open, setOpen] = useState(false);
@@ -42,8 +40,8 @@ export default function SlugBacklogDialog({
 
   const defaultDescription =
     mode === "create"
-      ? "Fill in the details below to create a new task."
-      : "Update the details of your task.";
+      ? "Fill in the details below to create a new user story."
+      : "Update the details of your user story.";
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -51,17 +49,17 @@ export default function SlugBacklogDialog({
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>
-            {title || (mode === "create" ? "Create Task" : "Edit Task")}
+            {title ||
+              (mode === "create" ? "Create User Story" : "Edit User Story")}
           </DialogTitle>
           <DialogDescription>
             {description || defaultDescription}
           </DialogDescription>
         </DialogHeader>
-        <SlugTaskForm
+        <SlugBacklogForm
           onSuccess={handleSuccess}
-          task={task}
+          userStory={userStory}
           mode={mode}
-          userStoryId={userStoryId}
         />
       </DialogContent>
     </Dialog>
