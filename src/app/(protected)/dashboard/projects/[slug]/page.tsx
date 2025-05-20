@@ -1,5 +1,5 @@
 import MainContent from "@/components/templates/content/main-content";
-import TimelineProject from "@/components/templates/slug-content/project/timeline-project";
+import TimelineProject from "@/components/organisms/slug-content/project/timeline-project";
 import HeadContent from "@/components/molecules/head-content/head-content";
 
 export default function TimelinePage() {
