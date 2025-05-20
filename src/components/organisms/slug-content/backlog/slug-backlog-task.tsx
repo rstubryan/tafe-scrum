@@ -52,7 +52,7 @@ export default function SlugBacklogTask({
   }
 
   return (
-    <div className="mt-8">
+    <div className="mt-6">
       <div className="mb-4 flex items-center justify-between">
         <p className="text-primary text-2xl font-semibold tracking-tight scroll-m-20">
           Tasks ({taskCount})
@@ -80,9 +80,9 @@ export default function SlugBacklogTask({
           </p>
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {tasks.map((task: TaskProps) => (
-            <Card key={task.id}>
+            <Card key={task.id} className="flex flex-col h-full">
               <CardHeader className="pb-0">
                 <div className="flex items-center gap-2">
                   <div
@@ -118,9 +118,9 @@ export default function SlugBacklogTask({
                   </div>
                 </div>
               </CardHeader>
-              <CardContent>
+              <CardContent className="flex-1">
                 <div className="mt-2 text-xs text-muted-foreground">
-                  <div className="mb-2 grid grid-cols-2 gap-2 text-sm">
+                  <div className="mb-2 grid grid-cols-1 gap-1 text-sm">
                     <div>
                       <span className="font-semibold">Created:</span>{" "}
                       {task.created_date
@@ -136,13 +136,12 @@ export default function SlugBacklogTask({
                       {task.assigned_to_extra_info?.full_name_display ||
                         "Unassigned"}
                     </div>
-                    <div>
+                    <div className="truncate">
                       <span className="font-semibold">User Story:</span>{" "}
                       {task.user_story_extra_info?.subject || "N/A"}
                     </div>
                   </div>
-
-                  <div className="mt-4 flex gap-2">
+                  <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-2">
                     <SlugBacklogDialog
                       mode="edit"
                       task={task}
@@ -150,10 +149,11 @@ export default function SlugBacklogTask({
                       trigger={
                         <Button
                           variant="outline"
-                          className="inline-flex items-center justify-center gap-2"
+                          className="inline-flex items-center justify-center gap-2 w-full"
                           size="sm"
                         >
-                          <Pencil className="size-4" />
+                          <Pencil />
+                          <span className="sm:hidden inline">Edit</span>
                         </Button>
                       }
                     />
@@ -163,9 +163,10 @@ export default function SlugBacklogTask({
                         <Button
                           variant="outline"
                           size="sm"
-                          className="inline-flex items-center justify-center gap-2"
+                          className="inline-flex items-center justify-center gap-2 w-full"
                         >
-                          <Trash2 className="size-4" />
+                          <Trash2 />
+                          <span className="sm:hidden inline">Delete</span>
                         </Button>
                       </AlertDialogTrigger>
                       <AlertDialogContent>
@@ -174,8 +175,7 @@ export default function SlugBacklogTask({
                           <AlertDialogDescription>
                             Are you sure you want to delete{" "}
                             <span className="font-bold">
-                              &#34;{task.subject}
-                              &#34;
+                              &#34;{task.subject}&#34;
                             </span>
                             ? This action cannot be undone and will permanently
                             remove this task.
@@ -191,7 +191,7 @@ export default function SlugBacklogTask({
                         </AlertDialogFooter>
                       </AlertDialogContent>
                     </AlertDialog>
-                  </div>
+                  </div>{" "}
                 </div>
               </CardContent>
             </Card>
