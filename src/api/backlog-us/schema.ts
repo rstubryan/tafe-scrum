@@ -1,3 +1,4 @@
+// First, let's modify the schema to use string[] for form handling
 import { z } from "zod";
 import { FormFieldDefinition } from "@/api/base/global-type";
 
@@ -8,6 +9,19 @@ export const userStoryFormSchema = z.object({
     .max(50, { message: "Subject must be at most 50 characters long" }),
   project_id: z.string(),
   version: z.string().optional(),
+  due_date: z
+    .string()
+    .optional()
+    .refine(
+      (date) => {
+        if (!date) return true;
+        const parsedDate = new Date(date);
+        return !isNaN(parsedDate.getTime());
+      },
+      { message: "Invalid date format" },
+    ),
+  assigned_to: z.string().optional(),
+  assigned_users: z.array(z.string()).optional(),
 });
 
 export type UserStoryFormSchema = typeof userStoryFormSchema;
@@ -29,5 +43,23 @@ export const userStoryFormFields: FormFieldDefinition<
     type: "text",
     required: false,
     hidden: true,
+  },
+  {
+    name: "due_date",
+    label: "Due Date",
+    type: "date",
+    required: false,
+  },
+  {
+    name: "assigned_to",
+    label: "Assigned To",
+    type: "select",
+    required: false,
+  },
+  {
+    name: "assigned_users",
+    label: "Assigned Users",
+    type: "multi-select",
+    required: false,
   },
 ];

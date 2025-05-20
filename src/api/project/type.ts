@@ -19,6 +19,19 @@ export interface EditProjectProps extends CreateProjectProps {
   id?: number;
 }
 
+export interface ProjectMember {
+  role: number;
+  role_name: string;
+  full_name: string;
+  full_name_display: string;
+  is_active: boolean;
+  id: number;
+  color: string;
+  username: string;
+  photo: string | null;
+  gravatar_id: string;
+}
+
 export interface ProjectProps {
   id?: number;
   name?: string;
@@ -35,7 +48,7 @@ export interface ProjectProps {
     is_active?: boolean;
     id?: number;
   };
-  members?: number[];
+  members?: ProjectMember[];
   total_milestones?: number | null;
   total_story_points?: number | null;
   is_contact_activated?: boolean;

@@ -21,6 +21,9 @@ export interface CreateUserStoryProps {
 export interface EditUserStoryProps extends CreateUserStoryProps {
   id?: number;
   version?: number;
+  due_date?: string | null;
+  assigned_to?: number | null;
+  assigned_users?: number[];
 }
 
 export interface UserStoryProps {
