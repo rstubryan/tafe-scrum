@@ -1,6 +1,9 @@
 import MainContent from "@/components/templates/content/main-content";
 import HeadContent from "@/components/molecules/head-content/head-content";
 import BacklogContent from "@/components/organisms/backlog/backlog-content";
+import BacklogDialog from "@/components/organisms/backlog/backlog-dialog";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
 
 export default function BacklogsPage() {
   return (
@@ -10,6 +13,16 @@ export default function BacklogsPage() {
           <HeadContent
             title={"User Stories"}
             description={"Create and manage user stories for your project."}
+          />
+
+          <BacklogDialog
+            mode="create"
+            trigger={
+              <Button className="sm:w-auto w-full">
+                <Plus className="size-4 mr-2" />
+                Create User Story
+              </Button>
+            }
           />
         </section>
         <BacklogContent />

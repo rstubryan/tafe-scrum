@@ -17,9 +17,22 @@ import { Button } from "@/components/ui/button";
 import { Eye, Pencil, Trash2 } from "lucide-react";
 import { useGetProjectBySlug } from "@/api/project/queries";
 import { useGetUserStoryByProjectId } from "@/api/backlog-us/queries";
+import { useDeleteUserStory } from "@/api/backlog-us/mutation";
 import { UserStoryProps } from "@/api/backlog-us/type";
 import { getInitials } from "@/utils/avatar-initials";
 import { formatDate } from "@/utils";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import BacklogDialog from "@/components/organisms/backlog/backlog-dialog";
 
 export default function BacklogContent() {
   const params = useParams();
@@ -31,6 +44,7 @@ export default function BacklogContent() {
   const { data: userStories, isLoading } = useGetUserStoryByProjectId(
     project?.id?.toString() || "",
   );
+  const { mutate: deleteUserStory } = useDeleteUserStory();
 
   const userStoriesArray = Array.isArray(userStories) ? userStories : [];
 
@@ -47,6 +61,12 @@ export default function BacklogContent() {
       setCurrentPage(1);
     }
   }, [userStories]);
+
+  const handleDeleteUserStory = (storyId: number | undefined) => {
+    if (storyId) {
+      deleteUserStory({ id: storyId });
+    }
+  };
 
   if (isLoading) {
     return (
@@ -170,26 +190,60 @@ export default function BacklogContent() {
                   </Link>
 
                   <div className="grid grid-cols-2 gap-2">
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      className="h-10 w-full"
-                    >
-                      <Typography className="sr-only">Edit</Typography>
-                      <Pencil className="size-4" />
-                    </Button>
+                    <BacklogDialog
+                      mode="edit"
+                      userStory={story}
+                      trigger={
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          className="h-10 w-full"
+                        >
+                          <Typography className="sr-only">Edit</Typography>
+                          <Pencil className="size-4" />
+                        </Button>
+                      }
+                    />
 
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      className="h-10 w-full"
-                    >
-                      <Typography className="sr-only">Delete</Typography>
-                      <Trash2 className="size-4" />
-                    </Button>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          className="h-10 w-full"
+                        >
+                          <Typography className="sr-only">Delete</Typography>
+                          <Trash2 className="size-4" />
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Delete User Story</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Are you sure you want to delete{" "}
+                            <span className="font-bold">
+                              &#34;{story.subject}
+                              &#34;
+                            </span>
+                            ? This action cannot be undone and will permanently
+                            remove this user story.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={() =>
+                              story.id && handleDeleteUserStory(story.id)
+                            }
+                          >
+                            Delete
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
                   </div>
                 </div>
-              </CardFooter>{" "}
+              </CardFooter>
             </Card>
           ))
         ) : (

@@ -15,7 +15,7 @@ export const useCreateUserStory = () => {
     mutationFn: (data: CreateUserStoryProps) =>
       userStoryApi.createUserStory({ data }),
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ["user-stories"] });
+      queryClient.invalidateQueries({ queryKey: ["user-stories-by-project"] });
       toast.success("User story created successfully");
       return data;
     },
@@ -46,7 +46,7 @@ export const useEditUserStory = () => {
       });
     },
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ["user-stories"] });
+      queryClient.invalidateQueries({ queryKey: ["user-stories-by-project"] });
       toast.success("User story updated successfully");
       return data;
     },
@@ -76,7 +76,7 @@ export const useDeleteUserStory = () => {
       });
     },
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ["user-stories"] });
+      queryClient.invalidateQueries({ queryKey: ["user-stories-by-project"] });
       toast.success("User story deleted successfully");
       return data;
     },
