@@ -1,5 +1,6 @@
 import MainContent from "@/components/templates/content/main-content";
 import HeadContent from "@/components/molecules/head-content/head-content";
+import SlugBacklogContent from "@/components/organisms/slug-content/backlog/slug-backlog";
 
 export default function BacklogsDetailPage() {
   return (
@@ -11,6 +12,7 @@ export default function BacklogsDetailPage() {
             description={"View and manage the details of a user story."}
           />
         </section>
+        <SlugBacklogContent />
       </MainContent>
     </div>
   );

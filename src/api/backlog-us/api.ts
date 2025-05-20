@@ -40,14 +40,15 @@ export const userStoryApi = {
     }),
   }),
 
-  getUserStoryByRef: createApiRequest<
-    { urlParams: { ref: string } },
-    ResponseProps<UserStoryProps>
+  getUserStoryByRefAndProjectId: createApiRequest<
+    { urlParams: { ref: string; projectId: string } },
+    UserStoryProps
   >({
     endpoint: `${BASE_URL}/by_ref`,
     method: "GET",
     extraConfig: ({ urlParams }) => ({
       params: {
+        project: urlParams?.projectId,
         ref: urlParams?.ref,
       },
     }),

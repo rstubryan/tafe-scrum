@@ -25,10 +25,16 @@ export const useGetUserStoryByProjectId = (projectId: string) => {
   });
 };
 
-export const useGetUserStoryByRef = (ref: string) => {
+export const useGetUserStoryByRefAndProjectId = (
+  ref: string,
+  projectId: string,
+) => {
   return useQuery({
-    queryKey: ["user-story-by-ref", ref],
-    queryFn: () => userStoryApi.getUserStoryByRef({ urlParams: { ref } }),
-    enabled: !!ref,
+    queryKey: ["user-story-by-ref-and-project", ref, projectId],
+    queryFn: () =>
+      userStoryApi.getUserStoryByRefAndProjectId({
+        urlParams: { ref, projectId },
+      }),
+    enabled: !!ref && !!projectId,
   });
 };
