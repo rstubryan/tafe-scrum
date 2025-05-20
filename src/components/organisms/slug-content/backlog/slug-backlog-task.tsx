@@ -21,7 +21,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import SlugBacklogDialog from "./slug-backlog-dialog";
+import SlugBacklogDialog from "./dialog/backlog/slug-backlog-dialog";
 
 interface SlugBacklogTaskProps {
   projectId: string;

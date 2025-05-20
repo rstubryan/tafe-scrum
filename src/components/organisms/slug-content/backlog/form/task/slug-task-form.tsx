@@ -21,19 +21,19 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { useGetProjectBySlug } from "@/api/project/queries";
 
-interface SlugBacklogFormProps {
+interface SlugTaskFormProps {
   onSuccess?: () => void;
   task?: TaskProps;
   mode: "create" | "edit";
   userStoryId: string;
 }
 
-export default function SlugBacklogForm({
+export default function SlugTaskForm({
   onSuccess,
   task,
   mode,
   userStoryId,
-}: SlugBacklogFormProps) {
+}: SlugTaskFormProps) {
   const params = useParams();
   const slug = params.slug as string;
   const { data: project } = useGetProjectBySlug(slug);

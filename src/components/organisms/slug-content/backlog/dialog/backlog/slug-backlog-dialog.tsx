@@ -9,8 +9,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import SlugBacklogForm from "@/components/organisms/slug-content/backlog/form/slug-backlog-form";
 import { TaskProps } from "@/api/task/type";
+import SlugTaskForm from "@/components/organisms/slug-content/backlog/form/task/slug-task-form";
 
 interface SlugBacklogDialogProps {
   trigger: ReactNode;
@@ -57,7 +57,7 @@ export default function SlugBacklogDialog({
             {description || defaultDescription}
           </DialogDescription>
         </DialogHeader>
-        <SlugBacklogForm
+        <SlugTaskForm
           onSuccess={handleSuccess}
           task={task}
           mode={mode}
