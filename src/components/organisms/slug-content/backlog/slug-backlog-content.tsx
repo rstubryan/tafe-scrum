@@ -9,6 +9,7 @@ import { useGetProjectBySlug } from "@/api/project/queries";
 import { useGetUserStoryByRefAndProjectId } from "@/api/backlog-us/queries";
 import { formatDate } from "@/utils";
 import SlugBacklogTask from "@/components/organisms/slug-content/backlog/slug-backlog-task";
+import { Separator } from "@/components/ui/separator";
 
 export default function SlugBacklogContent() {
   const params = useParams();
@@ -119,6 +120,8 @@ export default function SlugBacklogContent() {
             <div className="prose mt-6 mb-6">
               {userStory.description || "No description available"}
             </div>
+
+            <Separator className="my-2" />
 
             <SlugBacklogTask
               projectId={project?.id?.toString() || ""}
