@@ -17,7 +17,7 @@ export default function SlugBacklogContent() {
   const slug = params.slug as string;
   const storyRef = params.id as string;
 
-  const [showCreateTaskDialog, setShowCreateTaskDialog] = useState(false);
+  const [, setShowCreateTaskDialog] = useState(false);
 
   const { data: project } = useGetProjectBySlug(slug);
   const { data: userStory, isLoading } = useGetUserStoryByRefAndProjectId(
@@ -147,7 +147,8 @@ export default function SlugBacklogContent() {
                     No tasks found for this user story
                   </p>
                   <p className="text-primary scroll-m-20 mt-1 muted text-sm">
-                    Click the "Create Task" button to add your first task
+                    Click the &#34;Create Task&#34; button to add your first
+                    task
                   </p>
                 </div>
               )}
