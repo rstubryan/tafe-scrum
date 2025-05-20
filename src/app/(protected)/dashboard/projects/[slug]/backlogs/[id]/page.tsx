@@ -1,11 +1,17 @@
-export default function BacklogPage() {
+import MainContent from "@/components/templates/content/main-content";
+import HeadContent from "@/components/molecules/head-content/head-content";
+
+export default function BacklogsDetailPage() {
   return (
     <div className="flex flex-col gap-4">
-      <h1 className="text-2xl font-bold">Backlog</h1>
-      <p className="text-sm text-muted-foreground">
-        Backlogs are a collection of tasks that need to be completed in a
-        project. They are used to prioritize and organize work.
-      </p>
+      <MainContent>
+        <section className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
+          <HeadContent
+            title={"User Stories Detail"}
+            description={"View and manage the details of a user story."}
+          />
+        </section>
+      </MainContent>
     </div>
   );
 }
