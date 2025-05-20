@@ -19,7 +19,7 @@ export default function BacklogsPage() {
             mode="create"
             trigger={
               <Button className="sm:w-auto w-full">
-                <Plus className="size-4 mr-2" />
+                <Plus />
                 Create User Story
               </Button>
             }
