@@ -60,7 +60,7 @@ export const issueApi = {
     ResponseProps<IssueProps>
   >({
     endpoint: `${BASE_URL}/{id}`,
-    method: "PUT",
+    method: "PATCH",
   }),
 
   deleteIssue: createApiRequest<void, ResponseProps<null>>({

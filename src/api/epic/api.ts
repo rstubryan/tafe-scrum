@@ -60,7 +60,7 @@ export const epicApi = {
     ResponseProps<EpicProps>
   >({
     endpoint: `${BASE_URL}/{id}`,
-    method: "PUT",
+    method: "PATCH",
     extraConfig: ({ urlParams }) => ({
       url: `${BASE_URL}/${urlParams?.id}`,
     }),

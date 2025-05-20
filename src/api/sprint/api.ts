@@ -48,7 +48,7 @@ export const sprintApi = {
     ResponseProps<SprintProps>
   >({
     endpoint: `${BASE_URL}/{id}`,
-    method: "PUT",
+    method: "PATCH",
     extraConfig: ({ urlParams }) => ({
       params: {
         id: urlParams?.id,

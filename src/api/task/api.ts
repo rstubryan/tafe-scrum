@@ -85,7 +85,7 @@ export const taskApi = {
     ResponseProps<TaskProps>
   >({
     endpoint: `${BASE_URL}/{id}`,
-    method: "PUT",
+    method: "PATCH",
     extraConfig: ({ urlParams }) => ({
       url: `${BASE_URL}/${urlParams?.id}`,
     }),
