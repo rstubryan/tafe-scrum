@@ -56,6 +56,7 @@ export const taskApi = {
       params: {
         project: urlParams?.projectId,
         user_story: urlParams?.userStoryId,
+        order_by: "us_order",
       },
     }),
   }),

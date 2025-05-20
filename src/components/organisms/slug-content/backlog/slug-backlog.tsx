@@ -1,15 +1,15 @@
 "use client";
 
 import { useParams } from "next/navigation";
-import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Typography } from "@/components/atoms/typography/typography";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { Plus, Pencil, Trash2 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getInitials } from "@/utils/avatar-initials";
 import { useGetProjectBySlug } from "@/api/project/queries";
 import { useGetUserStoryByRefAndProjectId } from "@/api/backlog-us/queries";
+import { useGetTaskByProjectIdAndUserStoryId } from "@/api/task/queries";
 import { formatDate } from "@/utils";
 
 export default function SlugBacklogContent() {
@@ -17,13 +17,21 @@ export default function SlugBacklogContent() {
   const slug = params.slug as string;
   const storyRef = params.id as string;
 
-  const [, setShowCreateTaskDialog] = useState(false);
-
   const { data: project } = useGetProjectBySlug(slug);
-  const { data: userStory, isLoading } = useGetUserStoryByRefAndProjectId(
-    storyRef,
-    project?.id?.toString() || "",
-  );
+  const { data: userStory, isLoading: isLoadingUserStory } =
+    useGetUserStoryByRefAndProjectId(storyRef, project?.id?.toString() || "");
+
+  const { data: tasksResponse, isLoading: isLoadingTasks } =
+    useGetTaskByProjectIdAndUserStoryId(
+      project?.id?.toString() || "",
+      userStory?.id?.toString() || "",
+    );
+
+  // Extract tasks array from the response
+  const tasks = Array.isArray(tasksResponse) ? tasksResponse : [];
+  const taskCount = tasks.length;
+
+  const isLoading = isLoadingUserStory || isLoadingTasks;
 
   if (isLoading) {
     return (
@@ -129,19 +137,16 @@ export default function SlugBacklogContent() {
             <div className="mt-8">
               <div className="mb-4 flex items-center justify-between">
                 <p className="text-primary text-2xl font-semibold tracking-tight scroll-m-20">
-                  Tasks ({userStory.tasks?.length || 0})
+                  Tasks ({taskCount})
                 </p>
 
-                <Button
-                  onClick={() => setShowCreateTaskDialog(true)}
-                  className="inline-flex items-center justify-center gap-2"
-                >
-                  <Plus className="size-4" />
+                <Button className="inline-flex items-center justify-center gap-2">
+                  <Plus />
                   Create Task
                 </Button>
               </div>
 
-              {(!userStory.tasks || userStory.tasks.length === 0) && (
+              {tasks.length === 0 ? (
                 <div className="rounded-md bg-muted/50 p-6 text-center">
                   <p className="text-primary leading-7 scroll-m-20">
                     No tasks found for this user story
@@ -150,6 +155,89 @@ export default function SlugBacklogContent() {
                     Click the &#34;Create Task&#34; button to add your first
                     task
                   </p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {tasks.map((task) => (
+                    <Card key={task.id}>
+                      <CardHeader className="pb-0">
+                        <div className="flex items-center gap-2">
+                          <div
+                            className="flex h-10 w-10 items-center justify-center rounded-md"
+                            style={{
+                              backgroundColor:
+                                task.status_extra_info?.color || "#70728F",
+                            }}
+                          >
+                            <Typography className="font-bold text-white">
+                              #{task.ref}
+                            </Typography>
+                          </div>
+                          <div>
+                            <CardTitle className="line-clamp-1">
+                              {task.subject}
+                            </CardTitle>
+                            <CardContent className="p-0">
+                              <Typography className="flex gap-1 text-xs text-muted-foreground">
+                                <span
+                                  style={{
+                                    color:
+                                      task.status_extra_info?.color ||
+                                      "#70728F",
+                                  }}
+                                >
+                                  {task.status_extra_info?.name || "New"}
+                                </span>
+                                <span>•</span>
+                                <span className="font-medium">
+                                  {task.is_closed ? "Closed" : "Open"}
+                                </span>
+                              </Typography>
+                            </CardContent>
+                          </div>
+                        </div>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="mt-2 text-xs text-muted-foreground">
+                          <div className="mb-2 grid grid-cols-2 gap-2 text-sm">
+                            <div>
+                              <span className="font-semibold">Created:</span>{" "}
+                              {formatDate(task.created_date)}
+                            </div>
+                            <div>
+                              <span className="font-semibold">Owner:</span>{" "}
+                              {task.owner_extra_info?.full_name_display ||
+                                "N/A"}
+                            </div>
+                            <div>
+                              <span className="font-semibold">Assigned:</span>{" "}
+                              {task.assigned_to_extra_info?.full_name_display ||
+                                "Unassigned"}
+                            </div>
+                            <div>
+                              <span className="font-semibold">User Story:</span>{" "}
+                              {task.user_story_extra_info?.subject || "N/A"}
+                            </div>
+                          </div>
+
+                          <div className="mt-4 flex gap-2">
+                            <Button
+                              className="inline-flex items-center justify-center gap-2"
+                              size="sm"
+                            >
+                              <Pencil className="size-4" />
+                            </Button>
+                            <Button
+                              className="inline-flex items-center justify-center gap-2"
+                              size="sm"
+                            >
+                              <Trash2 className="size-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
                 </div>
               )}
             </div>
