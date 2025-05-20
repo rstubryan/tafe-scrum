@@ -30,11 +30,8 @@ export default function SlugBacklogTask({
   projectId,
   userStoryId,
 }: SlugBacklogTaskProps) {
-  const {
-    data: tasksResponse,
-    isLoading: isLoadingTasks,
-    refetch,
-  } = useGetTaskByProjectIdAndUserStoryId(projectId, userStoryId);
+  const { data: tasksResponse, isLoading: isLoadingTasks } =
+    useGetTaskByProjectIdAndUserStoryId(projectId, userStoryId);
   const { mutate: deleteTask } = useDeleteTask();
 
   const tasks = Array.isArray(tasksResponse) ? tasksResponse : [];
@@ -42,11 +39,7 @@ export default function SlugBacklogTask({
 
   const handleDeleteTask = (taskId: number | undefined) => {
     if (taskId) {
-      deleteTask(taskId.toString(), {
-        onSuccess: () => {
-          refetch();
-        },
-      });
+      deleteTask(taskId.toString(), {});
     }
   };
 
@@ -68,7 +61,6 @@ export default function SlugBacklogTask({
         <SlugBacklogDialog
           mode="create"
           userStoryId={userStoryId}
-          onSuccess={() => refetch()}
           trigger={
             <Button className="inline-flex items-center justify-center gap-2">
               <Plus />
@@ -155,7 +147,6 @@ export default function SlugBacklogTask({
                       mode="edit"
                       task={task}
                       userStoryId={userStoryId}
-                      onSuccess={() => refetch()}
                       trigger={
                         <Button
                           variant="outline"
