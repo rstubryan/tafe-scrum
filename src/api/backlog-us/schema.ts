@@ -19,8 +19,6 @@ export const userStoryFormSchema = z.object({
       },
       { message: "Invalid date format" },
     ),
-  assigned_to: z.string().optional(),
-  assigned_users: z.array(z.string()).optional(),
 });
 
 export type UserStoryFormSchema = typeof userStoryFormSchema;
@@ -47,18 +45,6 @@ export const userStoryFormFields: FormFieldDefinition<
     name: "due_date",
     label: "Due Date",
     type: "date",
-    required: false,
-  },
-  {
-    name: "assigned_to",
-    label: "Assigned To",
-    type: "select",
-    required: false,
-  },
-  {
-    name: "assigned_users",
-    label: "Assigned Users",
-    type: "multi-select",
     required: false,
   },
 ];

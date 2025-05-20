@@ -14,13 +14,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
   userStoryFormFields,
   userStoryFormSchema,
 } from "@/api/backlog-us/schema";
@@ -62,15 +55,8 @@ export default function BacklogForm({
       project_id: "",
       version: "",
       due_date: "",
-      assigned_to: "",
-      assigned_users: [] as string[],
     },
   });
-
-  // Watch the assigned_to field
-  const watchedAssignedTo = form.watch("assigned_to");
-
-  console.log("Watched assigned_to:", watchedAssignedTo);
 
   useEffect(() => {
     if (project?.id) {
@@ -96,37 +82,16 @@ export default function BacklogForm({
         form.setValue("due_date", userStory.due_date);
       }
 
-      if (userStory.assigned_to !== undefined) {
-        console.log("Setting assigned_to to", userStory.assigned_to);
-        form.setValue(
-          "assigned_to",
-          userStory.assigned_to ? userStory.assigned_to.toString() : "null",
-        );
-      }
-
-      if (userStory.assigned_users && userStory.assigned_users.length > 0) {
-        form.setValue(
-          "assigned_users",
-          userStory.assigned_users.map((id) => id.toString()),
-        );
-      }
-
       setInitialValuesSet(true);
     }
   }, [userStory, mode, form, initialValuesSet]);
 
   const onSubmit = (data: z.infer<typeof userStoryFormSchema>) => {
     if (mode === "create") {
-      const assignedTo =
-        data.assigned_to && data.assigned_to !== "unassigned"
-          ? parseInt(data.assigned_to)
-          : undefined;
-
       createUserStory(
         {
           project: parseInt(data.project_id),
           subject: data.subject,
-          assigned_to: assignedTo,
         },
         {
           onSuccess: () => {
@@ -135,8 +100,6 @@ export default function BacklogForm({
               project_id: project?.id?.toString() || "",
               version: "",
               due_date: "",
-              assigned_to: "",
-              assigned_users: [],
             });
 
             if (onSuccess) {
@@ -146,13 +109,6 @@ export default function BacklogForm({
         },
       );
     } else if (mode === "edit" && userStory?.id) {
-      const assignedTo =
-        data.assigned_to && data.assigned_to !== "null"
-          ? parseInt(data.assigned_to)
-          : null;
-
-      const assignedUsers = assignedTo ? [assignedTo] : [];
-
       editUserStory(
         {
           id: userStory.id,
@@ -160,8 +116,6 @@ export default function BacklogForm({
           subject: data.subject,
           version: data.version ? parseInt(data.version) : undefined,
           due_date: data.due_date || undefined,
-          assigned_to: assignedTo,
-          assigned_users: assignedUsers,
         },
         {
           onSuccess: () => {
@@ -174,30 +128,7 @@ export default function BacklogForm({
     }
   };
 
-  // Get the selected member name for display
-  const getSelectedMemberName = () => {
-    if (!watchedAssignedTo || watchedAssignedTo === "null") {
-      return "Not assigned";
-    }
-
-    const selectedMember = project?.members?.find(
-      (member) => member.id.toString() === watchedAssignedTo,
-    );
-
-    console.log("Finding member for value:", watchedAssignedTo);
-    console.log("Found member:", selectedMember);
-
-    return selectedMember
-      ? selectedMember.full_name || selectedMember.username
-      : "Select assigned to";
-  };
-
-  // Filter fields based on mode and exclude assigned_users from the form
   const filteredFormFields = userStoryFormFields.filter((field) => {
-    if (field.name === "assigned_users") {
-      return false;
-    }
-
     if (!field.required && field.name !== "project_id") {
       return mode === "edit";
     }
@@ -236,30 +167,6 @@ export default function BacklogForm({
                       {...fieldProps}
                       value={fieldProps.value || ""}
                     />
-                  </FormControl>
-                )}
-                {field.type === "select" && field.name === "assigned_to" && (
-                  <FormControl>
-                    <Select
-                      onValueChange={fieldProps.onChange}
-                      value={fieldProps.value as string}
-                    >
-                      <SelectTrigger className="w-full">
-                        <SelectValue>{getSelectedMemberName()}</SelectValue>
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="null">Not assigned</SelectItem>
-                        {project?.members &&
-                          project.members.map((member) => (
-                            <SelectItem
-                              key={member.id}
-                              value={member.id.toString()}
-                            >
-                              {member.full_name || member.username}
-                            </SelectItem>
-                          ))}
-                      </SelectContent>
-                    </Select>
                   </FormControl>
                 )}
                 <FormMessage />
