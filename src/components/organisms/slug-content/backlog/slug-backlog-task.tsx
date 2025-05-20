@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Typography } from "@/components/atoms/typography/typography";
 import { Button } from "@/components/ui/button";
@@ -8,6 +9,7 @@ import { useGetTaskByProjectIdAndUserStoryId } from "@/api/task/queries";
 import { useDeleteTask } from "@/api/task/mutation";
 import { formatDate } from "@/utils";
 import { TaskProps } from "@/api/task/type";
+import { PaginationLayout } from "@/components/templates/layout/pagination-layout";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -30,12 +32,28 @@ export default function SlugBacklogTask({
   projectId,
   userStoryId,
 }: SlugBacklogTaskProps) {
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 6;
+
   const { data: tasksResponse, isLoading: isLoadingTasks } =
     useGetTaskByProjectIdAndUserStoryId(projectId, userStoryId);
   const { mutate: deleteTask } = useDeleteTask();
 
   const tasks = Array.isArray(tasksResponse) ? tasksResponse : [];
   const taskCount = tasks.length;
+
+  const paginatedTasks = tasks.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage,
+  );
+
+  const totalPages = Math.ceil(taskCount / itemsPerPage);
+
+  useEffect(() => {
+    if (tasksResponse) {
+      setCurrentPage(1);
+    }
+  }, [tasksResponse]);
 
   const handleDeleteTask = (taskId: number | undefined) => {
     if (taskId) {
@@ -81,7 +99,7 @@ export default function SlugBacklogTask({
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {tasks.map((task: TaskProps) => (
+          {paginatedTasks.map((task: TaskProps) => (
             <Card key={task.id} className="flex flex-col h-full">
               <CardHeader className="pb-0">
                 <div className="flex items-center gap-2">
@@ -191,11 +209,21 @@ export default function SlugBacklogTask({
                         </AlertDialogFooter>
                       </AlertDialogContent>
                     </AlertDialog>
-                  </div>{" "}
+                  </div>
                 </div>
               </CardContent>
             </Card>
           ))}
+        </div>
+      )}
+
+      {totalPages > 1 && (
+        <div className="mt-6">
+          <PaginationLayout
+            currentPage={currentPage}
+            totalPages={totalPages}
+            setCurrentPage={setCurrentPage}
+          />
         </div>
       )}
     </div>
