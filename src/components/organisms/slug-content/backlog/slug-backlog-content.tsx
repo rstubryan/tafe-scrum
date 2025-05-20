@@ -118,7 +118,7 @@ export default function SlugBacklogContent() {
                 Assigned to:{" "}
                 {userStory.assigned_to_extra_info
                   ? userStory.assigned_to_extra_info.full_name_display
-                  : "No reason provided"}
+                  : "Unassigned"}
               </span>
             </div>
 
