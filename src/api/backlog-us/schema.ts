@@ -1,13 +1,16 @@
 import { z } from "zod";
 import { FormFieldDefinition } from "@/api/base/global-type";
 
-export const userStoryFormSchema = z.object({
+const baseUserStorySchema = z.object({
+  project_id: z.string(),
+  version: z.string().optional(),
+});
+
+export const userStoryFormSchema = baseUserStorySchema.extend({
   subject: z
     .string()
     .min(3, { message: "Subject must be at least 3 characters long" })
     .max(50, { message: "Subject must be at most 50 characters long" }),
-  project_id: z.string(),
-  version: z.string().optional(),
   due_date: z
     .string()
     .optional()
@@ -49,10 +52,8 @@ export const userStoryFormFields: FormFieldDefinition<
   },
 ];
 
-export const userStoryDetailFormSchema = z.object({
+export const userStoryDetailFormSchema = baseUserStorySchema.extend({
   description: z.string().optional(),
-  project_id: z.string(),
-  version: z.string().optional(),
   assigned_to: z.string().optional(),
   assigned_users: z.array(z.string()).optional(),
 });
