@@ -49,6 +49,9 @@ export const useEditTask = () => {
         queryKey: ["task-by-project-id-and-user-story-id"],
       });
       queryClient.invalidateQueries({ queryKey: ["task-by-project-id"] });
+      queryClient.invalidateQueries({
+        queryKey: ["task-by-ref-with-project-id-and-user-story-id"],
+      });
       toast.success("Task updated successfully");
       return data;
     },

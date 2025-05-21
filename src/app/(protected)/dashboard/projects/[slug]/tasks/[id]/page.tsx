@@ -1,12 +1,19 @@
-export default function TaskPage() {
+import MainContent from "@/components/templates/content/main-content";
+import HeadContent from "@/components/molecules/head-content/head-content";
+import SlugTaskContent from "@/components/organisms/slug-content/task/slug-task-content";
+
+export default function TaskDetailPage() {
   return (
-    <div className="flex flex-col gap-4">
-      <h1 className="text-2xl font-bold">Task</h1>
-      <p className="text-sm text-muted-foreground">
-        Tasks are a collection of work items that need to be completed in a
-        project. They are used to track progress and ensure that work is
-        completed on time.
-      </p>
-    </div>
+    <MainContent>
+      <div className="flex flex-col gap-4">
+        <div className="lg:flex justify-between items-center">
+          <HeadContent
+            title={"Task Detail Page"}
+            description={"Task detail page of the project."}
+          />
+        </div>
+        <SlugTaskContent />
+      </div>
+    </MainContent>
   );
 }
