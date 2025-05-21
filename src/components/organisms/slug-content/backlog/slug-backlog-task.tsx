@@ -124,7 +124,7 @@ export default function SlugBacklogTask({
           {paginatedTasks.map((task: TaskProps) => (
             <Card key={task.id} className="flex flex-col h-full">
               <CardHeader className="pb-0">
-                <div className="xl:flex items-center justify-between w-full">
+                <div className="2xl:flex items-center justify-between w-full">
                   <div className="flex items-center gap-2">
                     <div
                       className="flex h-10 w-10 items-center justify-center rounded-md"
@@ -160,7 +160,7 @@ export default function SlugBacklogTask({
                   </div>
 
                   <SlugTaskStatusForm
-                    className={"mt-4 xl:mt-0 xl:w-[130px] w-full"}
+                    className={"mt-4 2xl:mt-0 2xl:w-[150px] w-full"}
                     tasks={tasks}
                     taskStatus={task.status}
                     onStatusChange={(newStatus) =>

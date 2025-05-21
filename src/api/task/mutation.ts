@@ -14,6 +14,7 @@ export const useCreateTask = () => {
       queryClient.invalidateQueries({
         queryKey: ["task-by-project-id-and-user-story-id"],
       });
+      queryClient.invalidateQueries({ queryKey: ["task-by-project-id"] });
       toast.success("Task created successfully");
       return data;
     },
@@ -47,6 +48,7 @@ export const useEditTask = () => {
       queryClient.invalidateQueries({
         queryKey: ["task-by-project-id-and-user-story-id"],
       });
+      queryClient.invalidateQueries({ queryKey: ["task-by-project-id"] });
       toast.success("Task updated successfully");
       return data;
     },
@@ -69,6 +71,7 @@ export const useDeleteTask = () => {
       queryClient.invalidateQueries({
         queryKey: ["task-by-project-id-and-user-story-id"],
       });
+      queryClient.invalidateQueries({ queryKey: ["task-by-project-id"] });
       toast.success("Task deleted successfully");
     },
     onError: (error: AxiosError) => {

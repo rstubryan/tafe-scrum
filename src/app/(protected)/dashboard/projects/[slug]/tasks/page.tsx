@@ -1,13 +1,14 @@
+import MainContent from "@/components/templates/content/main-content";
+import HeadContent from "@/components/molecules/head-content/head-content";
+import TaskContent from "@/components/organisms/task/task-content";
+
 export default function TasksPage() {
   return (
-    <div className="flex flex-col gap-4">
-      <h1 className="text-2xl font-bold">Tasks</h1>
-      <p className="text-sm text-muted-foreground">
-        This is the Tasks page. You can manage your tasks here. Tasks are
-        individual units of work that need to be completed. They are often used
-        in agile project management to help teams organize and prioritize their
-        work.
-      </p>
-    </div>
+    <MainContent>
+      <div className="flex justify-between items-center mb-4">
+        <HeadContent title={"Tasks"} description={"Tasks of the project."} />
+      </div>
+      <TaskContent />
+    </MainContent>
   );
 }

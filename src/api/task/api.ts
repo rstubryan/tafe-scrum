@@ -24,7 +24,7 @@ export const taskApi = {
     { urlParams: { projectId: string } },
     ResponseProps<TaskProps[]>
   >({
-    endpoint: `${BASE_URL}/{projectId}`,
+    endpoint: `${BASE_URL}`,
     method: "GET",
     extraConfig: ({ urlParams }) => ({
       params: {
