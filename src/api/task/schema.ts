@@ -5,6 +5,9 @@ const baseTaskSchema = z.object({
   project_id: z.string(),
   user_story_id: z.string(),
   version: z.string().optional(),
+  assigned_to: z.string().optional(),
+  assigned_users: z.array(z.string()).optional(),
+  selectedMembers: z.array(z.string()).optional(),
 });
 
 export const taskFormSchema = baseTaskSchema.extend({
@@ -29,8 +32,28 @@ export const taskFormSchemaStatus = baseTaskSchema.extend({
 
 export type TaskFormSchemaStatus = typeof taskFormSchemaStatus;
 
+export const taskFormSchemaAssigned = baseTaskSchema.extend({
+  assigned_to: z.string().optional(),
+  assigned_users: z.array(z.string()).optional(),
+});
+
+export type TaskFormSchemaAssigned = typeof taskFormSchemaAssigned;
+
 export const taskFormFields: FormFieldDefinition<typeof taskFormSchema>[] = [
   { name: "subject", label: "Task Name", type: "text", required: true },
+  {
+    name: "assigned_to",
+    label: "Assigned To",
+    type: "select",
+    required: false,
+  },
+  {
+    name: "assigned_users",
+    label: "Assigned Users",
+    type: "select",
+    required: false,
+    hidden: true,
+  },
   {
     name: "project_id",
     label: "Project ID",

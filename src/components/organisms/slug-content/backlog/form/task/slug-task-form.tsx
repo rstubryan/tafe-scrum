@@ -20,6 +20,8 @@ import { TaskProps } from "@/api/task/type";
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { useGetProjectBySlug } from "@/api/project/queries";
+import { MultiSelect } from "@/components/ui/multiselect";
+import { cn } from "@/lib/utils";
 
 interface SlugTaskFormProps {
   onSuccess?: () => void;
@@ -37,8 +39,7 @@ export default function SlugTaskForm({
   const params = useParams();
   const slug = params.slug as string;
   const { data: project } = useGetProjectBySlug(slug);
-  const [initialValuesSet, setInitialValuesSet] = useState(false);
-
+  const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
   const { mutate: createTask, isPending: isCreating } = useCreateTask();
   const { mutate: editTask, isPending: isEditing } = useEditTask();
   const isPending = isCreating || isEditing;
@@ -46,49 +47,83 @@ export default function SlugTaskForm({
   const form = useForm({
     resolver: zodResolver(taskFormSchema),
     defaultValues: {
-      subject: "",
-      project_id: "",
+      subject: task?.subject || "",
+      project_id: project?.id?.toString() || "",
       user_story_id: userStoryId,
-      version: "",
+      version: task?.version?.toString() || "",
+      assigned_to: task?.assigned_to?.toString() || "",
+      assigned_users: task?.assigned_users?.map(String) || [],
+      selectedMembers: [] as string[],
     },
+    mode: "onSubmit",
   });
 
+  // Update form values when project or task changes
   useEffect(() => {
     if (project?.id) {
       form.setValue("project_id", project.id.toString());
     }
+
     if (userStoryId) {
       form.setValue("user_story_id", userStoryId);
     }
-  }, [project, userStoryId, form]);
 
-  useEffect(() => {
-    if (mode === "edit" && task && !initialValuesSet) {
-      form.setValue("subject", task.subject || "");
-
-      if (task.project) {
-        form.setValue("project_id", task.project.toString());
-      }
-
-      if (task.user_story) {
-        form.setValue("user_story_id", task.user_story.toString());
+    if (task) {
+      if (task.subject !== undefined) {
+        form.setValue("subject", task.subject || "");
       }
 
       if (task.version !== undefined) {
         form.setValue("version", task.version.toString());
       }
 
-      setInitialValuesSet(true);
-    }
-  }, [task, mode, form, initialValuesSet]);
+      // Initialize selected members from both assigned_to and assigned_users
+      const membersToSelect: string[] = [];
 
-  const onSubmit = (data: z.infer<typeof taskFormSchema>) => {
+      if (task.assigned_to) {
+        membersToSelect.push(task.assigned_to.toString());
+      }
+
+      if (task.assigned_users && task.assigned_users.length > 0) {
+        task.assigned_users.forEach((id) => {
+          const userId = id.toString();
+          if (!membersToSelect.includes(userId)) {
+            membersToSelect.push(userId);
+          }
+        });
+      }
+
+      setSelectedMembers(membersToSelect);
+      form.setValue("selectedMembers", membersToSelect);
+    }
+  }, [project, task, userStoryId, form]);
+
+  // Handle member selection changes
+  const handleMemberSelection = (values: string[]) => {
+    setSelectedMembers(values);
+    form.setValue("selectedMembers", values, { shouldValidate: true });
+  };
+
+  const onSubmit = form.handleSubmit((data) => {
     if (mode === "create") {
+      // Determine assigned_to and assigned_users based on selected members
+      const assigned_to =
+        selectedMembers.length > 0 ? parseInt(selectedMembers[0]) : null;
+
+      const assigned_users =
+        selectedMembers.length > 1
+          ? selectedMembers.map((id) => parseInt(id))
+          : selectedMembers.length === 1
+            ? [parseInt(selectedMembers[0])]
+            : [];
+
       createTask(
         {
-          project: parseInt(data.project_id),
           subject: data.subject,
+          project: parseInt(data.project_id),
           user_story: parseInt(data.user_story_id),
+          assigned_to,
+          assigned_users,
         },
         {
           onSuccess: () => {
@@ -97,7 +132,9 @@ export default function SlugTaskForm({
               project_id: project?.id?.toString() || "",
               user_story_id: userStoryId,
               version: "",
+              selectedMembers: [],
             });
+            setSelectedMembers([]);
 
             if (onSuccess) {
               onSuccess();
@@ -106,13 +143,26 @@ export default function SlugTaskForm({
         },
       );
     } else if (mode === "edit" && task?.id) {
+      // Determine assigned_to and assigned_users based on selected members
+      const assigned_to =
+        selectedMembers.length > 0 ? parseInt(selectedMembers[0]) : null;
+
+      const assigned_users =
+        selectedMembers.length > 1
+          ? selectedMembers.map((id) => parseInt(id))
+          : selectedMembers.length === 1
+            ? [parseInt(selectedMembers[0])]
+            : [];
+
       editTask(
         {
           id: task.id,
-          project: parseInt(data.project_id),
           subject: data.subject,
+          project: parseInt(data.project_id),
           user_story: parseInt(data.user_story_id),
           version: data.version ? parseInt(data.version) : undefined,
+          assigned_to,
+          assigned_users,
         },
         {
           onSuccess: () => {
@@ -123,30 +173,41 @@ export default function SlugTaskForm({
         },
       );
     }
-  };
+  });
 
   // Filter fields based on mode
   const filteredFormFields = taskFormFields.filter((field) => {
-    // Always show subject field
-    if (field.name === "subject") return true;
-
     // Hide these fields as they're handled automatically
     if (field.hidden) return false;
 
     // Show version only in edit mode
     if (field.name === "version") return mode === "edit";
 
+    // Hide the assigned_to and assigned_users fields as we'll handle them separately
+    if (field.name === "assigned_to" || field.name === "assigned_users")
+      return false;
+
     return true;
   });
 
+  // Fix for TypeScript error - create a proper type for field names
+  type FieldName = keyof z.infer<typeof taskFormSchema>;
+
+  // Prepare member options for the MultiSelect component
+  const memberOptions =
+    project?.members?.map((member) => ({
+      label: member.full_name_display || member.username,
+      value: member.id.toString(),
+    })) || [];
+
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+      <form onSubmit={onSubmit} className="space-y-4">
         {filteredFormFields.map((field) => (
           <FormField
             key={field.name}
             control={form.control}
-            name={field.name}
+            name={field.name as FieldName}
             render={({ field: fieldProps }) => (
               <FormItem className={field.hidden ? "hidden" : "flex flex-col"}>
                 {!field.hidden && <FormLabel>{field.label}</FormLabel>}
@@ -168,11 +229,22 @@ export default function SlugTaskForm({
           />
         ))}
 
-        <Button
-          type="submit"
-          className="w-full"
-          disabled={!form.formState.isValid || isPending}
-        >
+        {/* Render custom assignment field with MultiSelect */}
+        <FormItem className="flex flex-col">
+          <FormLabel>Assign Members</FormLabel>
+          <FormControl>
+            <MultiSelect
+              options={memberOptions}
+              onValueChange={handleMemberSelection}
+              defaultValue={selectedMembers}
+              placeholder="Select members to assign"
+              className={cn("w-full")}
+            />
+          </FormControl>
+          <FormMessage />
+        </FormItem>
+
+        <Button type="submit" className="w-full" disabled={isPending}>
           {isPending ? (
             <>
               <LoaderCircle className="animate-spin mr-2" />

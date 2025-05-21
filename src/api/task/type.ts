@@ -6,6 +6,7 @@ export interface CreateTaskProps {
   status?: number;
   is_closed?: boolean;
   assigned_to?: null | number;
+  assigned_users?: number[];
   milestone?: null | number;
   is_blocked?: boolean;
   blocked_note?: string;
@@ -96,4 +97,5 @@ export interface TaskProps {
   blocked_note_html?: string;
   description_html?: string;
   generated_user_stories?: null | never;
+  assigned_users?: number[];
 }
