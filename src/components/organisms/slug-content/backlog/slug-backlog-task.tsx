@@ -2,7 +2,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Typography } from "@/components/atoms/typography/typography";
 import { Button } from "@/components/ui/button";
 import { Plus, Pencil, Trash2 } from "lucide-react";
@@ -192,59 +198,59 @@ export default function SlugBacklogTask({
                       {task.user_story_extra_info?.subject || "N/A"}
                     </div>
                   </div>
-                  <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    <SlugTaskDialog
-                      mode="edit"
-                      task={task}
-                      userStoryId={userStoryId}
-                      trigger={
-                        <Button
-                          variant="outline"
-                          className="inline-flex items-center justify-center gap-2 w-full"
-                          size="sm"
-                        >
-                          <Pencil />
-                          <span className="sm:hidden inline">Edit</span>
-                        </Button>
-                      }
-                    />
-
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="inline-flex items-center justify-center gap-2 w-full"
-                        >
-                          <Trash2 />
-                          <span className="sm:hidden inline">Delete</span>
-                        </Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Delete Task</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            Are you sure you want to delete{" "}
-                            <span className="font-bold">
-                              &#34;{task.subject}&#34;
-                            </span>
-                            ? This action cannot be undone and will permanently
-                            remove this task.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>Cancel</AlertDialogCancel>
-                          <AlertDialogAction
-                            onClick={() => task.id && handleDeleteTask(task.id)}
-                          >
-                            Delete
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
-                  </div>
                 </div>
               </CardContent>
+              <CardFooter className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <SlugTaskDialog
+                  mode="edit"
+                  task={task}
+                  userStoryId={userStoryId}
+                  trigger={
+                    <Button
+                      variant="outline"
+                      className="inline-flex items-center justify-center gap-2 w-full"
+                      size="sm"
+                    >
+                      <Pencil />
+                      <span className="sm:hidden inline">Edit</span>
+                    </Button>
+                  }
+                />
+
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="inline-flex items-center justify-center gap-2 w-full"
+                    >
+                      <Trash2 />
+                      <span className="sm:hidden inline">Delete</span>
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Delete Task</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Are you sure you want to delete{" "}
+                        <span className="font-bold">
+                          &#34;{task.subject}&#34;
+                        </span>
+                        ? This action cannot be undone and will permanently
+                        remove this task.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={() => task.id && handleDeleteTask(task.id)}
+                      >
+                        Delete
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </CardFooter>
             </Card>
           ))}
         </div>

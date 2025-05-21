@@ -2,7 +2,13 @@
 
 import { useState, useEffect } from "react";
 import { useGetTaskByProjectId } from "@/api/task/queries";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Typography } from "@/components/atoms/typography/typography";
 import { formatDate } from "@/utils";
 import { PaginationLayout } from "@/components/templates/layout/pagination-layout";
@@ -10,6 +16,9 @@ import { useGetProjectBySlug } from "@/api/project/queries";
 import { useParams } from "next/navigation";
 import TaskStatusFilter from "@/components/organisms/task/task-status-filter";
 import { createPortal } from "react-dom";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { EyeIcon, ListTodoIcon } from "lucide-react";
 
 interface TaskContentProps {
   filterContainerId?: string;
@@ -185,6 +194,22 @@ export default function TaskContent({ filterContainerId }: TaskContentProps) {
                   </div>
                 </div>
               </CardContent>
+              <CardFooter className={"grid grid-cols-1 2xl:grid-cols-2 gap-2"}>
+                <Link href={`/dashboard/projects/${slug}/tasks/${task.ref}`}>
+                  <Button variant="outline" className="w-full">
+                    <EyeIcon />
+                    View Task Details
+                  </Button>
+                </Link>
+                <Link
+                  href={`/dashboard/projects/${slug}/backlogs/${task.user_story_extra_info.ref}`}
+                >
+                  <Button variant="outline" className="w-full">
+                    <ListTodoIcon />
+                    View Task in User Story
+                  </Button>
+                </Link>
+              </CardFooter>
             </Card>
           ))}
         </div>
