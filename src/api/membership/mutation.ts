@@ -16,6 +16,7 @@ export const useCreateMembership = () => {
       membershipApi.createMembership({ data }),
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["memberships"] });
+      queryClient.invalidateQueries({ queryKey: ["timeline"] });
       toast.success("Membership created successfully");
       return data;
     },
