@@ -16,7 +16,7 @@ export const useCreateMembership = () => {
       membershipApi.createMembership({ data }),
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["memberships"] });
-      queryClient.invalidateQueries({ queryKey: ["timeline"] });
+      queryClient.invalidateQueries({ queryKey: ["project-by-slug"] });
       toast.success("Membership created successfully");
       return data;
     },
@@ -48,6 +48,7 @@ export const useEditMembership = () => {
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["memberships"] });
+      queryClient.invalidateQueries({ queryKey: ["project-by-slug"] });
       toast.success("Membership updated successfully");
       return data;
     },
@@ -78,6 +79,7 @@ export const useDeleteMembership = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["memberships"] });
+      queryClient.invalidateQueries({ queryKey: ["project-by-slug"] });
       toast.success("Membership deleted successfully");
     },
 

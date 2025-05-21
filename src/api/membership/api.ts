@@ -36,12 +36,10 @@ export const membershipApi = {
   }),
 
   deleteMembership: createApiRequest<void, ResponseProps<null>>({
-    endpoint: `${BASE_URL}`,
+    endpoint: `${BASE_URL}/{id}`,
     method: "DELETE",
     extraConfig: ({ urlParams }) => ({
-      params: {
-        id: urlParams?.id,
-      },
+      url: `${BASE_URL}/${urlParams?.id}`,
     }),
   }),
 };

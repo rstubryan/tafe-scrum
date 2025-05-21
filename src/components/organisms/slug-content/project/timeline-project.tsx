@@ -12,8 +12,25 @@ import { getInitials } from "@/utils/avatar-initials";
 import { TimelineEventProps } from "@/api/timeline/type";
 import { UserProps } from "@/api/user/type";
 import { formatEvent, timeAgo } from "@/utils";
+import { Button } from "@/components/ui/button";
+import { Trash2 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { useDeleteMembership } from "@/api/membership/mutation";
 
-type ProjectMemberExtended = UserProps;
+type ProjectMemberExtended = UserProps & {
+  id: string | number;
+  role_name?: string;
+};
 
 export default function TimelineProject() {
   const params = useParams();
@@ -22,6 +39,7 @@ export default function TimelineProject() {
   const { data: timelines, isLoading } = useGetTimelineByProjectId(
     project?.id?.toString() || "",
   );
+  const { mutate: deleteMembership } = useDeleteMembership();
 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 6;
@@ -47,6 +65,10 @@ export default function TimelineProject() {
   }
 
   const members = project.members as unknown as ProjectMemberExtended[];
+
+  const handleDeleteMember = (memberId: string | number) => {
+    deleteMembership(memberId.toString(), {});
+  };
 
   return (
     <div className="flex flex-col gap-5 lg:flex-row">
@@ -108,17 +130,59 @@ export default function TimelineProject() {
           {members.map((member: ProjectMemberExtended, index: number) => (
             <Card key={index} className="mt-5">
               <CardHeader>
-                <section className="flex items-center gap-2">
-                  <Avatar className="h-10 w-10 rounded-full">
-                    <AvatarImage
-                      src={member.photo || undefined}
-                      alt={member.full_name_display || "Member"}
-                    />
-                    <AvatarFallback className="rounded-full">
-                      {getInitials(member.full_name_display || "")}
-                    </AvatarFallback>
-                  </Avatar>
-                  <Typography>{member.full_name_display}</Typography>
+                <section className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Avatar className="h-10 w-10 rounded-full">
+                      <AvatarImage
+                        src={member.photo || undefined}
+                        alt={member.full_name_display || "Member"}
+                      />
+                      <AvatarFallback className="rounded-full">
+                        {getInitials(member.full_name_display || "")}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <Typography>{member.full_name_display}</Typography>
+                      {member.role_name && (
+                        <Typography className="text-xs text-muted-foreground">
+                          {member.role_name}
+                        </Typography>
+                      )}
+                    </div>
+                  </div>
+
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="inline-flex items-center justify-center gap-2"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                        <span className="sr-only">Delete</span>
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Remove Member</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Are you sure you want to remove{" "}
+                          <span className="font-bold">
+                            {member.full_name_display || member.username}
+                          </span>{" "}
+                          from this project? This action cannot be undone.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
+                          onClick={() => handleDeleteMember(member.id)}
+                        >
+                          Remove
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
                 </section>
               </CardHeader>
             </Card>
