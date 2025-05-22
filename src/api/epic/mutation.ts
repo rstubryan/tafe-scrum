@@ -43,6 +43,9 @@ export const useEditEpic = () => {
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["epic-by-project-id"] });
+      queryClient.invalidateQueries({
+        queryKey: ["epic-by-ref-id-and-project-id"],
+      });
       toast.success("Epic updated successfully");
       return data;
     },

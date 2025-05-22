@@ -38,14 +38,14 @@ export const epicApi = {
 
   getEpicByRefIdAndProjectId: createApiRequest<
     { urlParams: { refId: string; projectId: string } },
-    ResponseProps<EpicProps>
+    EpicProps
   >({
     endpoint: `${BASE_URL}/by_ref`,
     method: "GET",
     extraConfig: ({ urlParams }) => ({
       params: {
         ref: urlParams?.refId,
-        project_id: urlParams?.projectId,
+        project: urlParams?.projectId,
       },
     }),
   }),
