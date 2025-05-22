@@ -12,11 +12,26 @@ import { Typography } from "@/components/atoms/typography/typography";
 import { PaginationLayout } from "@/components/templates/layout/pagination-layout";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { EyeIcon } from "lucide-react";
+import { EyeIcon, Pencil, Trash2 } from "lucide-react";
 import { useParams } from "next/navigation";
 import { useGetProjectBySlug } from "@/api/project/queries";
 import { useGetEpicByProjectId } from "@/api/epic/queries";
+import { useDeleteEpic } from "@/api/epic/mutation";
 import { formatDate } from "@/utils";
+import EpicDialog from "@/components/organisms/epic/epic-dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { getInitials } from "@/utils/avatar-initials";
 
 export default function EpicContent() {
   const params = useParams();
@@ -31,6 +46,7 @@ export default function EpicContent() {
   const { data: epicsData, isLoading } = useGetEpicByProjectId(
     project?.id?.toString() || "",
   );
+  const { mutate: deleteEpic } = useDeleteEpic();
 
   const epics = Array.isArray(epicsData) ? epicsData : [];
   const totalPages = Math.ceil(epics.length / itemsPerPage);
@@ -38,6 +54,12 @@ export default function EpicContent() {
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage,
   );
+
+  const handleDeleteEpic = (epicId: number | undefined) => {
+    if (epicId) {
+      deleteEpic(epicId.toString(), {});
+    }
+  };
 
   if (isLoading) {
     return (
@@ -102,6 +124,24 @@ export default function EpicContent() {
               <CardContent className="flex-1">
                 <div className="mt-2 text-xs text-muted-foreground">
                   <div className="mb-2 grid grid-cols-1 gap-1 text-sm">
+                    {epic.owner_extra_info && (
+                      <div className="flex items-center gap-2">
+                        <Avatar className="h-6 w-6 rounded-full">
+                          <AvatarImage
+                            src={epic.owner_extra_info.photo}
+                            alt={epic.owner_extra_info.full_name_display}
+                          />
+                          <AvatarFallback>
+                            {getInitials(
+                              epic.owner_extra_info.full_name_display,
+                            )}
+                          </AvatarFallback>
+                        </Avatar>
+                        <Typography size="xs" className="text-primary">
+                          by {epic.owner_extra_info.full_name_display}
+                        </Typography>
+                      </div>
+                    )}
                     <div>
                       <span className="font-semibold">Created:</span>{" "}
                       {epic.created_date
@@ -109,8 +149,8 @@ export default function EpicContent() {
                         : "N/A"}
                     </div>
                     <div>
-                      <span className="font-semibold">Created by:</span>{" "}
-                      {epic.owner_extra_info?.full_name_display || "N/A"}
+                      <span className="font-semibold">Assigned To:</span>{" "}
+                      {epic.assigned_to_extra_info?.full_name_display || "N/A"}
                     </div>
                     <div>
                       <span className="font-semibold">User Stories:</span>{" "}
@@ -120,13 +160,67 @@ export default function EpicContent() {
                 </div>
               </CardContent>
               <CardFooter>
-                <Link href={`/dashboard/projects/${slug}/epics/${epic.ref}`}>
-                  <Button variant="outline" className="w-full">
-                    <EyeIcon />
-                    View Epic Details
-                  </Button>
-                </Link>
-              </CardFooter>
+                <div className="grid grid-cols-1 sm:grid-cols-3 w-full gap-2">
+                  <Link
+                    href={`/dashboard/projects/${slug}/epics/${epic.ref}`}
+                    className="sm:col-span-2 inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-3 py-2"
+                  >
+                    <EyeIcon className="size-4 shrink-0" />
+                    <span className="truncate">View Details</span>
+                  </Link>
+
+                  <div className="grid grid-cols-2 gap-2">
+                    <EpicDialog
+                      mode="edit"
+                      epic={epic}
+                      trigger={
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          className="h-10 w-full"
+                        >
+                          <span className="sr-only">Edit</span>
+                          <Pencil className="size-4" />
+                        </Button>
+                      }
+                    />
+
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          className="h-10 w-full"
+                        >
+                          <span className="sr-only">Delete</span>
+                          <Trash2 className="size-4" />
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Delete Epic</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Are you sure you want to delete{" "}
+                            <span className="font-bold">
+                              &#34;{epic.subject}&#34;
+                            </span>
+                            ? This action cannot be undone and will permanently
+                            remove this epic.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={() => epic.id && handleDeleteEpic(epic.id)}
+                          >
+                            Delete
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </div>
+                </div>
+              </CardFooter>{" "}
             </Card>
           ))}
         </div>

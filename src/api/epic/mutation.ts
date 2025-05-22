@@ -11,7 +11,7 @@ export const useCreateEpic = () => {
   return useMutation({
     mutationFn: (data: CreateEpicProps) => epicApi.createEpic({ data }),
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ["epics"] });
+      queryClient.invalidateQueries({ queryKey: ["epic-by-project-id"] });
       toast.success("Epic created successfully");
       return data;
     },
@@ -42,7 +42,7 @@ export const useEditEpic = () => {
       });
     },
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ["epics"] });
+      queryClient.invalidateQueries({ queryKey: ["epic-by-project-id"] });
       toast.success("Epic updated successfully");
       return data;
     },
@@ -67,7 +67,7 @@ export const useDeleteEpic = () => {
         },
       }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["epics"] });
+      queryClient.invalidateQueries({ queryKey: ["epic-by-project-id"] });
       toast.success("Epic deleted successfully");
     },
     onError: (error: AxiosError) => {

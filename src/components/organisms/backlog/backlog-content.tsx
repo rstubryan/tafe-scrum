@@ -179,7 +179,7 @@ export default function BacklogContent() {
                   </div>
                 </div>
               </CardContent>
-              <CardFooter className="pt-0">
+              <CardFooter>
                 <div className="grid grid-cols-1 sm:grid-cols-3 w-full gap-2">
                   <Link
                     href={`/dashboard/projects/${slug}/backlogs/${story.ref}`}
