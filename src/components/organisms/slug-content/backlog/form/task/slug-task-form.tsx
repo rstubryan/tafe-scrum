@@ -12,13 +12,19 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { taskFormFields, taskFormSchema } from "@/api/task/schema";
+import {
+  taskFormFields,
+  taskDetailFormSchema,
+  taskFormSchema,
+  taskDetailFormFields,
+} from "@/api/task/schema";
 import { useCreateTask, useEditTask } from "@/api/task/mutation";
 import { z } from "zod";
-import { TaskProps } from "@/api/task/type";
+import { CreateTaskProps, TaskProps, UpdateTaskProps } from "@/api/task/type";
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, usePathname } from "next/navigation";
 import { useGetProjectBySlug } from "@/api/project/queries";
 import { MultiSelect } from "@/components/ui/multiselect";
 import { cn } from "@/lib/utils";
@@ -37,6 +43,7 @@ export default function SlugTaskForm({
   userStoryId,
 }: SlugTaskFormProps) {
   const params = useParams();
+  const pathname = usePathname();
   const slug = params.slug as string;
   const { data: project } = useGetProjectBySlug(slug);
   const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
@@ -44,8 +51,17 @@ export default function SlugTaskForm({
   const { mutate: editTask, isPending: isEditing } = useEditTask();
   const isPending = isCreating || isEditing;
 
-  const form = useForm({
-    resolver: zodResolver(taskFormSchema),
+  // Check if we're on the task detail page
+  const isTaskDetailPage =
+    pathname.includes("/tasks/") && !pathname.includes("/backlogs/");
+
+  // Use the appropriate schema based on the page
+  const formSchema = isTaskDetailPage ? taskDetailFormSchema : taskFormSchema;
+  const formFields = isTaskDetailPage ? taskDetailFormFields : taskFormFields;
+
+  // Define the form with both sets of fields to avoid TypeScript errors
+  const form = useForm<z.infer<typeof taskDetailFormSchema>>({
+    resolver: zodResolver(formSchema),
     defaultValues: {
       subject: task?.subject || "",
       project_id: project?.id?.toString() || "",
@@ -54,6 +70,8 @@ export default function SlugTaskForm({
       assigned_to: task?.assigned_to?.toString() || "",
       assigned_users: task?.assigned_users?.map(String) || [],
       selectedMembers: [] as string[],
+      due_date: task?.due_date || "",
+      description: task?.description || "",
     },
     mode: "onSubmit",
   });
@@ -75,6 +93,16 @@ export default function SlugTaskForm({
 
       if (task.version !== undefined) {
         form.setValue("version", task.version.toString());
+      }
+
+      // Always set these values regardless of page type - TypeScript will be happy
+      // and the values will only be used when appropriate
+      if (task.due_date !== undefined) {
+        form.setValue("due_date", task.due_date || "");
+      }
+
+      if (task.description !== undefined) {
+        form.setValue("description", task.description || "");
       }
 
       // Initialize selected members from both assigned_to and assigned_users
@@ -104,94 +132,126 @@ export default function SlugTaskForm({
     form.setValue("selectedMembers", values, { shouldValidate: true });
   };
 
+  // In the onSubmit function, modify the creation/edit task calls
+
   const onSubmit = form.handleSubmit((data) => {
+    // Determine assigned_to and assigned_users based on selected members
+    const assigned_to =
+      selectedMembers.length > 0 ? parseInt(selectedMembers[0]) : null;
+
+    const assigned_users =
+      selectedMembers.length > 1
+        ? selectedMembers.map((id) => parseInt(id))
+        : selectedMembers.length === 1
+          ? [parseInt(selectedMembers[0])]
+          : [];
+
     if (mode === "create") {
-      // Determine assigned_to and assigned_users based on selected members
-      const assigned_to =
-        selectedMembers.length > 0 ? parseInt(selectedMembers[0]) : null;
+      // Create a properly typed object based on page type
+      const taskData: CreateTaskProps = {
+        subject: data.subject,
+        project: parseInt(data.project_id),
+        user_story: parseInt(data.user_story_id),
+        assigned_to,
+        assigned_users,
+      };
 
-      const assigned_users =
-        selectedMembers.length > 1
-          ? selectedMembers.map((id) => parseInt(id))
-          : selectedMembers.length === 1
-            ? [parseInt(selectedMembers[0])]
-            : [];
+      // Only add these fields when on detail page and they exist in data
+      if (isTaskDetailPage) {
+        if ("due_date" in data) taskData.due_date = data.due_date || undefined;
+        if ("description" in data)
+          taskData.description = data.description || undefined;
+      }
 
-      createTask(
-        {
-          subject: data.subject,
-          project: parseInt(data.project_id),
-          user_story: parseInt(data.user_story_id),
-          assigned_to,
-          assigned_users,
+      createTask(taskData, {
+        onSuccess: () => {
+          // Create properly typed reset data
+          const resetValues: Partial<z.infer<typeof taskDetailFormSchema>> = {
+            subject: "",
+            project_id: project?.id?.toString() || "",
+            user_story_id: userStoryId,
+            version: "",
+            selectedMembers: [],
+          };
+
+          // Only include these fields when on detail page
+          if (isTaskDetailPage) {
+            resetValues.due_date = "";
+            resetValues.description = "";
+          }
+
+          form.reset(resetValues);
+          setSelectedMembers([]);
+
+          if (onSuccess) {
+            onSuccess();
+          }
         },
-        {
-          onSuccess: () => {
-            form.reset({
-              subject: "",
-              project_id: project?.id?.toString() || "",
-              user_story_id: userStoryId,
-              version: "",
-              selectedMembers: [],
-            });
-            setSelectedMembers([]);
-
-            if (onSuccess) {
-              onSuccess();
-            }
-          },
-        },
-      );
+      });
     } else if (mode === "edit" && task?.id) {
-      // Determine assigned_to and assigned_users based on selected members
-      const assigned_to =
-        selectedMembers.length > 0 ? parseInt(selectedMembers[0]) : null;
+      // Create a properly typed object for edit
+      const taskData: UpdateTaskProps = {
+        id: task.id,
+        subject: data.subject,
+        project: parseInt(data.project_id),
+        user_story: parseInt(data.user_story_id),
+        version: data.version ? parseInt(data.version) : undefined,
+        assigned_to,
+        assigned_users,
+      };
 
-      const assigned_users =
-        selectedMembers.length > 1
-          ? selectedMembers.map((id) => parseInt(id))
-          : selectedMembers.length === 1
-            ? [parseInt(selectedMembers[0])]
-            : [];
+      // Only add these fields when on detail page and they exist in data
+      if (isTaskDetailPage) {
+        if ("due_date" in data) taskData.due_date = data.due_date || undefined;
+        if ("description" in data)
+          taskData.description = data.description || undefined;
+      }
 
-      editTask(
-        {
-          id: task.id,
-          subject: data.subject,
-          project: parseInt(data.project_id),
-          user_story: parseInt(data.user_story_id),
-          version: data.version ? parseInt(data.version) : undefined,
-          assigned_to,
-          assigned_users,
+      editTask(taskData, {
+        onSuccess: () => {
+          if (onSuccess) {
+            onSuccess();
+          }
         },
-        {
-          onSuccess: () => {
-            if (onSuccess) {
-              onSuccess();
-            }
-          },
-        },
-      );
+      });
     }
   });
-
-  // Filter fields based on mode
-  const filteredFormFields = taskFormFields.filter((field) => {
+  // Filter fields based on mode and page
+  const filteredFormFields = formFields.filter((field) => {
     // Hide these fields as they're handled automatically
     if (field.hidden) return false;
 
     // Show version only in edit mode
     if (field.name === "version") return mode === "edit";
 
-    // Hide the assigned_to and assigned_users fields as we'll handle them separately
-    if (field.name === "assigned_to" || field.name === "assigned_users")
+    // Show due_date and description only on task detail page
+    if (
+      (field.name === "due_date" || field.name === "description") &&
+      !isTaskDetailPage
+    ) {
       return false;
+    }
+
+    // Hide the assigned_to and assigned_users fields as we'll handle them separately
+    if (field.name === "assigned_to" || field.name === "assigned_users") {
+      return false;
+    }
 
     return true;
   });
 
-  // Fix for TypeScript error - create a proper type for field names
-  type FieldName = keyof z.infer<typeof taskFormSchema>;
+  // Make sure to include 'subject' in filteredFormFields if it's not there
+  if (!filteredFormFields.some((field) => field.name === "subject")) {
+    filteredFormFields.unshift({
+      name: "subject",
+      label: "Task Name",
+      type: "text",
+      required: true,
+    });
+  }
+
+  // Define all possible field names to avoid TypeScript errors
+  type FieldName = keyof z.infer<typeof taskDetailFormSchema>;
 
   // Prepare member options for the MultiSelect component
   const memberOptions =
@@ -220,6 +280,27 @@ export default function SlugTaskForm({
                       {...fieldProps}
                       value={fieldProps.value || ""}
                       readOnly={field.name === "version"}
+                    />
+                  </FormControl>
+                )}
+                {field.type === "date" && (
+                  <FormControl>
+                    <Input
+                      type="date"
+                      required={field.required}
+                      {...fieldProps}
+                      value={fieldProps.value || ""}
+                    />
+                  </FormControl>
+                )}
+                {field.type === "textarea" && (
+                  <FormControl>
+                    <Textarea
+                      placeholder={`Enter ${field.label.toLowerCase()}`}
+                      required={field.required}
+                      {...fieldProps}
+                      value={fieldProps.value || ""}
+                      className="min-h-32"
                     />
                   </FormControl>
                 )}

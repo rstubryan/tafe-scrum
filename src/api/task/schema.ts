@@ -39,6 +39,17 @@ export const taskFormSchemaAssigned = baseTaskSchema.extend({
 
 export type TaskFormSchemaAssigned = typeof taskFormSchemaAssigned;
 
+export const taskDetailFormSchema = baseTaskSchema.extend({
+  subject: z
+    .string()
+    .min(3, { message: "Subject must be at least 3 characters long" })
+    .max(50, { message: "Subject must be at most 50 characters long" }),
+  due_date: z.string().optional(),
+  description: z.string().optional(),
+});
+
+export type TaskDetailFormSchema = typeof taskDetailFormSchema;
+
 export const taskFormFields: FormFieldDefinition<typeof taskFormSchema>[] = [
   { name: "subject", label: "Task Name", type: "text", required: true },
   {
@@ -106,5 +117,55 @@ export const taskFormFieldsStatus: FormFieldDefinition<
     label: "Status",
     type: "select",
     required: true,
+  },
+];
+
+export const taskDetailFormFields: FormFieldDefinition<
+  typeof taskDetailFormSchema
+>[] = [
+  {
+    name: "due_date",
+    label: "Due Date",
+    type: "date",
+    required: false,
+  },
+  {
+    name: "description",
+    label: "Description",
+    type: "textarea",
+    required: false,
+  },
+  {
+    name: "project_id",
+    label: "Project ID",
+    type: "text",
+    required: true,
+    hidden: true,
+  },
+  {
+    name: "user_story_id",
+    label: "User Story ID",
+    type: "text",
+    required: true,
+    hidden: true,
+  },
+  {
+    name: "version",
+    label: "Version",
+    type: "text",
+    required: false,
+    hidden: true,
+  },
+  {
+    name: "assigned_to",
+    label: "Assigned To",
+    type: "select",
+    required: false,
+  },
+  {
+    name: "assigned_users",
+    label: "Assigned Users",
+    type: "select",
+    required: false,
   },
 ];

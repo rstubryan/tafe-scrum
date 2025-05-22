@@ -11,6 +11,9 @@ import { Typography } from "@/components/atoms/typography/typography";
 import { formatDate } from "@/utils";
 import SlugTaskStatusForm from "@/components/organisms/slug-content/backlog/form/task/slug-task-status-form";
 import { useEditTask } from "@/api/task/mutation";
+import { Pencil } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import SlugTaskDialog from "@/components/organisms/slug-content/backlog/dialog/task/slug-task-dialog";
 
 export default function SlugTaskContent() {
   const params = useParams();
@@ -89,7 +92,23 @@ export default function SlugTaskContent() {
             </Typography>
           </div>
           <div>
-            <Typography size="h3">{task.subject}</Typography>
+            <div className="flex items-center gap-2">
+              <Typography size="h3">{task.subject}</Typography>
+              <SlugTaskDialog
+                mode="edit"
+                task={task}
+                userStoryId={userStoryId}
+                trigger={
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="inline-flex items-center justify-center ml-2"
+                  >
+                    <Pencil className="h-4 w-4" />
+                  </Button>
+                }
+              />
+            </div>
             <div className="flex items-center gap-1">
               <span
                 style={{
