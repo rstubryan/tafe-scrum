@@ -1,17 +1,17 @@
 export interface CreateEpicProps {
   assigned_to: number | null;
-  blocked_note: string;
-  client_requirement: boolean;
-  color: string;
-  description: string;
-  epics_order: number;
-  is_blocked: boolean;
+  blocked_note?: string;
+  client_requirement?: boolean;
+  color?: string;
+  description?: string;
+  epics_order?: number;
+  is_blocked?: boolean;
   project: number;
   status: number;
   subject: string;
-  tags: string[];
-  team_requirement: boolean;
-  watchers: number[];
+  tags?: string[];
+  team_requirement?: boolean;
+  watchers?: number[];
 }
 
 export interface EditEpicProps extends CreateEpicProps {

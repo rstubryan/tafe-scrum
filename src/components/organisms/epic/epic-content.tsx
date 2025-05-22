@@ -75,19 +75,10 @@ export default function EpicContent() {
     editEpic({
       id: epicId,
       status: newStatusValue,
-      project: epic.project || parseInt(project?.id?.toString() || "0"),
-      subject: epic.subject || "",
-      assigned_to: epic.assigned_to,
-      blocked_note: epic.blocked_note || "",
-      client_requirement: epic.client_requirement || false,
-      color: epic.color || "#4e9a06",
-      description: epic.description || "",
-      epics_order: epic.epics_order || Math.floor(Date.now() / 1000),
-      is_blocked: epic.is_blocked || false,
-      tags: epic.tags || [],
-      team_requirement: epic.team_requirement || false,
-      watchers: epic.watchers || [],
       version: epic.version,
+      subject: epic.subject || "",
+      project: epic.project || parseInt(project?.id?.toString() || "0"),
+      assigned_to: epic.assigned_to,
     });
   };
 
