@@ -92,23 +92,7 @@ export default function SlugTaskContent() {
             </Typography>
           </div>
           <div>
-            <div className="flex items-center gap-2">
-              <Typography size="h3">{task.subject}</Typography>
-              <SlugTaskDialog
-                mode="edit"
-                task={task}
-                userStoryId={userStoryId}
-                trigger={
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="inline-flex items-center justify-center ml-2"
-                  >
-                    <Pencil className="h-4 w-4" />
-                  </Button>
-                }
-              />
-            </div>
+            <Typography size="h3">{task.subject}</Typography>
             <div className="flex items-center gap-1">
               <span
                 style={{
@@ -126,7 +110,21 @@ export default function SlugTaskContent() {
           </div>
         </div>
 
-        <div className="mt-4 lg:mt-0">
+        <div className="mt-4 lg:mt-0 flex items-center gap-2">
+          <SlugTaskDialog
+            mode="edit"
+            task={task}
+            userStoryId={userStoryId}
+            trigger={
+              <Button
+                variant="outline"
+                className="inline-flex items-center justify-center gap-2"
+              >
+                <Pencil className="h-4 w-4" />
+                Edit
+              </Button>
+            }
+          />
           <SlugTaskStatusForm
             tasks={[task]}
             taskStatus={task.status}
