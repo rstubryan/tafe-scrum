@@ -54,6 +54,7 @@ export default function BacklogForm({
       subject: "",
       project_id: "",
       version: "",
+      tags: "",
       due_date: "",
     },
   });
@@ -82,11 +83,24 @@ export default function BacklogForm({
         form.setValue("due_date", userStory.due_date);
       }
 
+      // Handle tags - convert array to comma-separated string
+      if (userStory.tags && Array.isArray(userStory.tags)) {
+        form.setValue("tags", userStory.tags.join(", "));
+      }
+
       setInitialValuesSet(true);
     }
   }, [userStory, mode, form, initialValuesSet]);
 
   const onSubmit = (data: z.infer<typeof userStoryFormSchema>) => {
+    // Parse tags from comma-separated string to array
+    const tagsArray = data.tags
+      ? data.tags
+          .split(",")
+          .map((tag) => tag.trim())
+          .filter((tag) => tag !== "")
+      : [];
+
     if (mode === "create") {
       createUserStory(
         {
@@ -99,6 +113,7 @@ export default function BacklogForm({
               subject: "",
               project_id: project?.id?.toString() || "",
               version: "",
+              tags: "",
               due_date: "",
             });
 
@@ -115,6 +130,7 @@ export default function BacklogForm({
           project: parseInt(data.project_id),
           subject: data.subject,
           version: data.version ? parseInt(data.version) : undefined,
+          tags: tagsArray,
           due_date: data.due_date || undefined,
         },
         {
@@ -151,7 +167,11 @@ export default function BacklogForm({
                     <Input
                       type={field.type}
                       required={field.required}
-                      placeholder={`Enter ${field.label.toLowerCase()}`}
+                      placeholder={
+                        field.name === "tags"
+                          ? "Enter tags separated by commas"
+                          : `Enter ${field.label.toLowerCase()}`
+                      }
                       {...fieldProps}
                       value={fieldProps.value || ""}
                       readOnly={field.name === "version"}

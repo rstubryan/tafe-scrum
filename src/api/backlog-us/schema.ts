@@ -11,6 +11,7 @@ export const userStoryFormSchema = baseUserStorySchema.extend({
     .string()
     .min(3, { message: "Subject must be at least 3 characters long" })
     .max(50, { message: "Subject must be at most 50 characters long" }),
+  tags: z.string().optional(),
   due_date: z
     .string()
     .optional()
@@ -30,6 +31,7 @@ export const userStoryFormFields: FormFieldDefinition<
   typeof userStoryFormSchema
 >[] = [
   { name: "subject", label: "User Story Name", type: "text", required: true },
+  { name: "tags", label: "Tags", type: "text", required: false },
   {
     name: "project_id",
     label: "Project ID",
