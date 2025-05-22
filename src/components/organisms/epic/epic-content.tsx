@@ -16,7 +16,7 @@ import { EyeIcon, Pencil, Trash2 } from "lucide-react";
 import { useParams } from "next/navigation";
 import { useGetProjectBySlug } from "@/api/project/queries";
 import { useGetEpicByProjectId } from "@/api/epic/queries";
-import { useDeleteEpic } from "@/api/epic/mutation";
+import { useDeleteEpic, useEditEpic } from "@/api/epic/mutation";
 import { formatDate } from "@/utils";
 import EpicDialog from "@/components/organisms/epic/epic-dialog";
 import {
@@ -32,6 +32,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { getInitials } from "@/utils/avatar-initials";
+import EpicStatusForm from "@/components/organisms/epic/epic-status-form";
 
 export default function EpicContent() {
   const params = useParams();
@@ -47,6 +48,7 @@ export default function EpicContent() {
     project?.id?.toString() || "",
   );
   const { mutate: deleteEpic } = useDeleteEpic();
+  const { mutate: editEpic } = useEditEpic();
 
   const epics = Array.isArray(epicsData) ? epicsData : [];
   const totalPages = Math.ceil(epics.length / itemsPerPage);
@@ -59,6 +61,34 @@ export default function EpicContent() {
     if (epicId) {
       deleteEpic(epicId.toString(), {});
     }
+  };
+
+  const handleStatusChange = (
+    epicId: number | undefined,
+    newStatusValue: number,
+  ) => {
+    if (!epicId) return;
+
+    const epic = epics.find((e) => e.id === epicId);
+    if (!epic) return;
+
+    editEpic({
+      id: epicId,
+      status: newStatusValue,
+      project: epic.project || parseInt(project?.id?.toString() || "0"),
+      subject: epic.subject || "",
+      assigned_to: epic.assigned_to,
+      blocked_note: epic.blocked_note || "",
+      client_requirement: epic.client_requirement || false,
+      color: epic.color || "#4e9a06",
+      description: epic.description || "",
+      epics_order: epic.epics_order || Math.floor(Date.now() / 1000),
+      is_blocked: epic.is_blocked || false,
+      tags: epic.tags || [],
+      team_requirement: epic.team_requirement || false,
+      watchers: epic.watchers || [],
+      version: epic.version,
+    });
   };
 
   if (isLoading) {
@@ -119,6 +149,15 @@ export default function EpicContent() {
                       </CardContent>
                     </div>
                   </div>
+
+                  <EpicStatusForm
+                    className={"mt-4 xl:mt-0 xl:w-[150px] w-full"}
+                    epics={epics}
+                    epicStatus={epic.status}
+                    onStatusChange={(newStatus) =>
+                      handleStatusChange(epic.id, newStatus)
+                    }
+                  />
                 </div>
               </CardHeader>
               <CardContent className="flex-1">
@@ -220,7 +259,7 @@ export default function EpicContent() {
                     </AlertDialog>
                   </div>
                 </div>
-              </CardFooter>{" "}
+              </CardFooter>
             </Card>
           ))}
         </div>
