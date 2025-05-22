@@ -13,24 +13,39 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { epicFormFields, epicFormSchema } from "@/api/epic/schema";
+import { Textarea } from "@/components/ui/textarea";
+import { epicDetailFormSchema, epicFormSchema } from "@/api/epic/schema";
 import { useCreateEpic, useEditEpic } from "@/api/epic/mutation";
 import { z } from "zod";
-import { CreateEpicProps, EpicProps, EditEpicProps } from "@/api/epic/type";
+import { CreateEpicProps, EpicProps } from "@/api/epic/type";
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, usePathname } from "next/navigation";
 import { useGetProjectBySlug } from "@/api/project/queries";
 import { MultiSelect } from "@/components/ui/multiselect";
 import { cn } from "@/lib/utils";
 
-interface EpicFormProps {
+interface EpicDetailFormProps {
   onSuccess?: () => void;
   epic?: EpicProps;
   mode: "create" | "edit";
 }
 
-export default function EpicForm({ onSuccess, epic, mode }: EpicFormProps) {
+// Define types for our form values
+type ListFormValues = z.infer<typeof epicFormSchema> & {
+  selectedMembers?: string[];
+};
+
+type DetailFormValues = z.infer<typeof epicDetailFormSchema> & {
+  selectedMembers?: string[];
+};
+
+export default function EpicDetailForm({
+  onSuccess,
+  epic,
+  mode,
+}: EpicDetailFormProps) {
   const params = useParams();
+  const pathname = usePathname();
   const slug = params.slug as string;
   const { data: project } = useGetProjectBySlug(slug);
   const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
@@ -38,13 +53,34 @@ export default function EpicForm({ onSuccess, epic, mode }: EpicFormProps) {
   const { mutate: editEpic, isPending: isEditing } = useEditEpic();
   const isPending = isCreating || isEditing;
 
-  const form = useForm<z.infer<typeof epicFormSchema>>({
-    resolver: zodResolver(epicFormSchema),
+  // Determine if we're in the detail view by checking if the URL contains an epic ID
+  const isDetailView =
+    pathname.includes("/epics/") && !pathname.endsWith("/epics");
+
+  // Create separate form handlers for list and detail views
+  const listForm = useForm<ListFormValues>({
+    resolver: zodResolver(
+      epicFormSchema.extend({
+        selectedMembers: z.array(z.string()).optional(),
+      }),
+    ),
     defaultValues: {
       subject: epic?.subject || "",
       project_id: project?.id?.toString() || "",
-      assigned_to: epic?.assigned_to?.toString() || "",
-      assigned_users: [],
+      selectedMembers: [],
+    },
+    mode: "onSubmit",
+  });
+
+  const detailForm = useForm<DetailFormValues>({
+    resolver: zodResolver(
+      epicDetailFormSchema.extend({
+        selectedMembers: z.array(z.string()).optional(),
+      }),
+    ),
+    defaultValues: {
+      description: epic?.description || "",
+      project_id: project?.id?.toString() || "",
       selectedMembers: [],
     },
     mode: "onSubmit",
@@ -53,63 +89,74 @@ export default function EpicForm({ onSuccess, epic, mode }: EpicFormProps) {
   // Update form values when project or epic changes
   useEffect(() => {
     if (project?.id) {
-      form.setValue("project_id", project.id.toString());
+      const projectId = project.id.toString();
+      listForm.setValue("project_id", projectId);
+      detailForm.setValue("project_id", projectId);
     }
 
     if (epic) {
-      if (epic.subject !== undefined) {
-        form.setValue("subject", epic.subject || "");
+      if (!isDetailView && epic.subject) {
+        listForm.setValue("subject", epic.subject);
+      }
+
+      if (isDetailView && epic.description !== undefined) {
+        detailForm.setValue("description", epic.description || "");
       }
 
       // Initialize selected members from assigned_to
-      const membersToSelect: string[] = [];
-
       if (epic.assigned_to) {
-        membersToSelect.push(epic.assigned_to.toString());
-      }
+        const membersToSelect = [epic.assigned_to.toString()];
+        setSelectedMembers(membersToSelect);
 
-      setSelectedMembers(membersToSelect);
-      form.setValue("selectedMembers", membersToSelect);
+        if (isDetailView) {
+          detailForm.setValue("selectedMembers", membersToSelect);
+        } else {
+          listForm.setValue("selectedMembers", membersToSelect);
+        }
+      }
     }
-  }, [project, epic, form]);
+  }, [project, epic, listForm, detailForm, isDetailView]);
 
   // Handle member selection changes
   const handleMemberSelection = (values: string[]) => {
     setSelectedMembers(values);
-    form.setValue("selectedMembers", values, { shouldValidate: true });
+
+    if (isDetailView) {
+      detailForm.setValue("selectedMembers", values, { shouldValidate: true });
+    } else {
+      listForm.setValue("selectedMembers", values, { shouldValidate: true });
+    }
   };
 
-  const onSubmit = form.handleSubmit((data) => {
+  const onSubmit = (data: ListFormValues | DetailFormValues) => {
     // Determine assigned_to based on selected members
     const assigned_to =
       selectedMembers.length > 0 ? parseInt(selectedMembers[0]) : null;
 
     if (mode === "create") {
       const epicData: CreateEpicProps = {
-        subject: data.subject,
+        subject: isDetailView
+          ? "" // Should never happen in UI, but needed for type safety
+          : (data as ListFormValues).subject,
         project: parseInt(data.project_id),
         assigned_to,
-        blocked_note: "",
-        client_requirement: false,
-        color: "#4e9a06",
-        description: "",
-        epics_order: Math.floor(Date.now() / 1000),
-        is_blocked: false,
-        status: 16, // Default status (New)
-        tags: [],
-        team_requirement: false,
-        watchers: [],
       };
 
       createEpic(epicData, {
         onSuccess: () => {
-          const resetValues: Partial<z.infer<typeof epicFormSchema>> = {
-            subject: "",
-            project_id: project?.id?.toString() || "",
-            selectedMembers: [],
-          };
-
-          form.reset(resetValues);
+          if (isDetailView) {
+            detailForm.reset({
+              description: "",
+              project_id: project?.id?.toString() || "",
+              selectedMembers: [],
+            });
+          } else {
+            listForm.reset({
+              subject: "",
+              project_id: project?.id?.toString() || "",
+              selectedMembers: [],
+            });
+          }
           setSelectedMembers([]);
 
           if (onSuccess) {
@@ -118,22 +165,14 @@ export default function EpicForm({ onSuccess, epic, mode }: EpicFormProps) {
         },
       });
     } else if (mode === "edit" && epic?.id) {
-      const epicData: EditEpicProps = {
+      const epicData = {
         id: epic.id,
-        subject: data.subject,
         project: parseInt(data.project_id),
-        assigned_to,
-        blocked_note: epic.blocked_note || "",
-        client_requirement: epic.client_requirement || false,
-        color: epic.color || "#4e9a06",
-        description: epic.description || "",
-        epics_order: epic.epics_order || Math.floor(Date.now() / 1000),
-        is_blocked: epic.is_blocked || false,
-        status: epic.status || 16,
-        tags: epic.tags || [],
-        team_requirement: epic.team_requirement || false,
-        watchers: epic.watchers || [],
         version: epic.version,
+        ...(isDetailView
+          ? { description: (data as DetailFormValues).description || "" }
+          : { subject: (data as ListFormValues).subject || "" }),
+        assigned_to,
       };
 
       editEpic(epicData, {
@@ -144,22 +183,7 @@ export default function EpicForm({ onSuccess, epic, mode }: EpicFormProps) {
         },
       });
     }
-  });
-
-  const filteredFormFields = epicFormFields.filter((field) => {
-    // Hide these fields as they're handled automatically
-    if (field.hidden) return false;
-
-    // Hide the assigned_to and assigned_users fields as we'll handle them separately
-    if (field.name === "assigned_to" || field.name === "assigned_users") {
-      return false;
-    }
-
-    return true;
-  });
-
-  // Define all possible field names to avoid TypeScript errors
-  type FieldName = keyof z.infer<typeof epicFormSchema>;
+  };
 
   // Prepare member options for the MultiSelect component
   const memberOptions =
@@ -169,59 +193,161 @@ export default function EpicForm({ onSuccess, epic, mode }: EpicFormProps) {
     })) || [];
 
   return (
-    <Form {...form}>
-      <form onSubmit={onSubmit} className="space-y-4">
-        {filteredFormFields.map((field) => (
-          <FormField
-            key={field.name}
-            control={form.control}
-            name={field.name as FieldName}
-            render={({ field: fieldProps }) => (
-              <FormItem className={field.hidden ? "hidden" : "flex flex-col"}>
-                {!field.hidden && <FormLabel>{field.label}</FormLabel>}
+    <>
+      {isDetailView ? (
+        <Form {...detailForm}>
+          <form
+            onSubmit={detailForm.handleSubmit(onSubmit)}
+            className="space-y-4"
+          >
+            {/* Description field for detail views */}
+            <FormField
+              control={detailForm.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem className="flex flex-col">
+                  <FormLabel>Description</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="Enter description"
+                      {...field}
+                      value={field.value || ""}
+                      className="min-h-[100px]"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Project ID field (hidden) */}
+            <FormField
+              control={detailForm.control}
+              name="project_id"
+              render={({ field }) => (
+                <FormItem className="hidden">
+                  <FormControl>
+                    <Input
+                      type="text"
+                      required={true}
+                      {...field}
+                      value={field.value || ""}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Assign Member field for detail views when creating */}
+            {mode === "create" && (
+              <FormItem className="flex flex-col">
+                <FormLabel>Assign Member</FormLabel>
                 <FormControl>
-                  <Input
-                    type={field.type}
-                    required={field.required}
-                    placeholder={`Enter ${field.label.toLowerCase()}`}
-                    {...fieldProps}
-                    value={fieldProps.value || ""}
+                  <MultiSelect
+                    options={memberOptions}
+                    onValueChange={handleMemberSelection}
+                    defaultValue={selectedMembers}
+                    placeholder="Select a member to assign"
+                    className={cn("w-full")}
                   />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
-          />
-        ))}
 
-        {/* Render custom assignment field with MultiSelect */}
-        <FormItem className="flex flex-col">
-          <FormLabel>Assign Member</FormLabel>
-          <FormControl>
-            <MultiSelect
-              options={memberOptions}
-              onValueChange={handleMemberSelection}
-              defaultValue={selectedMembers}
-              placeholder="Select a member to assign"
-              className={cn("w-full")}
+            <Button type="submit" className="w-full" disabled={isPending}>
+              {isPending ? (
+                <>
+                  <LoaderCircle className="animate-spin mr-2" />
+                  {mode === "create"
+                    ? "Creating Epic..."
+                    : "Updating Description..."}
+                </>
+              ) : mode === "create" ? (
+                "Create Epic"
+              ) : (
+                "Update Description"
+              )}
+            </Button>
+          </form>
+        </Form>
+      ) : (
+        <Form {...listForm}>
+          <form
+            onSubmit={listForm.handleSubmit(onSubmit)}
+            className="space-y-4"
+          >
+            {/* Subject field for non-detail views */}
+            <FormField
+              control={listForm.control}
+              name="subject"
+              render={({ field }) => (
+                <FormItem className="flex flex-col">
+                  <FormLabel>Epic Name</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="text"
+                      required={true}
+                      placeholder="Enter epic name"
+                      {...field}
+                      value={field.value || ""}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </FormControl>
-          <FormMessage />
-        </FormItem>
 
-        <Button type="submit" className="w-full" disabled={isPending}>
-          {isPending ? (
-            <>
-              <LoaderCircle className="animate-spin mr-2" />
-              {mode === "create" ? "Creating Epic..." : "Updating Epic..."}
-            </>
-          ) : mode === "create" ? (
-            "Create Epic"
-          ) : (
-            "Update Epic"
-          )}
-        </Button>
-      </form>
-    </Form>
+            {/* Project ID field (hidden) */}
+            <FormField
+              control={listForm.control}
+              name="project_id"
+              render={({ field }) => (
+                <FormItem className="hidden">
+                  <FormControl>
+                    <Input
+                      type="text"
+                      required={true}
+                      {...field}
+                      value={field.value || ""}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Assign Member field for non-detail views */}
+            <FormItem className="flex flex-col">
+              <FormLabel>Assign Member</FormLabel>
+              <FormControl>
+                <MultiSelect
+                  options={memberOptions}
+                  onValueChange={handleMemberSelection}
+                  defaultValue={selectedMembers}
+                  placeholder="Select a member to assign"
+                  className={cn("w-full")}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+
+            <Button type="submit" className="w-full" disabled={isPending}>
+              {isPending ? (
+                <>
+                  <LoaderCircle className="animate-spin mr-2" />
+                  {mode === "create" ? "Creating Epic..." : "Updating Epic..."}
+                </>
+              ) : mode === "create" ? (
+                "Create Epic"
+              ) : (
+                "Update Epic"
+              )}
+            </Button>
+          </form>
+        </Form>
+      )}
+    </>
   );
 }

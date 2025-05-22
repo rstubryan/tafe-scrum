@@ -17,6 +17,12 @@ export const epicFormSchema = baseEpicSchema.extend({
 
 export type EpicFormSchema = typeof epicFormSchema;
 
+export const epicDetailFormSchema = baseEpicSchema.extend({
+  description: z.string().optional(),
+});
+
+export type EpicDetailFormSchema = typeof epicDetailFormSchema;
+
 export const epicFormFields: FormFieldDefinition<typeof epicFormSchema>[] = [
   { name: "subject", label: "Epic Name", type: "text", required: true },
   {
@@ -29,6 +35,24 @@ export const epicFormFields: FormFieldDefinition<typeof epicFormSchema>[] = [
     name: "assigned_users",
     label: "Assigned Users",
     type: "multi-select",
+    required: false,
+  },
+  {
+    name: "project_id",
+    label: "Project ID",
+    type: "text",
+    required: true,
+    hidden: true,
+  },
+];
+
+export const epicDetailFormFields: FormFieldDefinition<
+  typeof epicDetailFormSchema
+>[] = [
+  {
+    name: "description",
+    label: "Description",
+    type: "textarea",
     required: false,
   },
   {

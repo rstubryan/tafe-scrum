@@ -1,5 +1,5 @@
 export interface CreateEpicProps {
-  assigned_to: number | null;
+  assigned_to?: number | null;
   blocked_note?: string;
   client_requirement?: boolean;
   color?: string;
@@ -7,8 +7,8 @@ export interface CreateEpicProps {
   epics_order?: number;
   is_blocked?: boolean;
   project: number;
-  status: number;
-  subject: string;
+  status?: number;
+  subject?: string;
   tags?: string[];
   team_requirement?: boolean;
   watchers?: number[];
