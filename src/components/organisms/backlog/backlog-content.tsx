@@ -33,6 +33,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import BacklogDialog from "@/components/organisms/backlog/backlog-dialog";
+import { Badge } from "@/components/ui/badge";
 
 export default function BacklogContent() {
   const params = useParams();
@@ -170,12 +171,23 @@ export default function BacklogContent() {
                     </Typography>
                   </div>
 
-                  <div className="mt-2 flex flex-wrap gap-1">
-                    <Typography size="xs" className="text-primary">
-                      {story.tags && story.tags.length > 0
-                        ? story.tags.map((tag) => tag[0]).join(", ")
-                        : "No tags available"}
+                  <div className="mt-2 flex flex-wrap gap-1 items-center">
+                    <Typography size="xs" className="text-primary mr-1">
+                      Tags:
                     </Typography>
+                    <div className="flex flex-wrap gap-1">
+                      {story.tags && story.tags.length > 0 ? (
+                        story.tags.map((tag, index) => (
+                          <Badge key={index} className="text-xs">
+                            {Array.isArray(tag) ? tag[0] : String(tag)}
+                          </Badge>
+                        ))
+                      ) : (
+                        <Badge variant="outline" className="text-xs">
+                          No tags available
+                        </Badge>
+                      )}
+                    </div>
                   </div>
                 </div>
               </CardContent>
