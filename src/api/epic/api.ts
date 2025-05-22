@@ -27,11 +27,11 @@ export const epicApi = {
     { urlParams: { projectId: string } },
     ResponseProps<EpicProps[]>
   >({
-    endpoint: `${BASE_URL}/{projectId}`,
+    endpoint: `${BASE_URL}`,
     method: "GET",
     extraConfig: ({ urlParams }) => ({
       params: {
-        project_id: urlParams?.projectId,
+        project: urlParams?.projectId,
       },
     }),
   }),
