@@ -11,7 +11,7 @@ export const useCreateIssue = () => {
   return useMutation({
     mutationFn: (data: CreateIssueProps) => issueApi.createIssue({ data }),
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ["issues"] });
+      queryClient.invalidateQueries({ queryKey: ["issue-by-project-id"] });
       toast.success("Issue created successfully");
       return data;
     },
@@ -42,7 +42,7 @@ export const useEditIssue = () => {
       });
     },
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ["issues"] });
+      queryClient.invalidateQueries({ queryKey: ["issue-by-project-id"] });
       toast.success("Issue updated successfully");
       return data;
     },
@@ -72,7 +72,7 @@ export const useDeleteIssue = () => {
       });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["issues"] });
+      queryClient.invalidateQueries({ queryKey: ["issue-by-project-id"] });
       toast.success("Issue deleted successfully");
     },
     onError: (error: AxiosError) => {

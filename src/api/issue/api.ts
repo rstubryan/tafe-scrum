@@ -27,7 +27,7 @@ export const issueApi = {
     { urlParams: { projectId: string } },
     ResponseProps<IssueProps[]>
   >({
-    endpoint: `${BASE_URL}/{projectId}`,
+    endpoint: `${BASE_URL}`,
     method: "GET",
     extraConfig: ({ urlParams }) => ({
       params: {
