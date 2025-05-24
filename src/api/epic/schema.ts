@@ -23,6 +23,14 @@ export const epicDetailFormSchema = baseEpicSchema.extend({
 
 export type EpicDetailFormSchema = typeof epicDetailFormSchema;
 
+export const epicDetailRelatedUsFormSchema = z.object({
+  epic_id: z.string(),
+  user_story_id: z.string(),
+});
+
+export type EpicDetailRelatedUsFormSchema =
+  typeof epicDetailRelatedUsFormSchema;
+
 export const epicFormFields: FormFieldDefinition<typeof epicFormSchema>[] = [
   { name: "subject", label: "Epic Name", type: "text", required: true },
   {
@@ -61,5 +69,23 @@ export const epicDetailFormFields: FormFieldDefinition<
     type: "text",
     required: true,
     hidden: true,
+  },
+];
+
+export const epicDetailRelatedUsFormFields: FormFieldDefinition<
+  typeof epicDetailRelatedUsFormSchema
+>[] = [
+  {
+    name: "epic_id",
+    label: "Epic ID",
+    type: "text",
+    required: true,
+    hidden: true,
+  },
+  {
+    name: "user_story_id",
+    label: "User Story ID",
+    type: "select",
+    required: true,
   },
 ];

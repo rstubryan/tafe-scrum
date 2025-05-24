@@ -25,6 +25,40 @@ export const useCreateEpic = () => {
   });
 };
 
+export const useCreateRelatedUserStory = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      epicId,
+      userStoryId,
+    }: {
+      epicId: string;
+      userStoryId: string;
+    }) =>
+      epicApi.createRelatedUserStory({
+        urlParams: { epicId },
+        data: {
+          // @ts-expect-error The API expects both user_story and epic properties
+          user_story: userStoryId,
+          epic: epicId,
+        },
+      }),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["epic-by-project-id"] });
+      toast.success("User story related successfully");
+      return data;
+    },
+    onError: (error: AxiosError) => {
+      handleApiError(
+        error,
+        "User story relation failed",
+        "Please check your input and try again.",
+      );
+    },
+  });
+};
+
 export const useEditEpic = () => {
   const queryClient = useQueryClient();
 
@@ -77,6 +111,26 @@ export const useDeleteEpic = () => {
       handleApiError(
         error,
         "Epic deletion failed",
+        "Please check your input and try again.",
+      );
+    },
+  });
+};
+
+export const useDeleteRelatedUserStory = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (epicId: string) =>
+      epicApi.deleteRelatedUserStory({ urlParams: { epicId } }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["epic-by-project-id"] });
+      toast.success("User story deleted successfully");
+    },
+    onError: (error: AxiosError) => {
+      handleApiError(
+        error,
+        "User story deletion failed",
         "Please check your input and try again.",
       );
     },

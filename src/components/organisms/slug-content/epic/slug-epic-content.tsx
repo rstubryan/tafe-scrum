@@ -10,8 +10,9 @@ import { useGetEpicByRefIdAndProjectId } from "@/api/epic/queries";
 import { formatDate } from "@/utils";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
-import { Pencil } from "lucide-react";
 import EpicDialog from "@/components/organisms/epic/epic-dialog";
+import { Pencil, Plus } from "lucide-react";
+import SlugEpicRelatedUsDialog from "@/components/organisms/slug-content/epic/slug-epic-related-us-dialog";
 
 export default function SlugEpicContent() {
   const params = useParams();
@@ -184,9 +185,20 @@ export default function SlugEpicContent() {
             <Separator className="my-2" />
 
             <div className="mt-4">
-              <Typography size="sm" className="font-medium">
-                Associated User Stories
-              </Typography>
+              <div className="flex items-center justify-between">
+                <Typography size="sm" className="font-medium">
+                  Associated User Stories
+                </Typography>
+                <SlugEpicRelatedUsDialog
+                  epic={epic}
+                  trigger={
+                    <Button variant="outline" size="sm">
+                      <Plus className="h-4 w-4 mr-1" />
+                      Add User Story
+                    </Button>
+                  }
+                />
+              </div>
               {/* Here you would map through and display the associated user stories */}
               <div className="mt-2 text-center p-4 border border-dashed rounded-md">
                 {(epic.user_stories_counts?.total ?? 0) > 0 ? (

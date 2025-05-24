@@ -55,6 +55,20 @@ export const epicApi = {
     method: "POST",
   }),
 
+  createRelatedUserStory: createApiRequest<
+    {
+      urlParams: { epicId: string };
+      data: { user_story: string };
+    },
+    ResponseProps<EpicProps>
+  >({
+    endpoint: `${BASE_URL}/{epicId}/related_userstories`,
+    method: "POST",
+    extraConfig: ({ urlParams }) => ({
+      url: `${BASE_URL}/${urlParams?.epicId}/related_userstories`,
+    }),
+  }),
+
   updateEpic: createApiRequest<
     Partial<EditEpicProps>,
     ResponseProps<EpicProps>
@@ -73,6 +87,17 @@ export const epicApi = {
       params: {
         id: urlParams?.id,
       },
+    }),
+  }),
+
+  deleteRelatedUserStory: createApiRequest<
+    { urlParams: { epicId: string; userStoryId: string } },
+    ResponseProps<null>
+  >({
+    endpoint: `${BASE_URL}/{epicId}/related_userstories/{userStoryId}`,
+    method: "DELETE",
+    extraConfig: ({ urlParams }) => ({
+      url: `${BASE_URL}/${urlParams?.epicId}/related_userstories/${urlParams?.userStoryId}`,
     }),
   }),
 };
