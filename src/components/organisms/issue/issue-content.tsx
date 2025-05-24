@@ -66,7 +66,7 @@ export default function IssueContent() {
   }
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 mt-5">
       {issues.length === 0 ? (
         <div className="rounded-md bg-muted/50 p-6 text-center">
           <p className="text-primary leading-7 scroll-m-20">
