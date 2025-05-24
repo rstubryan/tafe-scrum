@@ -17,7 +17,10 @@ import { Button } from "@/components/ui/button";
 import { Eye, Pencil, Trash2 } from "lucide-react";
 import { useGetProjectBySlug } from "@/api/project/queries";
 import { useGetUserStoryByProjectId } from "@/api/backlog-us/queries";
-import { useDeleteUserStory } from "@/api/backlog-us/mutation";
+import {
+  useDeleteUserStory,
+  useEditUserStory,
+} from "@/api/backlog-us/mutation";
 import { UserStoryProps } from "@/api/backlog-us/type";
 import { getInitials } from "@/utils/avatar-initials";
 import { formatDate } from "@/utils";
@@ -34,6 +37,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import BacklogDialog from "@/components/organisms/backlog/backlog-dialog";
 import { Badge } from "@/components/ui/badge";
+import BacklogStatusForm from "@/components/organisms/backlog/form/backlog-status-form";
 
 export default function BacklogContent() {
   const params = useParams();
@@ -45,6 +49,7 @@ export default function BacklogContent() {
   const { data: userStories, isLoading } = useGetUserStoryByProjectId(
     project?.id?.toString() || "",
   );
+  const { mutate: editUserStory } = useEditUserStory();
   const { mutate: deleteUserStory } = useDeleteUserStory();
 
   const userStoriesArray = Array.isArray(userStories) ? userStories : [];
@@ -62,6 +67,24 @@ export default function BacklogContent() {
       setCurrentPage(1);
     }
   }, [userStories]);
+
+  const handleStatusChange = (
+    storyId: number | undefined,
+    newStatusValue: number,
+  ) => {
+    if (!storyId) return;
+
+    const story = userStoriesArray.find((s) => s.id === storyId);
+    if (!story) return;
+
+    editUserStory({
+      id: storyId,
+      status: newStatusValue,
+      project: story.project || project?.id,
+      subject: story.subject || "",
+      version: story.version,
+    });
+  };
 
   const handleDeleteUserStory = (storyId: number | undefined) => {
     if (storyId) {
@@ -84,40 +107,52 @@ export default function BacklogContent() {
           paginatedStories.map((story: UserStoryProps) => (
             <Card key={story.id} className="flex h-full flex-col">
               <CardHeader className="pb-0">
-                <div className="flex items-center gap-2">
-                  <div
-                    className="flex h-10 w-10 items-center justify-center rounded-md"
-                    style={{
-                      backgroundColor:
-                        story.status_extra_info?.color || "#70728F",
-                    }}
-                  >
-                    <Typography className="font-bold text-white">
-                      #{story.ref}
-                    </Typography>
-                  </div>
-                  <div>
-                    <CardTitle className="line-clamp-1">
-                      {story.subject}
-                    </CardTitle>
-                    <CardContent className="p-0">
-                      <Typography className="flex gap-1 text-xs text-muted-foreground">
-                        <span
-                          style={{
-                            color: story.status_extra_info?.color || "#70728F",
-                          }}
-                        >
-                          {story.status_extra_info?.name || "New"}
-                        </span>
-                        <span>•</span>
-                        <span className="font-medium">
-                          {story.is_closed ? "Closed" : "Open"}
-                        </span>
+                <div className="2xl:flex items-center justify-between w-full">
+                  <div className="flex items-center gap-2">
+                    <div
+                      className="flex h-10 w-10 items-center justify-center rounded-md"
+                      style={{
+                        backgroundColor:
+                          story.status_extra_info?.color || "#70728F",
+                      }}
+                    >
+                      <Typography className="font-bold text-white">
+                        #{story.ref}
                       </Typography>
-                    </CardContent>
+                    </div>
+                    <div>
+                      <CardTitle className="line-clamp-1">
+                        {story.subject}
+                      </CardTitle>
+                      <CardContent className="p-0">
+                        <Typography className="flex gap-1 text-xs text-muted-foreground">
+                          <span
+                            style={{
+                              color:
+                                story.status_extra_info?.color || "#70728F",
+                            }}
+                          >
+                            {story.status_extra_info?.name || "New"}
+                          </span>
+                          <span>•</span>
+                          <span className="font-medium">
+                            {story.is_closed ? "Closed" : "Open"}
+                          </span>
+                        </Typography>
+                      </CardContent>
+                    </div>
                   </div>
+
+                  <BacklogStatusForm
+                    className={"mt-4 2xl:mt-0 2xl:w-[150px] w-full"}
+                    userStories={userStoriesArray}
+                    currentStatus={story.status}
+                    onStatusChange={(newStatus) =>
+                      handleStatusChange(story.id, newStatus)
+                    }
+                  />
                 </div>
-              </CardHeader>
+              </CardHeader>{" "}
               <CardContent className="flex-1">
                 <div className="mt-2 text-xs text-muted-foreground">
                   <div className="flex items-center gap-2">

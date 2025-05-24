@@ -32,7 +32,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { getInitials } from "@/utils/avatar-initials";
-import EpicStatusForm from "@/components/organisms/epic/epic-status-form";
+import EpicStatusForm from "@/components/organisms/epic/form/epic-status-form";
 
 export default function EpicContent() {
   const params = useParams();
