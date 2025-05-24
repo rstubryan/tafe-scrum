@@ -38,3 +38,11 @@ export const useGetUserStoryByRefAndProjectId = (
     enabled: !!ref && !!projectId,
   });
 };
+
+export const useGetUserStoryByEpicId = (epicId: string) => {
+  return useQuery({
+    queryKey: ["user-stories-by-epic", epicId],
+    queryFn: () => userStoryApi.getUserStoryByEpicId({ urlParams: { epicId } }),
+    enabled: !!epicId,
+  });
+};

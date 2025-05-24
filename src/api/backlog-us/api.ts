@@ -54,6 +54,19 @@ export const userStoryApi = {
     }),
   }),
 
+  getUserStoryByEpicId: createApiRequest<
+    { urlParams: { epicId: string } },
+    ResponseProps<UserStoryProps[]>
+  >({
+    endpoint: `${BASE_URL}`,
+    method: "GET",
+    extraConfig: ({ urlParams }) => ({
+      params: {
+        epic: urlParams?.epicId,
+      },
+    }),
+  }),
+
   createUserStory: createApiRequest<
     CreateUserStoryProps,
     ResponseProps<UserStoryProps>

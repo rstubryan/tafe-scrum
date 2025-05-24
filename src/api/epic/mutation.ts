@@ -45,7 +45,7 @@ export const useCreateRelatedUserStory = () => {
         },
       }),
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ["epic-by-project-id"] });
+      queryClient.invalidateQueries({ queryKey: ["user-stories-by-epic"] });
       toast.success("User story related successfully");
       return data;
     },
@@ -121,16 +121,27 @@ export const useDeleteRelatedUserStory = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (epicId: string) =>
-      epicApi.deleteRelatedUserStory({ urlParams: { epicId } }),
+    mutationFn: ({
+      epicId,
+      userStoryId,
+    }: {
+      epicId: string;
+      userStoryId: string;
+    }) =>
+      epicApi.deleteRelatedUserStory({
+        urlParams: {
+          epicId,
+          userStoryId,
+        },
+      }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["epic-by-project-id"] });
-      toast.success("User story deleted successfully");
+      queryClient.invalidateQueries({ queryKey: ["user-stories-by-epic"] });
+      toast.success("User story removed from epic successfully");
     },
     onError: (error: AxiosError) => {
       handleApiError(
         error,
-        "User story deletion failed",
+        "Failed to remove user story from epic",
         "Please check your input and try again.",
       );
     },
