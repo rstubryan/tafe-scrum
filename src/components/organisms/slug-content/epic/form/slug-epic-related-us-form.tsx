@@ -19,7 +19,10 @@ import { EpicProps } from "@/api/epic/type";
 import { useEffect } from "react";
 import { useParams } from "next/navigation";
 import { useGetProjectBySlug } from "@/api/project/queries";
-import { useGetUserStoryByProjectId } from "@/api/backlog-us/queries";
+import {
+  useGetUserStoryByProjectId,
+  useGetUserStoryByEpicId,
+} from "@/api/backlog-us/queries";
 import type { UserStoryProps } from "@/api/backlog-us/type";
 import { Check, ChevronsUpDown } from "lucide-react";
 import {
@@ -53,6 +56,10 @@ export default function SlugEpicRelatedUsForm({
   const { data: project } = useGetProjectBySlug(slug);
   const { data: userStories } = useGetUserStoryByProjectId(
     project?.id?.toString() || "",
+  );
+  // Fetch user stories already associated with this epic
+  const { data: relatedUserStories } = useGetUserStoryByEpicId(
+    epic?.id?.toString() || "",
   );
   const { mutate: createRelatedUserStory, isPending } =
     useCreateRelatedUserStory();
@@ -94,6 +101,20 @@ export default function SlugEpicRelatedUsForm({
     );
   });
 
+  // Filter out user stories that are already associated with the epic
+  const availableUserStories = Array.isArray(userStories)
+    ? userStories.filter((story) => {
+        // Get IDs of already related user stories
+        const relatedStoryIds = Array.isArray(relatedUserStories)
+          ? relatedUserStories.map(
+              (relatedStory: UserStoryProps) => relatedStory.id,
+            )
+          : [];
+        // Include only stories that aren't already related
+        return !relatedStoryIds.includes(story.id);
+      })
+    : [];
+
   return (
     <Form {...form}>
       <form onSubmit={onSubmit} className="space-y-4">
@@ -130,7 +151,7 @@ export default function SlugEpicRelatedUsForm({
                       )}
                     >
                       {field.value
-                        ? (Array.isArray(userStories) ? userStories : []).find(
+                        ? availableUserStories.find(
                             (userStory: UserStoryProps) =>
                               String(userStory.id) === field.value,
                           )?.subject || "Select user story"
@@ -146,46 +167,62 @@ export default function SlugEpicRelatedUsForm({
                       className="h-9"
                     />
                     <CommandList>
-                      <CommandEmpty>No user stories found.</CommandEmpty>
+                      <CommandEmpty>
+                        No available user stories found.
+                      </CommandEmpty>
                       <CommandGroup>
-                        {Array.isArray(userStories) &&
-                          userStories.map((userStory: UserStoryProps) => (
-                            <CommandItem
-                              key={userStory.id}
-                              value={
-                                userStory.subject || `US #${userStory.ref}`
-                              }
-                              onSelect={() => {
-                                field.onChange(String(userStory.id || ""));
-                              }}
-                            >
-                              {userStory.subject || `US #${userStory.ref}`}
-                              <Check
-                                className={cn(
-                                  "ml-auto",
-                                  String(userStory.id) === field.value
-                                    ? "opacity-100"
-                                    : "opacity-0",
-                                )}
-                              />
-                            </CommandItem>
-                          ))}
+                        {availableUserStories.length > 0 ? (
+                          availableUserStories.map(
+                            (userStory: UserStoryProps) => (
+                              <CommandItem
+                                key={userStory.id}
+                                value={
+                                  userStory.subject || `US #${userStory.ref}`
+                                }
+                                onSelect={() => {
+                                  field.onChange(String(userStory.id || ""));
+                                }}
+                              >
+                                {userStory.subject || `US #${userStory.ref}`}
+                                <Check
+                                  className={cn(
+                                    "ml-auto",
+                                    String(userStory.id) === field.value
+                                      ? "opacity-100"
+                                      : "opacity-0",
+                                  )}
+                                />
+                              </CommandItem>
+                            ),
+                          )
+                        ) : (
+                          <CommandItem disabled>
+                            All user stories are already associated with this
+                            epic
+                          </CommandItem>
+                        )}
                       </CommandGroup>
                     </CommandList>
                   </Command>
                 </PopoverContent>
               </Popover>
-              <FormMessage /> <FormMessage />
+              <FormMessage />
             </FormItem>
           )}
         />
 
-        <Button type="submit" className="w-full" disabled={isPending}>
+        <Button
+          type="submit"
+          className="w-full"
+          disabled={isPending || availableUserStories.length === 0}
+        >
           {isPending ? (
             <>
               <LoaderCircle className="animate-spin mr-2" />
               Relating User Story...
             </>
+          ) : availableUserStories.length === 0 ? (
+            "No Available User Stories"
           ) : (
             "Relate User Story"
           )}
