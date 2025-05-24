@@ -20,14 +20,22 @@ import { useEffect } from "react";
 import { useParams } from "next/navigation";
 import { useGetProjectBySlug } from "@/api/project/queries";
 import { useGetUserStoryByProjectId } from "@/api/backlog-us/queries";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import type { UserStoryProps } from "@/api/backlog-us/type";
+import { Check, ChevronsUpDown } from "lucide-react";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import { cn } from "@/lib/utils";
 
 interface SlugEpicRelatedUsFormProps {
   onSuccess?: () => void;
@@ -110,25 +118,64 @@ export default function SlugEpicRelatedUsForm({
           render={({ field }) => (
             <FormItem className="flex flex-col">
               <FormLabel>Select User Story</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <FormControl>
-                  <SelectTrigger className={"w-full"}>
-                    <SelectValue placeholder="Select a user story" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {Array.isArray(userStories) &&
-                    userStories.map((userStory: UserStoryProps) => (
-                      <SelectItem
-                        key={userStory.id}
-                        value={String(userStory.id || "")}
-                      >
-                        {userStory.subject || `US #${userStory.ref}`}
-                      </SelectItem>
-                    ))}
-                </SelectContent>
-              </Select>
-              <FormMessage />
+              <Popover>
+                <PopoverTrigger asChild>
+                  <FormControl>
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      className={cn(
+                        "w-full justify-between",
+                        !field.value && "text-muted-foreground",
+                      )}
+                    >
+                      {field.value
+                        ? (Array.isArray(userStories) ? userStories : []).find(
+                            (userStory: UserStoryProps) =>
+                              String(userStory.id) === field.value,
+                          )?.subject || "Select user story"
+                        : "Select a user story"}
+                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    </Button>
+                  </FormControl>
+                </PopoverTrigger>
+                <PopoverContent className="w-full p-0">
+                  <Command>
+                    <CommandInput
+                      placeholder="Search user stories..."
+                      className="h-9"
+                    />
+                    <CommandList>
+                      <CommandEmpty>No user stories found.</CommandEmpty>
+                      <CommandGroup>
+                        {Array.isArray(userStories) &&
+                          userStories.map((userStory: UserStoryProps) => (
+                            <CommandItem
+                              key={userStory.id}
+                              value={
+                                userStory.subject || `US #${userStory.ref}`
+                              }
+                              onSelect={() => {
+                                field.onChange(String(userStory.id || ""));
+                              }}
+                            >
+                              {userStory.subject || `US #${userStory.ref}`}
+                              <Check
+                                className={cn(
+                                  "ml-auto",
+                                  String(userStory.id) === field.value
+                                    ? "opacity-100"
+                                    : "opacity-0",
+                                )}
+                              />
+                            </CommandItem>
+                          ))}
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
+              <FormMessage /> <FormMessage />
             </FormItem>
           )}
         />
