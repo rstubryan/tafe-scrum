@@ -30,6 +30,7 @@ import {
 import { PaginationLayout } from "@/components/templates/layout/pagination-layout";
 import { formatDate, getInitials } from "@/utils";
 import { useGetProjectBySlug } from "@/api/project/queries";
+import IssueDialog from "@/components/organisms/issue/issue-dialog";
 
 export default function IssueContent() {
   const { slug } = useParams<{ slug: string }>();
@@ -205,14 +206,20 @@ export default function IssueContent() {
                   </Link>
 
                   <div className="grid grid-cols-2 gap-2">
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      className="h-10 w-full"
-                    >
-                      <span className="sr-only">Edit</span>
-                      <Pencil className="size-4" />
-                    </Button>
+                    <IssueDialog
+                      mode="edit"
+                      issue={issue}
+                      trigger={
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          className="h-10 w-full"
+                        >
+                          <span className="sr-only">Edit</span>
+                          <Pencil className="size-4" />
+                        </Button>
+                      }
+                    />
 
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
