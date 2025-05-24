@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { EyeIcon, Pencil, Trash2 } from "lucide-react";
@@ -31,11 +31,22 @@ import { PaginationLayout } from "@/components/templates/layout/pagination-layou
 import { formatDate, getInitials } from "@/utils";
 import { useGetProjectBySlug } from "@/api/project/queries";
 import IssueDialog from "@/components/organisms/issue/issue-dialog";
+import IssueStatusFilter from "@/components/organisms/issue/issue-status-filter";
+import { createPortal } from "react-dom";
 
-export default function IssueContent() {
+interface IssueContentProps {
+  filterContainerId?: string;
+}
+
+export default function IssueContent({ filterContainerId }: IssueContentProps) {
   const { slug } = useParams<{ slug: string }>();
   const { data: project } = useGetProjectBySlug(slug);
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
+  const [filterContainer, setFilterContainer] = useState<HTMLElement | null>(
+    null,
+  );
+  const [isMounted, setIsMounted] = useState(false);
   const itemsPerPage = 9;
   const { mutate: deleteIssue } = useDeleteIssue();
 
@@ -43,13 +54,46 @@ export default function IssueContent() {
     project?.id?.toString() || "",
   );
 
+  // Set mounted state after component mounts
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  // Find the filter container after component mounts
+  useEffect(() => {
+    if (filterContainerId && isMounted) {
+      const container = document.getElementById(filterContainerId);
+      setFilterContainer(container);
+    }
+  }, [filterContainerId, isMounted]);
+
   // Ensure issues is an array
   const issues = Array.isArray(issuesData) ? issuesData : [];
-  const totalPages = Math.ceil(issues.length / itemsPerPage);
-  const paginatedIssues = issues.slice(
+
+  // Filter issues by selected status
+  const filteredIssues = selectedStatus
+    ? issues.filter((issue) => issue.status?.toString() === selectedStatus)
+    : issues;
+
+  const issueCount = filteredIssues.length;
+
+  const paginatedIssues = filteredIssues.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage,
   );
+
+  const totalPages = Math.ceil(issueCount / itemsPerPage);
+
+  useEffect(() => {
+    if (issuesData) {
+      setCurrentPage(1);
+    }
+  }, [issuesData, selectedStatus]);
+
+  const handleStatusFilterChange = (statusValue: string | null) => {
+    setSelectedStatus(statusValue);
+    setCurrentPage(1); // Reset to first page when filter changes
+  };
 
   const handleDeleteIssue = (issueId: number | undefined) => {
     if (issueId) {
@@ -67,13 +111,40 @@ export default function IssueContent() {
 
   return (
     <div className="flex flex-col gap-4 mt-5">
-      {issues.length === 0 ? (
+      {!filterContainerId && (
+        <div className="flex justify-end">
+          <IssueStatusFilter
+            issues={issues}
+            selectedStatus={selectedStatus}
+            onStatusFilterChange={handleStatusFilterChange}
+            className="w-[220px]"
+          />
+        </div>
+      )}
+
+      {isMounted &&
+        filterContainer &&
+        createPortal(
+          <IssueStatusFilter
+            issues={issues}
+            selectedStatus={selectedStatus}
+            onStatusFilterChange={handleStatusFilterChange}
+            className="w-full"
+          />,
+          filterContainer,
+        )}
+
+      {filteredIssues.length === 0 ? (
         <div className="rounded-md bg-muted/50 p-6 text-center">
           <p className="text-primary leading-7 scroll-m-20">
-            No issues found for this project
+            {issues.length === 0
+              ? "No issues found for this project"
+              : "No issues match the selected filter"}
           </p>
           <p className="text-primary scroll-m-20 mt-1 muted text-sm">
-            Click the &#34;Create Issue&#34; button to add your first issue
+            {issues.length === 0
+              ? 'Click the "Create Issue" button to add your first issue'
+              : "Try changing the filter or view all issues"}
           </p>
         </div>
       ) : (
@@ -192,7 +263,7 @@ export default function IssueContent() {
                         </span>
                       </div>
                     </div>
-                  </div>{" "}
+                  </div>
                 </div>
               </CardContent>
               <CardFooter>

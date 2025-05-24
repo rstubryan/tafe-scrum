@@ -9,23 +9,28 @@ export default function IssuesPage() {
   return (
     <div className="flex flex-col gap-4">
       <MainContent>
-        <section className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
+        <div className="lg:flex justify-between items-center">
           <HeadContent
             title={"Issues"}
             description={"Create and manage issues for your project."}
           />
-
-          <IssueDialog
-            mode="create"
-            trigger={
-              <Button className="sm:w-auto w-full">
-                <Plus />
-                Create Issue
-              </Button>
-            }
-          />
-        </section>
-        <IssueContent />
+          <div className="flex gap-2 items-center">
+            <div
+              id="issue-filter-container"
+              className="lg:mt-0 mt-3 lg:w-[180px] w-full"
+            ></div>
+            <IssueDialog
+              mode="create"
+              trigger={
+                <Button className="whitespace-nowrap">
+                  <Plus />
+                  Create Issue
+                </Button>
+              }
+            />
+          </div>
+        </div>
+        <IssueContent filterContainerId="issue-filter-container" />
       </MainContent>
     </div>
   );
