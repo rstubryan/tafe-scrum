@@ -8,7 +8,7 @@ export default function TaskDetailPage() {
       <div className="flex flex-col gap-4">
         <div className="lg:flex justify-between items-center">
           <HeadContent
-            title={"Task Detail Page"}
+            title={"Task Detail"}
             description={"Task detail page of the project."}
           />
         </div>
