@@ -273,27 +273,27 @@ export default function IssueContent({ filterContainerId }: IssueContentProps) {
                       </span>
                     </div>
 
-                    {/* Type, Priority, Severity - Flex Layout */}
-                    <div className="flex flex-wrap gap-x-4 gap-y-1">
-                      <div className="min-w-[25%]">
-                        <span className="font-semibold">Type:</span>{" "}
-                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                          {issue.type || "N/A"}
-                        </span>
-                      </div>
-                      <div className="min-w-[30%]">
-                        <span className="font-semibold">Priority:</span>{" "}
-                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
-                          {issue.priority || "N/A"}
-                        </span>
-                      </div>
-                      <div>
-                        <span className="font-semibold">Severity:</span>{" "}
-                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                          {issue.severity || "N/A"}
-                        </span>
-                      </div>
-                    </div>
+                    {/*/!* Type, Priority, Severity - Flex Layout *!/*/}
+                    {/*<div className="flex flex-wrap gap-x-4 gap-y-1">*/}
+                    {/*  <div className="min-w-[25%]">*/}
+                    {/*    <span className="font-semibold">Type:</span>{" "}*/}
+                    {/*    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">*/}
+                    {/*      {issue.type || "N/A"}*/}
+                    {/*    </span>*/}
+                    {/*  </div>*/}
+                    {/*  <div className="min-w-[30%]">*/}
+                    {/*    <span className="font-semibold">Priority:</span>{" "}*/}
+                    {/*    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800">*/}
+                    {/*      {issue.priority || "N/A"}*/}
+                    {/*    </span>*/}
+                    {/*  </div>*/}
+                    {/*  <div>*/}
+                    {/*    <span className="font-semibold">Severity:</span>{" "}*/}
+                    {/*    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">*/}
+                    {/*      {issue.severity || "N/A"}*/}
+                    {/*    </span>*/}
+                    {/*  </div>*/}
+                    {/*</div>*/}
                   </div>
                 </div>
               </CardContent>

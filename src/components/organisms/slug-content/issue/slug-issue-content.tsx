@@ -179,10 +179,10 @@ export default function SlugIssueContent() {
                 {issue.due_date ? formatDate(issue.due_date) : "Not set"}
               </Typography>
             </div>
-            <div>
-              <Typography className="font-semibold">Type</Typography>
-              <Typography>{issue.type_extra_info?.name || "Bug"}</Typography>
-            </div>
+            {/*<div>*/}
+            {/*  <Typography className="font-semibold">Type</Typography>*/}
+            {/*  <Typography>{issue.type_extra_info?.name || "Bug"}</Typography>*/}
+            {/*</div>*/}
           </div>
 
           <div className="space-y-4">
@@ -199,18 +199,18 @@ export default function SlugIssueContent() {
                   "Unassigned"}
               </Typography>
             </div>
-            <div>
-              <Typography className="font-semibold">Priority</Typography>
-              <div className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
-                {issue.priority_extra_info?.name || "Normal"}
-              </div>
-            </div>
-            <div>
-              <Typography className="font-semibold">Severity</Typography>
-              <div className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                {issue.severity_extra_info?.name || "Normal"}
-              </div>
-            </div>
+            {/*<div>*/}
+            {/*  <Typography className="font-semibold">Priority</Typography>*/}
+            {/*  <div className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800">*/}
+            {/*    {issue.priority_extra_info?.name || "Normal"}*/}
+            {/*  </div>*/}
+            {/*</div>*/}
+            {/*<div>*/}
+            {/*  <Typography className="font-semibold">Severity</Typography>*/}
+            {/*  <div className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">*/}
+            {/*    {issue.severity_extra_info?.name || "Normal"}*/}
+            {/*  </div>*/}
+            {/*</div>*/}
           </div>
         </CardContent>
       </Card>
