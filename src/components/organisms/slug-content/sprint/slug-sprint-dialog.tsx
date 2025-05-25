@@ -10,7 +10,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { SprintProps } from "@/api/sprint/type";
-import SlugAssociateUsForm from "@/components/organisms/slug-content/sprint/form/slug-associate-us-form";
+import SlugUsAssociateForm from "@/components/organisms/slug-content/sprint/form/slug-us-associate-form";
 
 interface SlugSprintDialogProps {
   trigger: ReactNode;
@@ -49,7 +49,7 @@ export default function SlugSprintDialog({
             {description || defaultDescription}
           </DialogDescription>
         </DialogHeader>
-        <SlugAssociateUsForm onSuccess={handleSuccess} sprint={sprint} />
+        <SlugUsAssociateForm onSuccess={handleSuccess} sprint={sprint} />
       </DialogContent>
     </Dialog>
   );

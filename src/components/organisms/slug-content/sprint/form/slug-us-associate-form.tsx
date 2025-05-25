@@ -45,7 +45,7 @@ interface SlugAssociateUsFormProps {
 
 type FormValues = z.infer<typeof sprintAssociatedUsFormSchema>;
 
-export default function SlugAssociateUsForm({
+export default function SlugUsAssociateForm({
   onSuccess,
   sprint,
 }: SlugAssociateUsFormProps) {
