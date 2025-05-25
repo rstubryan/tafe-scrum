@@ -25,8 +25,6 @@ export const userStoryFormSchema = baseUserStorySchema.extend({
     ),
 });
 
-export type UserStoryFormSchema = typeof userStoryFormSchema;
-
 export const userStoryFormFields: FormFieldDefinition<
   typeof userStoryFormSchema
 >[] = [
@@ -59,8 +57,6 @@ export const userStoryDetailFormSchema = baseUserStorySchema.extend({
   assigned_to: z.string().optional(),
   assigned_users: z.array(z.string()).optional(),
 });
-
-export type UserStoryDetailFormSchema = typeof userStoryDetailFormSchema;
 
 export const userStoryDetailFormFields: FormFieldDefinition<
   typeof userStoryDetailFormSchema

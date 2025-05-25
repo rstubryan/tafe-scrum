@@ -17,9 +17,7 @@ export const taskFormSchema = baseTaskSchema.extend({
     .max(50, { message: "Subject must be at most 50 characters long" }),
 });
 
-export type TaskFormSchema = typeof taskFormSchema;
-
-export const taskFormSchemaStatus = baseTaskSchema.extend({
+baseTaskSchema.extend({
   status: z.enum([
     "new",
     "in_progress",
@@ -30,15 +28,6 @@ export const taskFormSchemaStatus = baseTaskSchema.extend({
   message: z.string(),
 });
 
-export type TaskFormSchemaStatus = typeof taskFormSchemaStatus;
-
-export const taskFormSchemaAssigned = baseTaskSchema.extend({
-  assigned_to: z.string().optional(),
-  assigned_users: z.array(z.string()).optional(),
-});
-
-export type TaskFormSchemaAssigned = typeof taskFormSchemaAssigned;
-
 export const taskDetailFormSchema = baseTaskSchema.extend({
   subject: z
     .string()
@@ -47,8 +36,6 @@ export const taskDetailFormSchema = baseTaskSchema.extend({
   due_date: z.string().optional(),
   description: z.string().optional(),
 });
-
-export type TaskDetailFormSchema = typeof taskDetailFormSchema;
 
 export const taskFormFields: FormFieldDefinition<typeof taskFormSchema>[] = [
   { name: "subject", label: "Task Name", type: "text", required: true },
@@ -85,38 +72,6 @@ export const taskFormFields: FormFieldDefinition<typeof taskFormSchema>[] = [
     type: "text",
     required: false,
     hidden: true,
-  },
-];
-
-export const taskFormFieldsStatus: FormFieldDefinition<
-  typeof taskFormSchemaStatus
->[] = [
-  {
-    name: "project_id",
-    label: "Project ID",
-    type: "text",
-    required: true,
-    hidden: true,
-  },
-  {
-    name: "user_story_id",
-    label: "User Story ID",
-    type: "text",
-    required: true,
-    hidden: true,
-  },
-  {
-    name: "version",
-    label: "Version",
-    type: "text",
-    required: false,
-    hidden: true,
-  },
-  {
-    name: "status",
-    label: "Status",
-    type: "select",
-    required: true,
   },
 ];
 
