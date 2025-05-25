@@ -43,6 +43,9 @@ export const useEditIssue = () => {
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["issue-by-project-id"] });
+      queryClient.invalidateQueries({
+        queryKey: ["issue-by-ref-id-and-project-id"],
+      });
       toast.success("Issue updated successfully");
       return data;
     },

@@ -45,7 +45,7 @@ export const issueApi = {
     extraConfig: ({ urlParams }) => ({
       params: {
         ref: urlParams?.refId,
-        project_id: urlParams?.projectId,
+        project: urlParams?.projectId,
       },
     }),
   }),

@@ -18,6 +18,8 @@ export interface CreateIssueProps {
 export interface EditIssueProps extends CreateIssueProps {
   id: number;
   version?: number;
+  due_date?: string | null;
+  description?: string;
 }
 
 export interface IssueProps {
