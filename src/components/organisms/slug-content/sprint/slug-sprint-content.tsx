@@ -54,7 +54,7 @@ export default function SlugSprintContent() {
             <div className="flex items-center gap-2">
               <div className="flex h-10 w-10 items-center justify-center rounded-md bg-primary">
                 <Typography className="font-bold text-secondary">
-                  #{sprint.order}
+                  #{sprint.id}
                 </Typography>
               </div>
               <div>
