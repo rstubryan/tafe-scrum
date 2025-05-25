@@ -65,3 +65,33 @@ export const sprintFormFields: FormFieldDefinition<typeof sprintFormSchema>[] =
       required: false,
     },
   ];
+
+export const sprintAssociatedUsFormSchema = baseSprintSchema.extend({
+  project_id: z.string(),
+  milestone_id: z.string(),
+  bulk_userstories: z.array(z.number()),
+});
+
+export const sprintAssociatedUsFormFields: FormFieldDefinition<
+  typeof sprintAssociatedUsFormSchema
+>[] = [
+  {
+    name: "project_id",
+    label: "Project ID",
+    type: "text",
+    required: true,
+    hidden: true,
+  },
+  {
+    name: "milestone_id",
+    label: "Milestone ID",
+    type: "text",
+    required: true,
+  },
+  {
+    name: "bulk_userstories",
+    label: "User Stories",
+    type: "multi-select",
+    required: true,
+  },
+];

@@ -29,6 +29,43 @@ export const useCreateUserStory = () => {
   });
 };
 
+export const useAssociateUserStoriesToSprint = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      projectId,
+      milestoneId,
+      userStoryIds,
+    }: {
+      projectId: number;
+      milestoneId: number;
+      userStoryIds: number[];
+    }) =>
+      userStoryApi.createAssociateUserStoriesToSprint({
+        data: {
+          // @ts-expect-error The API expects both user_story and epic properties
+          project_id: projectId,
+          milestone_id: milestoneId,
+          bulk_userstories: userStoryIds,
+        },
+      }),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["user-stories-by-project"] });
+      queryClient.invalidateQueries({ queryKey: ["sprint"] });
+      toast.success("User stories associated with sprint successfully");
+      return data;
+    },
+    onError: (error: AxiosError) => {
+      handleApiError(
+        error,
+        "Failed to associate user stories with sprint",
+        "Please check your input and try again.",
+      );
+    },
+  });
+};
+
 export const useEditUserStory = () => {
   const queryClient = useQueryClient();
 

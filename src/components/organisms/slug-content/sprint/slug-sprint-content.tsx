@@ -35,13 +35,17 @@ export default function SlugSprintContent() {
     );
   }
 
-  const calculateDurationInDays = () => {
-    if (!sprint.estimated_start || !sprint.estimated_finish) return "N/A";
+  const calculateDuration = () => {
+    if (!sprint.estimated_start || !sprint.estimated_finish)
+      return { days: "N/A", weeks: "N/A" };
 
     const start = new Date(sprint.estimated_start);
     const finish = new Date(sprint.estimated_finish);
     const diffTime = Math.abs(finish.getTime() - start.getTime());
-    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    const days = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    const weeks = Math.floor(days / 7);
+
+    return { days, weeks };
   };
 
   const userStoriesCount = sprint.user_stories?.length || 0;
@@ -120,7 +124,17 @@ export default function SlugSprintContent() {
           <CardContent>
             <div className="flex flex-col">
               <div className="text-3xl font-bold">
-                {calculateDurationInDays()} Days
+                {typeof calculateDuration().days === "number" ? (
+                  <>
+                    {calculateDuration().days} Days
+                    <div className="text-lg font-nor mal text-muted-foreground">
+                      ({calculateDuration().weeks}{" "}
+                      {calculateDuration().weeks === 1 ? "Week" : "Weeks"})
+                    </div>
+                  </>
+                ) : (
+                  "N/A"
+                )}
               </div>
               <div className="text-sm text-muted-foreground mt-2">
                 <div>
@@ -137,7 +151,7 @@ export default function SlugSprintContent() {
                 </div>
               </div>
             </div>
-          </CardContent>
+          </CardContent>{" "}
         </Card>
 
         {/* User Stories Card */}

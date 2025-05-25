@@ -75,6 +75,20 @@ export const userStoryApi = {
     method: "POST",
   }),
 
+  createAssociateUserStoriesToSprint: createApiRequest<
+    {
+      data: {
+        project_id: number;
+        milestone_id: number;
+        bulk_userstories: number[];
+      };
+    },
+    ResponseProps<UserStoryProps>
+  >({
+    endpoint: `${BASE_URL}/bulk_update_backlog_order`,
+    method: "POST",
+  }),
+
   updateUserStory: createApiRequest<
     Partial<EditUserStoryProps>,
     ResponseProps<UserStoryProps>
