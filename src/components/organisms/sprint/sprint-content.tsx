@@ -29,6 +29,7 @@ import { formatDate } from "@/utils";
 import { useGetProjectBySlug } from "@/api/project/queries";
 import { useGetSprintByProjectId } from "@/api/sprint/queries";
 import { useDeleteSprint } from "@/api/sprint/mutation";
+import SprintDialog from "@/components/organisms/sprint/sprint-dialog";
 
 export default function SprintContent() {
   const { slug } = useParams<{ slug: string }>();
@@ -160,14 +161,20 @@ export default function SprintContent() {
                   </Link>
 
                   <div className="grid grid-cols-2 gap-2">
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      className="h-10 w-full"
-                    >
-                      <span className="sr-only">Edit</span>
-                      <Pencil className="size-4" />
-                    </Button>
+                    <SprintDialog
+                      mode="edit"
+                      sprint={sprint}
+                      trigger={
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          className="h-10 w-full"
+                        >
+                          <span className="sr-only">Edit</span>
+                          <Pencil className="size-4" />
+                        </Button>
+                      }
+                    />
 
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
