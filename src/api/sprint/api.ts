@@ -2,7 +2,7 @@ import { createApiRequest } from "../base/api-factory";
 import type { ResponseProps } from "../base/global-type";
 import type { SprintProps, CreateSprintProps, EditSprintProps } from "./type";
 
-const BASE_URL = `/sprints`;
+const BASE_URL = `/milestones`;
 
 export const sprintApi = {
   getAllSprints: createApiRequest<void, ResponseProps<SprintProps[]>>({
@@ -27,11 +27,11 @@ export const sprintApi = {
     { urlParams: { projectId: string } },
     ResponseProps<SprintProps[]>
   >({
-    endpoint: `${BASE_URL}/{projectId}`,
+    endpoint: `${BASE_URL}`,
     method: "GET",
     extraConfig: ({ urlParams }) => ({
       params: {
-        project_id: urlParams?.projectId,
+        project: urlParams?.projectId,
       },
     }),
   }),
