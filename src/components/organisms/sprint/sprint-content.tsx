@@ -28,12 +28,14 @@ import { PaginationLayout } from "@/components/templates/layout/pagination-layou
 import { formatDate } from "@/utils";
 import { useGetProjectBySlug } from "@/api/project/queries";
 import { useGetSprintByProjectId } from "@/api/sprint/queries";
+import { useDeleteSprint } from "@/api/sprint/mutation";
 
 export default function SprintContent() {
   const { slug } = useParams<{ slug: string }>();
   const { data: project } = useGetProjectBySlug(slug);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 9;
+  const { mutate: deleteSprint } = useDeleteSprint();
 
   const { data: sprintsData, isLoading } = useGetSprintByProjectId(
     project?.id?.toString() || "",
@@ -54,6 +56,12 @@ export default function SprintContent() {
       setCurrentPage(1);
     }
   }, [sprintsData]);
+
+  const handleDeleteSprint = (sprintId: number | undefined) => {
+    if (sprintId) {
+      deleteSprint(sprintId);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -186,7 +194,13 @@ export default function SprintContent() {
                         </AlertDialogHeader>
                         <AlertDialogFooter>
                           <AlertDialogCancel>Cancel</AlertDialogCancel>
-                          <AlertDialogAction>Delete</AlertDialogAction>
+                          <AlertDialogAction
+                            onClick={() =>
+                              sprint.id && handleDeleteSprint(sprint.id)
+                            }
+                          >
+                            Delete
+                          </AlertDialogAction>
                         </AlertDialogFooter>
                       </AlertDialogContent>
                     </AlertDialog>

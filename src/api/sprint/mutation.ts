@@ -11,7 +11,7 @@ export const useCreateSprint = () => {
   return useMutation({
     mutationFn: (data: CreateSprintProps) => sprintApi.createSprint({ data }),
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ["sprints"] });
+      queryClient.invalidateQueries({ queryKey: ["sprint-by-project-id"] });
       toast.success("Sprint created successfully");
       return data;
     },
@@ -42,7 +42,7 @@ export const useEditSprint = () => {
       });
     },
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ["sprints"] });
+      queryClient.invalidateQueries({ queryKey: ["sprint-by-project-id"] });
       toast.success("Sprint updated successfully");
       return data;
     },
@@ -62,7 +62,7 @@ export const useDeleteSprint = () => {
   return useMutation({
     mutationFn: (id: number) => sprintApi.deleteSprint({ urlParams: { id } }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["sprints"] });
+      queryClient.invalidateQueries({ queryKey: ["sprint-by-project-id"] });
       toast.success("Sprint deleted successfully");
     },
     onError: (error: AxiosError) => {
