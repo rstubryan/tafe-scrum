@@ -43,6 +43,7 @@ export const useEditSprint = () => {
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["sprint-by-project-id"] });
+      queryClient.invalidateQueries({ queryKey: ["sprint"] });
       toast.success("Sprint updated successfully");
       return data;
     },

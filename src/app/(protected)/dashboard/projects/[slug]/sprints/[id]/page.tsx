@@ -1,12 +1,19 @@
-export default function SprintPage() {
+import MainContent from "@/components/templates/content/main-content";
+import HeadContent from "@/components/molecules/head-content/head-content";
+import SlugSprintContent from "@/components/organisms/slug-content/sprint/slug-sprint-content";
+
+export default function SprintsDetailPage() {
   return (
     <div className="flex flex-col gap-4">
-      <h1 className="text-2xl font-bold">Sprint</h1>
-      <p className="text-sm text-muted-foreground">
-        Sprints are a collection of tasks that need to be completed in a
-        project. They are used to track progress and ensure that work is
-        completed on time.
-      </p>
+      <MainContent>
+        <section className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
+          <HeadContent
+            title={"Sprints Detail"}
+            description={"View and manage details of a specific sprint."}
+          />
+        </section>
+        <SlugSprintContent />
+      </MainContent>
     </div>
   );
 }

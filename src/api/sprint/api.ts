@@ -10,10 +10,7 @@ export const sprintApi = {
     method: "GET",
   }),
 
-  getSprintById: createApiRequest<
-    { urlParams: { id: string } },
-    ResponseProps<SprintProps>
-  >({
+  getSprintById: createApiRequest<{ urlParams: { id: string } }, SprintProps>({
     endpoint: `${BASE_URL}/{id}`,
     method: "GET",
     extraConfig: ({ urlParams }) => ({

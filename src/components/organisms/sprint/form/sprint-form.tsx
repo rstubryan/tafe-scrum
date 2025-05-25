@@ -60,8 +60,6 @@ export default function SprintForm({
 
   useEffect(() => {
     if (mode === "edit" && sprint && !initialValuesSet) {
-      console.log("Setting edit form values:", sprint);
-
       form.setValue("name", sprint.name || "");
 
       if (sprint.project) {
