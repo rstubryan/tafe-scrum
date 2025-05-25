@@ -6,11 +6,12 @@ import { Typography } from "@/components/atoms/typography/typography";
 import { formatDate } from "@/utils";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
-import { CalendarClock, CheckSquare, Pencil, Users } from "lucide-react";
+import { CalendarClock, CheckSquare, Pencil, Plus, Users } from "lucide-react";
 import { useGetSprintById } from "@/api/sprint/queries";
 import SprintDialog from "@/components/organisms/sprint/sprint-dialog";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { UserStoryProps } from "@/api/backlog-us/type";
+import SlugSprintDialog from "@/components/organisms/slug-content/sprint/slug-sprint-dialog";
 
 export default function SlugSprintContent() {
   const params = useParams();
@@ -200,9 +201,18 @@ export default function SlugSprintContent() {
 
       {/* User Stories Associated with Sprint */}
       <div>
-        <Typography size="h3" className="mb-4">
-          User Stories
-        </Typography>
+        <div className="flex items-center justify-between mb-4">
+          <Typography size="h3">User Stories</Typography>
+          <SlugSprintDialog
+            sprint={sprint}
+            trigger={
+              <Button variant="outline" size="sm">
+                <Plus size={16} />
+                Associate User Stories
+              </Button>
+            }
+          />
+        </div>
 
         {userStoriesCount === 0 ? (
           <Alert>
