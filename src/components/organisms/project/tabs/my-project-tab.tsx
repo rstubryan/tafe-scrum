@@ -2,11 +2,11 @@
 
 import { useState, useEffect } from "react";
 import { LoaderCircle, Eye, Pencil, Trash2 } from "lucide-react";
-import { ProjectResponseProps } from "@/api/project/type";
+import { ProjectProps } from "@/api/project/type";
 import { PaginationLayout } from "@/components/templates/layout/pagination-layout";
 import { useGetProjectsByUser } from "@/api/project/queries";
 import { useDeleteProject } from "@/api/project/mutation";
-import DialogProject from "@/components/organisms/project/dialog-project";
+import ProjectDialog from "@/components/organisms/project/project-dialog";
 import { Button } from "@/components/ui/button";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import { getInitials } from "@/utils/avatar-initials";
@@ -24,8 +24,16 @@ import {
 } from "@/components/ui/alert-dialog";
 import { formatDate } from "@/utils";
 import { Typography } from "@/components/atoms/typography/typography";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
-export default function TabMyProject() {
+export default function MyProjectTab() {
   const [mounted, setMounted] = useState(false);
   const { currentUserId } = useCurrentUser();
   const [currentPage, setCurrentPage] = useState(1);
@@ -100,12 +108,9 @@ export default function TabMyProject() {
   return (
     <>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 my-3">
-        {paginatedProjects.map((project: ProjectResponseProps) => (
-          <div
-            key={project.id}
-            className="bg-card text-card-foreground rounded-lg border shadow-sm flex h-full flex-col"
-          >
-            <div className="flex flex-col space-y-1.5 p-6 pb-0">
+        {paginatedProjects.map((project: ProjectProps) => (
+          <Card key={project.id} className="flex h-full flex-col">
+            <CardHeader className="pb-0">
               <div className="flex items-center gap-2">
                 <div className="relative flex size-10 shrink-0 overflow-hidden h-10 w-10 rounded-md">
                   <span className="flex h-full w-full items-center justify-center rounded-md bg-primary/10 font-bold text-primary">
@@ -116,24 +121,19 @@ export default function TabMyProject() {
                   </span>
                 </div>
                 <div>
-                  <div
-                    role="heading"
-                    aria-level={3}
-                    className="text-2xl font-semibold leading-none tracking-tight line-clamp-1"
-                  >
-                    {project.name}
-                  </div>
-                  <Typography className="flex gap-1 text-xs text-muted-foreground">
+                  <CardTitle className="line-clamp-1">{project.name}</CardTitle>
+                  <CardDescription className="flex gap-1">
                     {project.is_private && (
                       <span className="text-amber-500">Private</span>
                     )}
                     {project.is_private && <span>•</span>}
                     <span className="font-medium">Owner</span>
-                  </Typography>
+                  </CardDescription>
                 </div>
               </div>
-            </div>
-            <div className="p-6 flex-1">
+            </CardHeader>
+
+            <CardContent className="flex-1">
               <Typography className="mb-2 line-clamp-2 text-sm text-muted-foreground">
                 {project.description || "No description"}
               </Typography>
@@ -152,8 +152,9 @@ export default function TabMyProject() {
                     : "No tags available"}
                 </Typography>
               </div>
-            </div>
-            <div className="flex items-center p-6 pt-0">
+            </CardContent>
+
+            <CardFooter className="pt-0">
               <div className="grid grid-cols-1 sm:grid-cols-3 w-full gap-2">
                 <Link
                   href={`/dashboard/projects/${project.slug}`}
@@ -164,7 +165,7 @@ export default function TabMyProject() {
                 </Link>
 
                 <div className="grid grid-cols-2 gap-2">
-                  <DialogProject
+                  <ProjectDialog
                     mode="edit"
                     project={project}
                     trigger={
@@ -174,7 +175,7 @@ export default function TabMyProject() {
                         className="h-10 w-full"
                       >
                         <Typography className="sr-only">Edit</Typography>
-                        <Pencil />
+                        <Pencil className="size-4" />
                       </Button>
                     }
                   />
@@ -187,7 +188,7 @@ export default function TabMyProject() {
                         className="h-10 w-full"
                       >
                         <Typography className="sr-only">Delete</Typography>
-                        <Trash2 />
+                        <Trash2 className="size-4" />
                       </Button>
                     </AlertDialogTrigger>
                     <AlertDialogContent>
@@ -209,7 +210,6 @@ export default function TabMyProject() {
                           onClick={() =>
                             project.id && handleDeleteProject(project.id)
                           }
-                          className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                         >
                           Delete
                         </AlertDialogAction>
@@ -218,8 +218,8 @@ export default function TabMyProject() {
                   </AlertDialog>
                 </div>
               </div>
-            </div>{" "}
-          </div>
+            </CardFooter>
+          </Card>
         ))}
       </div>
       {totalPages > 1 && (

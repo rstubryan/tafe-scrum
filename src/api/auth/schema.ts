@@ -13,8 +13,6 @@ export const loginFormSchema = z.object({
   type: z.string().default("normal"),
 });
 
-export type LoginFormSchema = typeof loginFormSchema;
-
 export const loginFormFields: FormFieldDefinition<typeof loginFormSchema>[] = [
   { name: "username", label: "Username", type: "text", required: true },
   { name: "password", label: "Password", type: "password", required: true },
@@ -38,8 +36,6 @@ export const registerFormSchema = z.object({
   type: z.string().default("public"),
   accepted_terms: z.string().default("true"),
 });
-
-export type RegisterFormSchema = typeof registerFormSchema;
 
 export const registerFormFields: FormFieldDefinition<
   typeof registerFormSchema

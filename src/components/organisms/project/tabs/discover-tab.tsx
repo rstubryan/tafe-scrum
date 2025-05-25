@@ -2,11 +2,11 @@
 
 import { useState } from "react";
 import { LoaderCircle, Eye, Pencil, Trash2 } from "lucide-react";
-import { ProjectResponseProps } from "@/api/project/type";
+import { ProjectProps } from "@/api/project/type";
 import { PaginationLayout } from "@/components/templates/layout/pagination-layout";
 import { useGetProjectDiscover } from "@/api/project/queries";
 import { useDeleteProject } from "@/api/project/mutation";
-import DialogProject from "@/components/organisms/project/dialog-project";
+import ProjectDialog from "@/components/organisms/project/project-dialog";
 import { Button } from "@/components/ui/button";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import { getInitials } from "@/utils/avatar-initials";
@@ -24,8 +24,16 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Typography } from "@/components/atoms/typography/typography";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
-export default function TabDiscover() {
+export default function DiscoverTab() {
   const { data: discoverProjects, isLoading: isLoadingDiscoverProjects } =
     useGetProjectDiscover();
   const { mutate: deleteProject } = useDeleteProject();
@@ -48,7 +56,18 @@ export default function TabDiscover() {
 
   const paginatedProjects = getPaginatedProjects();
 
-  const canEditProject = (project: ProjectResponseProps) => {
+  const canViewProject = (project: ProjectProps) => {
+    if (!currentUserId) return false;
+    // Check if user is a member, owner or admin
+    const isMember = project.i_am_member === true;
+    const isOwner =
+      project.owner?.id === currentUserId || project.i_am_owner === true;
+    const isAdmin = project.i_am_admin === true;
+
+    return isMember || isOwner || isAdmin;
+  };
+
+  const canEditProject = (project: ProjectProps) => {
     if (!currentUserId) return false;
     const isOwner =
       project.owner?.id === currentUserId || project.i_am_owner === true;
@@ -82,12 +101,9 @@ export default function TabDiscover() {
   return (
     <>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 my-3">
-        {paginatedProjects.map((project: ProjectResponseProps) => (
-          <div
-            key={project.id}
-            className="bg-card text-card-foreground rounded-lg border shadow-sm flex h-full flex-col"
-          >
-            <div className="flex flex-col space-y-1.5 p-6 pb-0">
+        {paginatedProjects.map((project: ProjectProps) => (
+          <Card key={project.id} className="flex h-full flex-col">
+            <CardHeader className="pb-0">
               <div className="flex items-center gap-2">
                 <div className="relative flex size-10 shrink-0 overflow-hidden h-10 w-10 rounded-md">
                   <span className="flex h-full w-full items-center justify-center rounded-md bg-primary/10 font-bold text-primary">
@@ -98,27 +114,26 @@ export default function TabDiscover() {
                   </span>
                 </div>
                 <div>
-                  <div
-                    role="heading"
-                    aria-level={3}
-                    className="text-2xl font-semibold leading-none tracking-tight line-clamp-1"
-                  >
-                    {project.name}
-                  </div>
-                  <Typography className="flex gap-1 text-xs text-muted-foreground">
+                  <CardTitle className="line-clamp-1">{project.name}</CardTitle>
+                  <CardDescription className="flex gap-1">
                     {project.is_private && (
                       <span className="text-amber-500">Private</span>
                     )}
                     {project.is_private && <span>•</span>}
                     <span className="font-medium">
-                      {project.i_am_owner ? "Owner" : "Member"}
+                      {project.i_am_owner
+                        ? "Owner"
+                        : project.i_am_admin
+                          ? "Admin"
+                          : project.i_am_member
+                            ? "Member"
+                            : "Not a Member"}
                     </span>
-                  </Typography>
+                  </CardDescription>
                 </div>
               </div>
-            </div>
-
-            <div className="p-6 flex-1">
+            </CardHeader>
+            <CardContent className="flex-1">
               <Typography className="mb-2 line-clamp-2 text-sm text-muted-foreground">
                 {project.description || "No description"}
               </Typography>
@@ -137,23 +152,27 @@ export default function TabDiscover() {
                     : "No tags available"}
                 </Typography>
               </div>
-            </div>
-
-            <div className="flex items-center p-6 pt-0">
+            </CardContent>
+            <CardFooter className="pt-0">
               <div className="grid grid-cols-1 sm:grid-cols-3 w-full gap-2">
-                <Link
-                  href={`/dashboard/projects/${project.slug}`}
-                  className={`sm:col-span-${
-                    canEditProject(project) ? "2" : "3"
-                  } inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-3 py-2`}
-                >
-                  <Eye className="size-4 shrink-0" />
-                  <span className="truncate">View Project</span>
-                </Link>
+                {canViewProject(project) ? (
+                  <Link
+                    href={`/dashboard/projects/${project.slug}`}
+                    className="sm:col-span-2 inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-3 py-2"
+                  >
+                    <Eye className="size-4" />
+                    <span className="truncate">View Project</span>
+                  </Link>
+                ) : (
+                  <Button disabled className="sm:col-span-3">
+                    <Eye className="size-4" />
+                    <span className="truncate">Membership Required</span>
+                  </Button>
+                )}
 
                 {canEditProject(project) && (
                   <div className="grid grid-cols-2 gap-2">
-                    <DialogProject
+                    <ProjectDialog
                       mode="edit"
                       project={project}
                       trigger={
@@ -198,7 +217,6 @@ export default function TabDiscover() {
                             onClick={() =>
                               project.id && handleDeleteProject(project.id)
                             }
-                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                           >
                             Delete
                           </AlertDialogAction>
@@ -208,8 +226,8 @@ export default function TabDiscover() {
                   </div>
                 )}
               </div>
-            </div>
-          </div>
+            </CardFooter>{" "}
+          </Card>
         ))}
       </div>
       {totalPages > 1 && (

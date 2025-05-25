@@ -1,10 +1,10 @@
 "use client";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import TabDiscover from "./tabs/tab-discover";
-import TabMyProject from "./tabs/tab-my-project";
+import DiscoverTab from "./tabs/discover-tab";
+import MyProjectTab from "./tabs/my-project-tab";
 
-export default function TabsProject() {
+export default function ProjectTabs() {
   return (
     <Tabs defaultValue="my-project" className="w-full my-4">
       <TabsList className="w-full">
@@ -16,10 +16,10 @@ export default function TabsProject() {
         </TabsTrigger>
       </TabsList>
       <TabsContent value="my-project">
-        <TabMyProject />
+        <MyProjectTab />
       </TabsContent>
       <TabsContent value="discover">
-        <TabDiscover />
+        <DiscoverTab />
       </TabsContent>
     </Tabs>
   );

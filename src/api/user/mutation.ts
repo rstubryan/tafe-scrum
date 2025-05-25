@@ -2,14 +2,16 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { toast } from "sonner";
 import { userApi } from "@/api/user/api";
-import { UserEditProfileProps, ChangePasswordProps } from "@/api/user/type";
-import type { ErrorResponse } from "@/api/base/global-type";
+import { EditUserProfileProps, ChangePasswordProps } from "@/api/user/type";
+import { useRouter } from "next/navigation";
+import Cookies from "js-cookie";
+import { handleApiError } from "@/api/base/axios-error";
 
 export const useEditUserInfo = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: UserEditProfileProps) => {
+    mutationFn: (data: EditUserProfileProps) => {
       if (!data.id) {
         throw new Error("User ID is required for profile update");
       }
@@ -27,26 +29,11 @@ export const useEditUserInfo = () => {
       return data;
     },
     onError: (error: AxiosError) => {
-      if (error.response?.data) {
-        const responseData = error.response.data as ErrorResponse;
-        const errorMessage =
-          responseData.detail ||
-          responseData.error ||
-          responseData.code ||
-          "Profile update failed";
-
-        toast.error(errorMessage, {
-          description: "Please check your input and try again.",
-        });
-      } else if (error.request) {
-        toast.error("Network error", {
-          description: "Please check your connection.",
-        });
-      } else {
-        toast.error("Profile update failed", {
-          description: "Please try again later.",
-        });
-      }
+      handleApiError(
+        error,
+        "Profile update failed",
+        "Please check your input and try again.",
+      );
     },
   });
 };
@@ -63,26 +50,11 @@ export const useChangeProfilePicture = () => {
       return data;
     },
     onError: (error: AxiosError) => {
-      if (error.response?.data) {
-        const responseData = error.response.data as ErrorResponse;
-        const errorMessage =
-          responseData.detail ||
-          responseData.error ||
-          responseData.code ||
-          "Profile picture update failed";
-
-        toast.error(errorMessage, {
-          description: "Please check your image and try again.",
-        });
-      } else if (error.request) {
-        toast.error("Network error", {
-          description: "Please check your connection.",
-        });
-      } else {
-        toast.error("Profile picture update failed", {
-          description: "Please try again later.",
-        });
-      }
+      handleApiError(
+        error,
+        "Profile picture update failed",
+        "Please check your input and try again.",
+      );
     },
   });
 };
@@ -94,26 +66,40 @@ export const useChangePassword = () => {
       toast.success("Password changed successfully");
     },
     onError: (error: AxiosError) => {
-      if (error.response?.data) {
-        const responseData = error.response.data as ErrorResponse;
-        const errorMessage =
-          responseData.detail ||
-          responseData.error ||
-          responseData.code ||
-          "Password change failed";
+      handleApiError(
+        error,
+        "Password change failed",
+        "Please check your input and try again.",
+      );
+    },
+  });
+};
 
-        toast.error(errorMessage, {
-          description: "Please check your input and try again.",
-        });
-      } else if (error.request) {
-        toast.error("Network error", {
-          description: "Please check your connection.",
-        });
-      } else {
-        toast.error("Password change failed", {
-          description: "Please try again later.",
-        });
-      }
+export const useDeleteAccount = () => {
+  const queryClient = useQueryClient();
+  const router = useRouter();
+
+  return useMutation({
+    mutationFn: (id: string) =>
+      userApi.deleteAccount({
+        urlParams: { id },
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["user-auth"] });
+      toast.success("Account deleted successfully");
+
+      Cookies.remove("user_info", { path: "/" });
+      Cookies.remove("auth_token", { path: "/" });
+      Cookies.remove("refresh", { path: "/refresh_token" });
+
+      router.push("/login");
+    },
+    onError: (error: AxiosError) => {
+      handleApiError(
+        error,
+        "Account deletion failed",
+        "Please check your input and try again.",
+      );
     },
   });
 };

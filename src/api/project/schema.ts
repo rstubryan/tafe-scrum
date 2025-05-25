@@ -14,8 +14,6 @@ export const projectFormSchema = z.object({
   is_epics_activated: z.boolean().optional().default(true),
 });
 
-export type ProjectFormSchema = typeof projectFormSchema;
-
 export const projectFormFields: FormFieldDefinition<
   typeof projectFormSchema
 >[] = [

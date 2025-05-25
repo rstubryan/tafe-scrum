@@ -15,13 +15,6 @@ export const useGetProjectBySlug = (slug: string) => {
   });
 };
 
-export const useGetProjectById = (projectId: string) => {
-  return useQuery({
-    queryKey: ["project-by-id", projectId],
-    queryFn: () => projectApi.getProjectById({ urlParams: { projectId } }),
-  });
-};
-
 export const useGetProjectsByUser = (
   memberId: string,
   options?: {

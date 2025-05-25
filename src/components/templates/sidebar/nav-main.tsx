@@ -37,6 +37,10 @@ export function NavMain({
   const params = useParams();
   const projectSlug = params?.slug || "default";
 
+  if (!items || items.length === 0) {
+    return null;
+  }
+
   return (
     <SidebarGroup>
       <SidebarGroupLabel>Platform</SidebarGroupLabel>

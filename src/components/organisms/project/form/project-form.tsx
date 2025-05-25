@@ -19,12 +19,12 @@ import { projectFormFields, projectFormSchema } from "@/api/project/schema";
 import { useCreateProject, useEditProject } from "@/api/project/mutation";
 import { z } from "zod";
 import { Label } from "@/components/ui/label";
-import { ProjectResponseProps } from "@/api/project/type";
+import { ProjectProps } from "@/api/project/type";
 import { useEffect } from "react";
 
 interface ProjectFormProps {
   onSuccess?: () => void;
-  project?: ProjectResponseProps;
+  project?: ProjectProps;
   mode: "create" | "edit";
 }
 

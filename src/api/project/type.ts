@@ -1,4 +1,4 @@
-export interface ProjectCreateProps {
+export interface CreateProjectProps {
   name?: string;
   slug?: string;
   description?: string;
@@ -15,11 +15,24 @@ export interface ProjectCreateProps {
   creation_template?: number;
 }
 
-export interface ProjectEditProps extends ProjectCreateProps {
+export interface EditProjectProps extends CreateProjectProps {
   id?: number;
 }
 
-export interface ProjectResponseProps {
+export interface ProjectMember {
+  role: number;
+  role_name: string;
+  full_name: string;
+  full_name_display: string;
+  is_active: boolean;
+  id: number;
+  color: string;
+  username: string;
+  photo: string | null;
+  gravatar_id: string;
+}
+
+export interface ProjectProps {
   id?: number;
   name?: string;
   slug?: string;
@@ -35,7 +48,7 @@ export interface ProjectResponseProps {
     is_active?: boolean;
     id?: number;
   };
-  members?: number[];
+  members?: ProjectMember[];
   total_milestones?: number | null;
   total_story_points?: number | null;
   is_contact_activated?: boolean;
@@ -86,13 +99,4 @@ export interface ProjectResponseProps {
   logo_big_url?: string | null;
   is_fan?: boolean;
   my_homepage?: boolean;
-}
-
-export interface ProjectApiRequest {
-  data?: ProjectCreateProps;
-}
-
-export interface ProjectApiUpdateRequest {
-  data?: Partial<ProjectEditProps>;
-  urlParams: { id: string };
 }

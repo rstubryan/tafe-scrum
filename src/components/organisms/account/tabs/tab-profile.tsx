@@ -3,9 +3,17 @@
 import { useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { AtSign, FileText, Mail, User, LoaderCircle } from "lucide-react";
+import {
+  AtSign,
+  FileText,
+  Mail,
+  User,
+  LoaderCircle,
+  Trash2,
+  Save,
+} from "lucide-react";
 import { useGetUserAuth } from "@/api/user/queries";
-import { useEditUserInfo } from "@/api/user/mutation";
+import { useEditUserInfo, useDeleteAccount } from "@/api/user/mutation";
 import { profileFormFields, profileFormSchema } from "@/api/user/schema";
 import { z } from "zod";
 import {
@@ -29,11 +37,24 @@ import {
 import { ResponseProps } from "@/api/base/global-type";
 import { UserProps } from "@/api/user/type";
 import { TabProfileSkeleton } from "@/components/atoms/skeleton/account/form/skeleton-form";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 export default function TabProfile() {
   const { data, isLoading, isError } = useGetUserAuth();
   const { mutate: updateProfile, isPending: isUpdatingProfile } =
     useEditUserInfo();
+  const { mutate: deleteAccount, isPending: isDeletingAccount } =
+    useDeleteAccount();
 
   const form = useForm<z.infer<typeof profileFormSchema>>({
     resolver: zodResolver(profileFormSchema),
@@ -47,7 +68,13 @@ export default function TabProfile() {
 
   useEffect(() => {
     if (data && !isLoading) {
-      const userData = (data as ResponseProps<UserProps>).data || data;
+      let userData: UserProps;
+
+      if ("data" in data) {
+        userData = (data as ResponseProps<UserProps>).data as UserProps;
+      } else {
+        userData = data as UserProps;
+      }
 
       form.setValue("username", userData?.username || "");
       form.setValue("email", userData?.email || "");
@@ -57,13 +84,37 @@ export default function TabProfile() {
   }, [data, isLoading, form]);
 
   const onSubmit = (values: z.infer<typeof profileFormSchema>) => {
-    const userData = (data as ResponseProps<UserProps>).data || data;
+    if (!data) return;
+
+    let userData: UserProps;
+
+    if ("data" in data) {
+      userData = (data as ResponseProps<UserProps>).data as UserProps;
+    } else {
+      userData = data as UserProps;
+    }
 
     updateProfile({
       id: userData?.id,
       full_name: values.full_name,
       bio: values.bio,
     });
+  };
+
+  const handleDeleteAccount = () => {
+    if (!data) return;
+
+    let userData: UserProps;
+
+    if ("data" in data) {
+      userData = (data as ResponseProps<UserProps>).data as UserProps;
+    } else {
+      userData = data as UserProps;
+    }
+
+    if (userData?.id) {
+      deleteAccount(userData.id.toString(), {});
+    }
   };
 
   if (isLoading) {
@@ -159,7 +210,45 @@ export default function TabProfile() {
                 )}
               />
             ))}
-            <div className="flex justify-end">
+            <div className="flex justify-end gap-2">
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    className="w-full sm:w-max"
+                    disabled={isDeletingAccount}
+                  >
+                    {isDeletingAccount ? (
+                      <>
+                        <LoaderCircle size={16} className="animate-spin" />
+                        Deleting...
+                      </>
+                    ) : (
+                      <>
+                        <Trash2 size={16} />
+                        Delete Account
+                      </>
+                    )}
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Delete Account</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Are you sure you want to delete your account? This action
+                      cannot be undone and will permanently remove your account
+                      and all associated data.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleDeleteAccount}>
+                      Delete Account
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
               <Button
                 type="submit"
                 disabled={isUpdatingProfile}
@@ -167,11 +256,14 @@ export default function TabProfile() {
               >
                 {isUpdatingProfile ? (
                   <>
-                    <LoaderCircle size={16} className="mr-2 animate-spin" />
+                    <LoaderCircle size={16} className="animate-spin" />
                     Saving...
                   </>
                 ) : (
-                  "Save Changes"
+                  <>
+                    <Save size={16} />
+                    Save Changes
+                  </>
                 )}
               </Button>
             </div>

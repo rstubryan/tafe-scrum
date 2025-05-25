@@ -30,7 +30,7 @@ export interface UserProps {
   [key: string]: unknown;
 }
 
-export interface UserEditProfileProps {
+export interface EditUserProfileProps {
   id?: number;
   username?: string;
   email?: string;
@@ -47,6 +47,6 @@ export interface ChangePasswordProps {
   password_confirmation: string;
 }
 
-export interface UserApiUpdateRequest {
-  data?: UserEditProfileProps;
+export interface DeleteUserAccountProps {
+  id: string;
 }
