@@ -129,3 +129,39 @@ export const useDeleteUserStory = () => {
     },
   });
 };
+
+export const useDeleteAssociateUserStoriesFromSprint = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      projectId,
+      userStoryIds,
+      beforeUserStoryId,
+    }: {
+      projectId: number;
+      userStoryIds: number[];
+      beforeUserStoryId?: number;
+    }) =>
+      userStoryApi.deleteAssociateUserStoriesFromSprint({
+        data: {
+          // @ts-expect-error The API expects both user_story and epic properties
+          project_id: projectId,
+          bulk_userstories: userStoryIds,
+          before_userstory_id: beforeUserStoryId,
+        },
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["user-stories-by-project"] });
+      queryClient.invalidateQueries({ queryKey: ["sprint"] });
+      toast.success("User stories removed from sprint successfully");
+    },
+    onError: (error: AxiosError) => {
+      handleApiError(
+        error,
+        "Failed to remove user stories from sprint",
+        "Please check your input and try again.",
+      );
+    },
+  });
+};

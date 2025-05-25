@@ -89,6 +89,20 @@ export const userStoryApi = {
     method: "POST",
   }),
 
+  deleteAssociateUserStoriesFromSprint: createApiRequest<
+    {
+      data: {
+        project_id: number;
+        before_userstory_id?: number;
+        bulk_userstories: number[];
+      };
+    },
+    ResponseProps<UserStoryProps>
+  >({
+    endpoint: `${BASE_URL}/bulk_update_backlog_order`,
+    method: "POST",
+  }),
+
   updateUserStory: createApiRequest<
     Partial<EditUserStoryProps>,
     ResponseProps<UserStoryProps>

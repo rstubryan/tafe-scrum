@@ -31,6 +31,20 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { formatDate } from "@/utils";
 import { getInitials } from "@/utils/avatar-initials";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { Unlink } from "lucide-react";
+import { useDeleteAssociateUserStoriesFromSprint } from "@/api/backlog-us/mutation";
+import { useGetProjectBySlug } from "@/api/project/queries";
 
 export default function SlugSprintContent() {
   const params = useParams();
@@ -41,6 +55,18 @@ export default function SlugSprintContent() {
 
   const { data: sprint, isLoading: isLoadingSprint } =
     useGetSprintById(sprintId);
+  const { data: project } = useGetProjectBySlug(slug);
+  const { mutate: unlinkUserStoryFromSprint } =
+    useDeleteAssociateUserStoriesFromSprint();
+
+  const handleUnlinkUserStory = (storyId?: number) => {
+    if (!storyId || !project?.id) return;
+
+    unlinkUserStoryFromSprint({
+      projectId: parseInt(project.id.toString()),
+      userStoryIds: [storyId],
+    });
+  };
 
   const userStoriesArray = sprint?.user_stories || [];
   const userStoriesCount = userStoriesArray.length;
@@ -262,41 +288,77 @@ export default function SlugSprintContent() {
             {paginatedStories.map((story: UserStoryProps) => (
               <Card key={story.id} className="flex h-full flex-col">
                 <CardHeader className="pb-0">
-                  <div className="flex items-center gap-2">
-                    <div
-                      className="flex h-10 w-10 items-center justify-center rounded-md"
-                      style={{
-                        backgroundColor:
-                          story.status_extra_info?.color || "#70728F",
-                      }}
-                    >
-                      <Typography className="font-bold text-white">
-                        #{story.ref}
-                      </Typography>
-                    </div>
-                    <div>
-                      <CardTitle className="line-clamp-1">
-                        {story.subject}
-                      </CardTitle>
-                      <CardContent className="p-0">
-                        <Typography className="flex gap-1 text-xs text-muted-foreground">
-                          <span
-                            style={{
-                              color:
-                                story.status_extra_info?.color || "#70728F",
-                            }}
-                          >
-                            {story.status_extra_info?.name || "New"}
-                          </span>
-                          <span>•</span>
-                          <span className="font-medium">
-                            {story.is_closed ? "Closed" : "Open"}
-                          </span>
+                  <div className="flex items-center justify-between w-full">
+                    <div className="flex items-center gap-2">
+                      <div
+                        className="flex h-10 w-10 items-center justify-center rounded-md"
+                        style={{
+                          backgroundColor:
+                            story.status_extra_info?.color || "#70728F",
+                        }}
+                      >
+                        <Typography className="font-bold text-white">
+                          #{story.ref}
                         </Typography>
-                      </CardContent>
+                      </div>
+                      <div>
+                        <CardTitle className="line-clamp-1">
+                          {story.subject}
+                        </CardTitle>
+                        <CardContent className="p-0">
+                          <Typography className="flex gap-1 text-xs text-muted-foreground">
+                            <span
+                              style={{
+                                color:
+                                  story.status_extra_info?.color || "#70728F",
+                              }}
+                            >
+                              {story.status_extra_info?.name || "New"}
+                            </span>
+                            <span>•</span>
+                            <span className="font-medium">
+                              {story.is_closed ? "Closed" : "Open"}
+                            </span>
+                          </Typography>
+                        </CardContent>
+                      </div>
                     </div>
+
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          className="h-8 w-8"
+                        >
+                          <span className="sr-only">Unlink</span>
+                          <Unlink className="size-4" />
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Unlink User Story</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Are you sure you want to remove{" "}
+                            <span className="font-bold">
+                              &quot;{story.subject}&quot;
+                            </span>{" "}
+                            from this sprint? This will not delete the user
+                            story.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={() => handleUnlinkUserStory(story.id)}
+                          >
+                            Unlink
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
                   </div>
-                </CardHeader>
+                </CardHeader>{" "}
                 <CardContent className="flex-1">
                   <div className="mt-2 text-xs text-muted-foreground">
                     <div className="flex flex-wrap items-center gap-2">
