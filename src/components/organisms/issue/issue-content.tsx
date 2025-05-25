@@ -33,6 +33,8 @@ import { useGetProjectBySlug } from "@/api/project/queries";
 import IssueDialog from "@/components/organisms/issue/issue-dialog";
 import IssueStatusFilter from "@/components/organisms/issue/issue-status-filter";
 import { createPortal } from "react-dom";
+import IssueStatusForm from "@/components/organisms/issue/form/issue-status-form";
+import { useEditIssue } from "@/api/issue/mutation";
 
 interface IssueContentProps {
   filterContainerId?: string;
@@ -48,6 +50,7 @@ export default function IssueContent({ filterContainerId }: IssueContentProps) {
   );
   const [isMounted, setIsMounted] = useState(false);
   const itemsPerPage = 9;
+  const { mutate: editIssue } = useEditIssue();
   const { mutate: deleteIssue } = useDeleteIssue();
 
   const { data: issuesData, isLoading } = useGetIssueByProjectId(
@@ -93,6 +96,25 @@ export default function IssueContent({ filterContainerId }: IssueContentProps) {
   const handleStatusFilterChange = (statusValue: string | null) => {
     setSelectedStatus(statusValue);
     setCurrentPage(1); // Reset to first page when filter changes
+  };
+
+  const handleStatusChange = (
+    issueId: number | undefined,
+    newStatusValue: number,
+  ) => {
+    if (!issueId) return;
+
+    const issue = issues.find((i) => i.id === issueId);
+    if (!issue) return;
+
+    editIssue({
+      id: issueId,
+      status: newStatusValue,
+      version: issue.version,
+      subject: issue.subject || "",
+      project: issue.project || parseInt(project?.id?.toString() || "0"),
+      assigned_to: issue.assigned_to,
+    });
   };
 
   const handleDeleteIssue = (issueId: number | undefined) => {
@@ -187,8 +209,17 @@ export default function IssueContent({ filterContainerId }: IssueContentProps) {
                       </CardContent>
                     </div>
                   </div>
+
+                  <IssueStatusForm
+                    className={"mt-4 xl:mt-0 xl:w-[150px] w-full"}
+                    issues={issues}
+                    issueStatus={issue.status}
+                    onStatusChange={(newStatus) =>
+                      handleStatusChange(issue.id, newStatus)
+                    }
+                  />
                 </div>
-              </CardHeader>
+              </CardHeader>{" "}
               <CardContent className="flex-1">
                 <div className="mt-2 text-xs text-muted-foreground">
                   <div className="mb-2 grid grid-cols-1 gap-2 text-sm">
