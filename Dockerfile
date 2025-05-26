@@ -10,15 +10,13 @@ RUN bun install --frozen-lockfile
 
 # Build stage
 FROM deps AS build
-# Copy environment variables for build
-COPY .env .env
 COPY . .
+# Copy environment variables for build
+# COPY .env .env
 RUN bun --bun run build
 
 # Production stage
 FROM base AS release
-# Use ARG for flexibility during build
-ARG NODE_ENV=production
 ENV NODE_ENV=${NODE_ENV}
 
 # Copy necessary files for production
@@ -27,7 +25,7 @@ COPY --from=build /usr/src/app/.next ./.next
 COPY --from=build /usr/src/app/public ./public
 COPY --from=build /usr/src/app/package.json ./package.json
 # Copy environment variables for runtime
-COPY .env .env
+# COPY .env .env
 
 # Run as non-root user for better security
 USER bun
