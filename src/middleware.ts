@@ -21,6 +21,14 @@ export default async function middleware(req: NextRequest) {
 
   const isAuthenticated = user_info && auth_token;
 
+  if (path === "/") {
+    if (isAuthenticated) {
+      return NextResponse.redirect(new URL("/dashboard", req.nextUrl));
+    } else {
+      return NextResponse.redirect(new URL("/login", req.nextUrl));
+    }
+  }
+
   if (isAuthRoute && isAuthenticated) {
     return NextResponse.redirect(new URL("/dashboard", req.nextUrl));
   }
