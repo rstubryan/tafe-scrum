@@ -17,7 +17,7 @@ RUN bun --bun run build
 
 # Production stage
 FROM base AS release
-ENV NODE_ENV production
+ENV NODE_ENV=production
 
 # Copy necessary files for production
 COPY --from=deps /usr/src/app/node_modules ./node_modules
