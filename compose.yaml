@@ -1,18 +1,28 @@
 services:
-  server:
-    build:
-      context: .
-    environment:
-      - NODE_ENV=development
-      - NEXT_PUBLIC_BASE_URL=http://localhost:8000/api/v1
-      - NEXT_PUBLIC_BASE_URL_BLOG=http://localhost:8000/api/v1/blog
+  traefik:
+    image: "traefik:v3.4"
+    container_name: "traefik"
+    command:
+      - "--log.level=DEBUG"
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entryPoints.web.address=:80"
     ports:
-      - 3000:3000
+      - "80:80"
+      - "8080:8080"
     volumes:
-      - .:/app
-      - /app/node_modules
-    restart: unless-stopped
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
 
-networks:
-  default:
-    driver: bridge
+  web:
+    image: "ghcr.io/rstubryan/tascrum-web:latest"
+    container_name: "tascrum-web"
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_BASE_URL=http://api-tascrum.zeabur.app/api/v1
+      - NEXT_PUBLIC_BASE_URL_BLOG=http://api-tascrum.zeabur.app/api/v1/blog
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.web.rule=Host(`tascrum.site`)"
+      - "traefik.http.routers.web.entrypoints=web"
+      - "traefik.http.services.web.loadbalancer.server.port=3000"
