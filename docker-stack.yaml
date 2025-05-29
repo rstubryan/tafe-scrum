@@ -39,11 +39,11 @@ services:
         max_attempts: 3
 
   web:
-    image: rstubryan/tascrum-web:latest
+    image: ghcr.io/rstubryan/tascrum-web:latest
     environment:
       - NODE_ENV=production
-      - NEXT_PUBLIC_BASE_URL=https://api-tascrum.zeabur.app/api/v1
-      - NEXT_PUBLIC_BASE_URL_BLOG=https://api-tascrum.zeabur.app/api/v1/blog
+      - NEXT_PUBLIC_BASE_URL=https://api-tascrum.site/api/v1
+      - NEXT_PUBLIC_BASE_URL_BLOG=https://api-tascrum.site/api/v1/blog
     labels:
       - "traefik.enable=true"
       - "traefik.http.services.web.loadbalancer.server.port=3000"
