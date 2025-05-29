@@ -39,9 +39,7 @@ services:
         max_attempts: 3
 
   web:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: rstubryan/tascrum-web:latest
     environment:
       - NODE_ENV=production
       - NEXT_PUBLIC_BASE_URL=https://api-tascrum.zeabur.app/api/v1
