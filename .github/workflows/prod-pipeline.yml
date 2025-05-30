@@ -1,0 +1,104 @@
+name: Production CI Pipeline
+
+permissions:
+  contents: read
+  packages: write
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  dependency-check:
+    name: Dependency Scan with Trivy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@0.29.0
+        with:
+          scan-type: 'fs'
+          format: 'table'
+          output: 'trivy.txt'
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
+        env:
+          TRIVY_DISABLE_VEX_NOTICE: true
+
+      - name: Publish Trivy Output to Summary
+        run: |
+          if [[ -s trivy.txt ]]; then
+            {
+              echo "### Security Output"
+              echo "<details><summary>Click to expand</summary>"
+              echo ""
+              echo '```'
+              cat trivy.txt
+              echo '```'
+              echo "</details>"
+            } >> $GITHUB_STEP_SUMMARY
+          fi
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Create .env File
+        run: |
+          echo "NEXT_PUBLIC_BASE_URL=${{ secrets.PROD_NEXT_PUBLIC_BASE_URL }}" > .env
+          echo "NEXT_PUBLIC_BASE_URL_BLOG=${{ secrets.PROD_NEXT_PUBLIC_BASE_URL_BLOG }}" >> .env
+          echo "NODE_ENV=production" >> .env
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GHCR_PAT }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: true
+          tags: ghcr.io/rstubryan/tascrum-web-prod:latest
+
+  deploy:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Install SSH client
+        run: sudo apt-get install -y openssh-client
+
+      - name: Setup SSH key
+        uses: webfactory/ssh-agent@v0.7.0
+        with:
+          ssh-private-key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
+
+      - name: Update Docker Stack YAML
+        run: |
+          sed -i 's|image: ghcr.io/rstubryan/tascrum-web:latest|image: ghcr.io/rstubryan/tascrum-web-prod:latest|' docker-stack.yaml
+
+      - name: Copy Stack File to Server
+        run: |
+          scp -o StrictHostKeyChecking=no docker-stack.yaml ${{ secrets.PROD_SSH_USER }}@${{ secrets.PROD_SSH_HOST }}:/path/to/your/deployment/
+
+      - name: Deploy to server
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.PROD_SSH_USER }}@${{ secrets.PROD_SSH_HOST }} << 'EOF'
+            cd /root/tascrum
+            docker pull ghcr.io/rstubryan/tascrum-web-prod:latest
+            docker stack deploy -c docker-stack.yaml tascrum
+          EOF
