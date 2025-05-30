@@ -92,6 +92,7 @@ jobs:
 
       - name: Update Docker Stack YAML with versioned image
         run: |
+          # Only update the web-prod service image, preserve Grafana and others
           sed -i 's|image: ghcr.io/rstubryan/tascrum-web-prod:latest|image: ghcr.io/rstubryan/tascrum-web-prod:${{ github.sha }}|' docker-stack.yaml
 
       - name: Create directory and deploy
@@ -103,17 +104,18 @@ jobs:
           scp -o StrictHostKeyChecking=no docker-stack.yaml ${{ secrets.PROD_SSH_USER }}@${{ secrets.PROD_SSH_HOST }}:/root/tascrum/
           
           # Configure Docker to authenticate with GitHub Container Registry on the server
-          # This fixes the "image could not be accessed on a registry" warning
           echo "Configuring Docker login on server..."
           ssh -o StrictHostKeyChecking=no ${{ secrets.PROD_SSH_USER }}@${{ secrets.PROD_SSH_HOST }} << EOF
             echo '${{ secrets.GHCR_PAT }}' | docker login ghcr.io -u ${{ github.actor }} --password-stdin
           EOF
           
-          # Finally deploy
+          # Deploy stack
           echo "Deploying stack..."
           ssh -o StrictHostKeyChecking=no ${{ secrets.PROD_SSH_USER }}@${{ secrets.PROD_SSH_HOST }} << 'EOF'
             cd /root/tascrum
-            docker pull ghcr.io/rstubryan/tascrum-web-prod:$(cat docker-stack.yaml | grep "image: ghcr.io/rstubryan/tascrum-web-prod:" | cut -d':' -f3)
+            WEB_PROD_IMAGE_TAG=$(cat docker-stack.yaml | grep "image: ghcr.io/rstubryan/tascrum-web-prod:" | cut -d':' -f3)
+            echo "Pulling web-prod image with tag: $WEB_PROD_IMAGE_TAG"
+            docker pull ghcr.io/rstubryan/tascrum-web-prod:$WEB_PROD_IMAGE_TAG
             docker stack deploy -c docker-stack.yaml tascrum
             echo "Deployment complete. Stack services:"
             docker stack services tascrum

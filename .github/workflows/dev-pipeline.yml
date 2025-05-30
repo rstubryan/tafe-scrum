@@ -88,6 +88,7 @@ jobs:
 
       - name: Update Docker Stack YAML with versioned image
         run: |
+          # Only update the web-dev service image, preserve Grafana and others
           sed -i 's|image: ghcr.io/rstubryan/tascrum-web:latest|image: ghcr.io/rstubryan/tascrum-web:${{ github.sha }}|' docker-stack.yaml
 
       - name: Create directory and deploy
@@ -108,7 +109,9 @@ jobs:
           echo "Deploying stack..."
           ssh -o StrictHostKeyChecking=no ${{ secrets.PROD_SSH_USER }}@${{ secrets.PROD_SSH_HOST }} << 'EOF'
             cd /root/tascrum
-            docker pull ghcr.io/rstubryan/tascrum-web:$(cat docker-stack.yaml | grep "image: ghcr.io/rstubryan/tascrum-web:" | cut -d':' -f3)
+            WEB_DEV_IMAGE_TAG=$(cat docker-stack.yaml | grep "image: ghcr.io/rstubryan/tascrum-web:" | cut -d':' -f3)
+            echo "Pulling web-dev image with tag: $WEB_DEV_IMAGE_TAG"
+            docker pull ghcr.io/rstubryan/tascrum-web:$WEB_DEV_IMAGE_TAG
             docker stack deploy -c docker-stack.yaml tascrum
             echo "Deployment complete. Stack services:"
             docker stack services tascrum
