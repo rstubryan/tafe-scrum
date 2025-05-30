@@ -94,8 +94,6 @@ services:
         target: /etc/grafana/provisioning/datasources/datasources.yaml
       - source: grafana-dashboards-config
         target: /etc/grafana/provisioning/dashboards/dashboards.yaml
-      - source: nextjs-logs-dashboard-v1
-        target: /etc/grafana/provisioning/dashboards/nextjs-logs.json
     networks:
       - traefik-public
     deploy:
@@ -154,9 +152,6 @@ services:
         - "traefik.http.services.web-dev.loadbalancer.server.port=3000"
 
 configs:
-  nextjs-logs-dashboard-v1:
-    file: ./configs/nextjs-logs-dashboard.json
-
   loki-config:
     file: ./configs/loki-config.yaml
   promtail-config:
