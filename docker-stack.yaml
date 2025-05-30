@@ -66,7 +66,7 @@ services:
     image: grafana/loki:2.9.1
     command: -config.file=/etc/loki/local-config.yaml
     configs:
-      - source: loki-config
+      - source: loki-config-${CONFIG_VERSION}
         target: /etc/loki/local-config.yaml
     volumes:
       - loki-data:/loki
@@ -88,7 +88,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - promtail-data:/tmp
     configs:
-      - source: promtail-config
+      - source: promtail-config-${CONFIG_VERSION}
         target: /etc/promtail/config.yml
     command: -config.file=/etc/promtail/config.yml
     networks:
@@ -106,9 +106,9 @@ services:
     volumes:
       - grafana-data:/var/lib/grafana
     configs:
-      - source: grafana-datasources
+      - source: grafana-datasources-${CONFIG_VERSION}
         target: /etc/grafana/provisioning/datasources/datasources.yaml
-      - source: grafana-dashboards-config
+      - source: grafana-dashboards-config-${CONFIG_VERSION}
         target: /etc/grafana/provisioning/dashboards/dashboards.yaml
     networks:
       - traefik-public
@@ -182,13 +182,13 @@ services:
         - "com.centurylinklabs.watchtower.enable=true"
 
 configs:
-  loki-config:
+  loki-config-${CONFIG_VERSION}:
     file: ./configs/loki-config.yaml
-  promtail-config:
+  promtail-config-${CONFIG_VERSION}:
     file: ./configs/promtail-config.yaml
-  grafana-datasources:
+  grafana-datasources-${CONFIG_VERSION}:
     file: ./configs/grafana-datasources.yaml
-  grafana-dashboards-config:
+  grafana-dashboards-config-${CONFIG_VERSION}:
     file: ./configs/grafana-dashboards-config.yaml
 
 networks:
