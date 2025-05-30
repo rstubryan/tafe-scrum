@@ -119,10 +119,8 @@ jobs:
           username: ${{ secrets.PROD_SSH_USER }}
           key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
           script: |
-            cd /root/tascrum
-            WEB_PROD_IMAGE_TAG=$(cat docker-stack.yaml | grep "image: ghcr.io/rstubryan/tascrum-web-prod:" | cut -d':' -f3)
-            echo "Pulling web-prod image with tag: $WEB_PROD_IMAGE_TAG"
-            docker pull ghcr.io/rstubryan/tascrum-web-prod:$WEB_PROD_IMAGE_TAG
+            echo "Pulling web-prod image with tag: ${{ github.sha }}"
+            docker pull ghcr.io/rstubryan/tascrum-web-prod:${{ github.sha }}
 
       - name: Deploy Docker stack
         uses: cssnr/stack-deploy-action@v1
