@@ -9,6 +9,11 @@ clients:
   - url: http://loki:3100/loki/api/v1/push
 
 scrape_configs:
+  - job_name: traefik_metrics
+    static_configs:
+      - targets:
+          - traefik:8082
+    metrics_path: /metrics
   - job_name: containers
     docker_sd_configs:
       - host: unix:///var/run/docker.sock

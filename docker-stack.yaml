@@ -23,6 +23,9 @@ services:
       - "--certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=web"
       - "--certificatesresolvers.myresolver.acme.email=restubumirr@gmail.com"
       - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+      - "--metrics.prometheus=true"
+      - "--metrics.prometheus.buckets=0.1,0.3,1.2,5.0"
+      - "--entryPoints.metrics.address=:8082"
     ports:
       - mode: host
         published: 80
@@ -33,6 +36,9 @@ services:
       - mode: host
         published: 8080
         target: 8080
+      - mode: host
+        published: 8082
+        target: 8082
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - traefik-certificates:/letsencrypt
