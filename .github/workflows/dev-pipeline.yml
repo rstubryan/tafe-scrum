@@ -1,0 +1,68 @@
+name: Development CI Pipeline
+
+on:
+  push:
+    branches:
+      - development
+
+jobs:
+  dependency-check:
+    name: Dependency Scan with Trivy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@0.29.0
+        with:
+          scan-type: 'fs'
+          format: 'table'
+          output: 'trivy.txt'
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
+        env:
+          TRIVY_DISABLE_VEX_NOTICE: true
+
+      - name: Publish Trivy Output to Summary
+        run: |
+          if [[ -s trivy.txt ]]; then
+            {
+              echo "### Security Output"
+              echo "<details><summary>Click to expand</summary>"
+              echo ""
+              echo '```'
+              cat trivy.txt
+              echo '```'
+              echo "</details>"
+            } >> $GITHUB_STEP_SUMMARY
+          fi
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Create .env File
+        run: |
+          echo "NEXT_PUBLIC_BASE_URL=${{ secrets.DEV_NEXT_PUBLIC_BASE_URL }}" > .env
+          echo "NEXT_PUBLIC_BASE_URL_BLOG=${{ secrets.DEV_NEXT_PUBLIC_BASE_URL_BLOG }}" >> .env
+          echo "NODE_ENV=development" >> .env
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: true
+          tags: ghcr.io/rstubryan/tascrum-web:latest
