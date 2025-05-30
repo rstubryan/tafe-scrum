@@ -131,7 +131,6 @@ jobs:
           host: ${{ secrets.PROD_SSH_HOST }}
           user: ${{ secrets.PROD_SSH_USER }}
           ssh_key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
-          remote_dir: '/root/tascrum'
           registry_auth: true
           registry_host: 'ghcr.io'
           registry_user: ${{ github.actor }}
