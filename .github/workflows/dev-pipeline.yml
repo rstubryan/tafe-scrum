@@ -39,6 +39,7 @@ jobs:
           echo "</details>" >> $GITHUB_STEP_SUMMARY
 
   build:
+    name: Build and Push Docker Image
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository

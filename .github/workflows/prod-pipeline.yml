@@ -43,6 +43,7 @@ jobs:
           fi
 
   build:
+    name: Build and Push Docker Image
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
@@ -97,6 +98,10 @@ jobs:
 
       - name: Deploy to server
         run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.PROD_SSH_USER }}@${{ secrets.PROD_SSH_HOST }} "mkdir -p /root/tascrum"
+        
+          scp -o StrictHostKeyChecking=no docker-stack.yaml ${{ secrets.PROD_SSH_USER }}@${{ secrets.PROD_SSH_HOST }}:/root/tascrum/
+          
           ssh -o StrictHostKeyChecking=no ${{ secrets.PROD_SSH_USER }}@${{ secrets.PROD_SSH_HOST }} << 'EOF'
             cd /root/tascrum
             docker pull ghcr.io/rstubryan/tascrum-web-prod:latest
