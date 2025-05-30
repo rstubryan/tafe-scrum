@@ -87,13 +87,14 @@ jobs:
         run: |
           TIMESTAMP=$(date +%Y%m%d%H%M%S)
           echo "CONFIG_VERSION=$TIMESTAMP" >> $GITHUB_ENV
+          echo "Using timestamp: $TIMESTAMP"
           
-          # Replace ${CONFIG_VERSION} with the actual timestamp
-          sed -i "s/\${CONFIG_VERSION}/$TIMESTAMP/g" docker-stack.yaml
+          # Use single quotes for sed pattern to prevent early shell expansion
+          sed -i 's/\${CONFIG_VERSION}/'"$TIMESTAMP"'/g' docker-stack.yaml
           
           # Debug to verify replacement
           echo "Config names after replacement:"
-          grep -E 'loki-config-|promtail-config-|grafana-datasources-|grafana-dashboards-config-' docker-stack.yaml
+          grep -E 'configs:|loki-config-|promtail-config-|grafana-datasources-|grafana-dashboards-config-' docker-stack.yaml
 
       - name: Create directories on server
         uses: appleboy/ssh-action@v1

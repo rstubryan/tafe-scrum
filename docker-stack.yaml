@@ -62,6 +62,24 @@ services:
         - "traefik.http.routers.dashboard-http.middlewares=dashboard-https-redirect"
         - "traefik.http.middlewares.dashboard-https-redirect.redirectscheme.scheme=https"
 
+        # Metrics configuration via HTTPS (external access)
+        - "traefik.http.routers.metrics-https.rule=Host(`metrics.tascrum.site`)"
+        - "traefik.http.routers.metrics-https.service=prometheus@internal"
+        - "traefik.http.routers.metrics-https.entrypoints=websecure"
+        - "traefik.http.routers.metrics-https.tls.certresolver=myresolver"
+
+        # Metrics HTTP to HTTPS redirect
+        - "traefik.http.routers.metrics-http.rule=Host(`metrics.tascrum.site`)"
+        - "traefik.http.routers.metrics-http.entrypoints=web"
+        - "traefik.http.routers.metrics-http.middlewares=metrics-https-redirect"
+        - "traefik.http.middlewares.metrics-https-redirect.redirectscheme.scheme=https"
+
+        # Internal metrics access (for Grafana)
+        - "traefik.http.routers.metrics-internal.rule=Host(`traefik`)"
+        - "traefik.http.routers.metrics-internal.service=prometheus@internal"
+        - "traefik.http.routers.metrics-internal.entrypoints=metrics"
+        - "traefik.http.services.prometheus.loadbalancer.server.port=8082"
+
   loki:
     image: grafana/loki:2.9.1
     command: -config.file=/etc/loki/local-config.yaml

@@ -9,6 +9,6 @@ datasources:
   - name: Prometheus
     type: prometheus
     access: proxy
-    url: http://traefik:8082
+    url: http://traefik:8082/metrics
     isDefault: false
     editable: true
