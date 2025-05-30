@@ -158,6 +158,15 @@ jobs:
               fi
             fi
             
+            # Validate YAML before deployment to catch syntax errors
+            echo "Validating docker-stack.yaml..."
+            docker stack config -c docker-stack.yaml
+            if [ $? -ne 0 ]; then
+              echo "YAML validation failed! Aborting deployment."
+              echo "FAILED"
+              exit 1
+            fi
+            
             # Deploy stack (either fresh or update)
             echo "Deploying stack..."
             docker stack deploy -c docker-stack.yaml tascrum
@@ -195,7 +204,7 @@ jobs:
               # Wait for traefik to route requests
               sleep 10
               
-              # Check if the application responds properly (adjust URL as needed)
+              # Check if the application responds properly
               HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://tascrum.site || echo "000")
               
               if [[ "$HTTP_STATUS" == "200" || "$HTTP_STATUS" == "301" || "$HTTP_STATUS" == "302" ]]; then
@@ -236,12 +245,12 @@ jobs:
           
           # Check deployment status and exit accordingly
           if [[ "$DEPLOYMENT_STATUS" == *"ROLLBACK"* ]]; then
-            echo "::warning::Deployment failed, rolled back to previous version"
-            echo "::set-output name=status::rolled-back"
+            echo "Warning: Deployment failed, rolled back to previous version" 
+            echo "status=rolled-back" >> $GITHUB_OUTPUT
           elif [[ "$DEPLOYMENT_STATUS" == *"FAILED"* ]]; then
-            echo "::error::Deployment failed and rollback was not possible"
+            echo "Error: Deployment failed and rollback was not possible"
             exit 1
           else
-            echo "::notice::Deployment successful"
-            echo "::set-output name=status::success"
+            echo "Notice: Deployment successful"
+            echo "status=success" >> $GITHUB_OUTPUT
           fi
