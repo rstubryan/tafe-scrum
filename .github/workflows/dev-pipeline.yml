@@ -66,4 +66,50 @@ jobs:
         with:
           context: .
           push: true
-          tags: ghcr.io/rstubryan/tascrum-web:latest
+          tags: |
+            ghcr.io/rstubryan/tascrum-web:latest
+            ghcr.io/rstubryan/tascrum-web:${{ github.sha }}
+
+  deploy:
+    name: Deploy to Development
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Install SSH client
+        run: sudo apt-get install -y openssh-client
+
+      - name: Setup SSH key
+        uses: webfactory/ssh-agent@v0.7.0
+        with:
+          ssh-private-key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
+
+      - name: Update Docker Stack YAML with versioned image
+        run: |
+          sed -i 's|image: ghcr.io/rstubryan/tascrum-web:latest|image: ghcr.io/rstubryan/tascrum-web:${{ github.sha }}|' docker-stack.yaml
+
+      - name: Create directory and deploy
+        run: |
+          # First create the directory
+          ssh -o StrictHostKeyChecking=no ${{ secrets.PROD_SSH_USER }}@${{ secrets.PROD_SSH_HOST }} "mkdir -p /root/tascrum"
+          
+          # Then copy the file
+          scp -o StrictHostKeyChecking=no docker-stack.yaml ${{ secrets.PROD_SSH_USER }}@${{ secrets.PROD_SSH_HOST }}:/root/tascrum/
+          
+          # Configure Docker to authenticate with GitHub Container Registry
+          echo "Configuring Docker login on server..."
+          ssh -o StrictHostKeyChecking=no ${{ secrets.PROD_SSH_USER }}@${{ secrets.PROD_SSH_HOST }} << EOF
+            echo '${{ secrets.GHCR_PAT }}' | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+          EOF
+          
+          # Deploy stack
+          echo "Deploying stack..."
+          ssh -o StrictHostKeyChecking=no ${{ secrets.PROD_SSH_USER }}@${{ secrets.PROD_SSH_HOST }} << 'EOF'
+            cd /root/tascrum
+            docker pull ghcr.io/rstubryan/tascrum-web:$(cat docker-stack.yaml | grep "image: ghcr.io/rstubryan/tascrum-web:" | cut -d':' -f3)
+            docker stack deploy -c docker-stack.yaml tascrum
+            echo "Deployment complete. Stack services:"
+            docker stack services tascrum
+          EOF

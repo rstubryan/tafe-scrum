@@ -92,7 +92,7 @@ jobs:
 
       - name: Update Docker Stack YAML with versioned image
         run: |
-          sed -i 's|image: ghcr.io/rstubryan/tascrum-web:latest|image: ghcr.io/rstubryan/tascrum-web-prod:${{ github.sha }}|' docker-stack.yaml
+          sed -i 's|image: ghcr.io/rstubryan/tascrum-web-prod:latest|image: ghcr.io/rstubryan/tascrum-web-prod:${{ github.sha }}|' docker-stack.yaml
 
       - name: Create directory and deploy
         run: |
