@@ -92,16 +92,15 @@ jobs:
         run: |
           sed -i 's|image: ghcr.io/rstubryan/tascrum-web:latest|image: ghcr.io/rstubryan/tascrum-web-prod:latest|' docker-stack.yaml
 
-      - name: Copy Stack File to Server
+      - name: Create directory and deploy
         run: |
-          scp -o StrictHostKeyChecking=no docker-stack.yaml ${{ secrets.PROD_SSH_USER }}@${{ secrets.PROD_SSH_HOST }}:/root/tascrum/
-
-      - name: Deploy to server
-        run: |
+          # First create the directory
           ssh -o StrictHostKeyChecking=no ${{ secrets.PROD_SSH_USER }}@${{ secrets.PROD_SSH_HOST }} "mkdir -p /root/tascrum"
-        
+          
+          # Then copy the file
           scp -o StrictHostKeyChecking=no docker-stack.yaml ${{ secrets.PROD_SSH_USER }}@${{ secrets.PROD_SSH_HOST }}:/root/tascrum/
           
+          # Finally deploy
           ssh -o StrictHostKeyChecking=no ${{ secrets.PROD_SSH_USER }}@${{ secrets.PROD_SSH_HOST }} << 'EOF'
             cd /root/tascrum
             docker pull ghcr.io/rstubryan/tascrum-web-prod:latest
