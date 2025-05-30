@@ -93,7 +93,7 @@ jobs:
 
       - name: Copy Stack File to Server
         run: |
-          scp -o StrictHostKeyChecking=no docker-stack.yaml ${{ secrets.PROD_SSH_USER }}@${{ secrets.PROD_SSH_HOST }}:/path/to/your/deployment/
+          scp -o StrictHostKeyChecking=no docker-stack.yaml ${{ secrets.PROD_SSH_USER }}@${{ secrets.PROD_SSH_HOST }}:/root/tascrum/
 
       - name: Deploy to server
         run: |
