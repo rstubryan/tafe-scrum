@@ -56,6 +56,24 @@ services:
         - "traefik.http.routers.dashboard-http.middlewares=dashboard-https-redirect"
         - "traefik.http.middlewares.dashboard-https-redirect.redirectscheme.scheme=https"
 
+        # Canary deployment configuration
+        - "traefik.http.routers.production.rule=Host(`tascrum.site`)"
+        - "traefik.http.routers.production.entrypoints=websecure"
+        - "traefik.http.routers.production.tls.certresolver=myresolver"
+        - "traefik.http.routers.production.service=web-weighted"
+
+        # HTTP to HTTPS redirect for production
+        - "traefik.http.routers.production-http.rule=Host(`tascrum.site`)"
+        - "traefik.http.routers.production-http.entrypoints=web"
+        - "traefik.http.routers.production-http.middlewares=prod-https-redirect"
+        - "traefik.http.middlewares.prod-https-redirect.redirectscheme.scheme=https"
+
+        # Weighted service for canary deployment
+        - "traefik.http.services.web-weighted.loadbalancer.server.port=3000"
+        - "traefik.http.services.web-weighted.loadbalancer.sticky=true"
+        - "traefik.http.services.web-weighted.loadbalancer.service.stable.weight=90"
+        - "traefik.http.services.web-weighted.loadbalancer.service.canary.weight=10"
+
   loki:
     image: grafana/loki:2.9.1
     command: -config.file=/etc/loki/local-config.yaml
@@ -119,8 +137,9 @@ services:
         - "traefik.http.middlewares.grafana-https-redirect.redirectscheme.scheme=https"
         - "traefik.http.services.grafana.loadbalancer.server.port=3000"
 
-  web-prod:
-    image: ghcr.io/rstubryan/tascrum-web-prod:${GIT_COMMIT_HASH:-latest}
+  # Stable production environment (90% traffic)
+  web-stable:
+    image: ghcr.io/rstubryan/tascrum-web-prod:stable
     environment:
       - NODE_ENV=production
       - NEXT_PUBLIC_BASE_URL=http://api-tascrum.zeabur.app/api/v1
@@ -137,18 +156,33 @@ services:
         monitor: 60s
       labels:
         - "traefik.enable=true"
-        - "traefik.http.routers.web-prod.rule=Host(`tascrum.site`)"
-        - "traefik.http.routers.web-prod.entrypoints=websecure"
-        - "traefik.http.routers.web-prod.tls.certresolver=myresolver"
-        - "traefik.http.routers.web-prod-http.rule=Host(`tascrum.site`)"
-        - "traefik.http.routers.web-prod-http.entrypoints=web"
-        - "traefik.http.routers.web-prod-http.middlewares=web-prod-https-redirect"
-        - "traefik.http.middlewares.web-prod-https-redirect.redirectscheme.scheme=https"
-        - "traefik.http.services.web-prod.loadbalancer.server.port=3000"
+        - "traefik.http.services.stable.loadbalancer.server.port=3000"
+        - "com.centurylinklabs.watchtower.enable=true"
+
+  # Canary environment (10% traffic)
+  web-canary:
+    image: ghcr.io/rstubryan/tascrum-web-prod:latest
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_BASE_URL=http://api-tascrum.zeabur.app/api/v1
+      - NEXT_PUBLIC_BASE_URL_BLOG=http://api-tascrum.zeabur.app/api/v1/blog
+    networks:
+      - traefik-public
+    deploy:
+      replicas: 1
+      update_config:
+        order: start-first
+        parallelism: 1
+        delay: 30s
+        failure_action: rollback
+        monitor: 60s
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.services.canary.loadbalancer.server.port=3000"
         - "com.centurylinklabs.watchtower.enable=true"
 
   web-dev:
-    image: ghcr.io/rstubryan/tascrum-web:${GIT_COMMIT_HASH:-latest}
+    image: ghcr.io/rstubryan/tascrum-web:latest
     environment:
       - NODE_ENV=development
       - NEXT_PUBLIC_BASE_URL=http://api-tascrum.zeabur.app/api/v1

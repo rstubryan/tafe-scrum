@@ -81,8 +81,6 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 2
 
       - name: Install SSH client
         run: sudo apt-get install -y openssh-client
@@ -98,7 +96,6 @@ jobs:
           sed -i 's|image: ghcr.io/rstubryan/tascrum-web-prod:latest|image: ghcr.io/rstubryan/tascrum-web-prod:${{ github.sha }}|' docker-stack.yaml
 
       - name: Create directory and deploy
-        id: deploy
         run: |
           # First create the base directory
           ssh -o StrictHostKeyChecking=no ${{ secrets.PROD_SSH_USER }}@${{ secrets.PROD_SSH_HOST }} "mkdir -p /root/tascrum"
@@ -114,143 +111,18 @@ jobs:
           echo "Configuring Docker login on server..."
           ssh -o StrictHostKeyChecking=no ${{ secrets.PROD_SSH_USER }}@${{ secrets.PROD_SSH_HOST }} << EOF
             echo '${{ secrets.GHCR_PAT }}' | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+                # Export the commit hash as environment variable
+                export GIT_COMMIT_HASH=${{ github.sha }}
           EOF
           
-          # Use zero-downtime deployment with rollback capability
-          echo "Deploying stack with zero-downtime and rollback capability..."
-          DEPLOYMENT_STATUS=$(ssh -o StrictHostKeyChecking=no ${{ secrets.PROD_SSH_USER }}@${{ secrets.PROD_SSH_HOST }} << 'EOF'
+          # Deploy stack
+          echo "Deploying stack..."
+          ssh -o StrictHostKeyChecking=no ${{ secrets.PROD_SSH_USER }}@${{ secrets.PROD_SSH_HOST }} << 'EOF'
             cd /root/tascrum
-            
-            # Get current image tag to deploy
             WEB_PROD_IMAGE_TAG=$(cat docker-stack.yaml | grep "image: ghcr.io/rstubryan/tascrum-web-prod:" | cut -d':' -f3)
             echo "Pulling web-prod image with tag: $WEB_PROD_IMAGE_TAG"
             docker pull ghcr.io/rstubryan/tascrum-web-prod:$WEB_PROD_IMAGE_TAG
-            
-            # Store current image tag for rollback if needed
-            CURRENT_IMAGE_TAG=$WEB_PROD_IMAGE_TAG
-            
-            # Store last successful version for potential rollback
-            if docker stack ls | grep -q "tascrum" && docker service ls | grep -q "tascrum_web-prod"; then
-              LAST_SUCCESSFUL_TAG=$(docker service inspect tascrum_web-prod --format '{{.Spec.TaskTemplate.ContainerSpec.Image}}' | cut -d':' -f3)
-              echo "$LAST_SUCCESSFUL_TAG" > /root/tascrum/last_successful_prod_version.txt
-              echo "Last successful version: $LAST_SUCCESSFUL_TAG"
-            else
-              echo "No previous successful deployment found for web-prod"
-            fi
-            
-            # Check if stack exists
-            if docker stack ls | grep -q "tascrum"; then
-              # Check if configs directory has changed by comparing file checksums
-              if [[ -d "/root/tascrum/configs.old" ]]; then
-                CONFIG_CHANGED=$(diff -r /root/tascrum/configs /root/tascrum/configs.old >/dev/null 2>&1; echo $?)
-                if [[ "$CONFIG_CHANGED" -ne "0" ]]; then
-                  echo "Config changes detected, performing full redeployment..."
-                  docker stack rm tascrum
-                  echo "Waiting for stack removal to complete..."
-                  sleep 15
-                else
-                  echo "No config changes detected, using zero-downtime update..."
-                fi
-              else
-                # First time comparison, create backup of configs
-                mkdir -p /root/tascrum/configs.old
-                cp -r /root/tascrum/configs/* /root/tascrum/configs.old/
-              fi
-            fi
-            
-            # Validate YAML before deployment to catch syntax errors
-            echo "Validating docker-stack.yaml..."
-            docker stack config -c docker-stack.yaml
-            if [ $? -ne 0 ]; then
-              echo "YAML validation failed! Aborting deployment."
-              echo "FAILED"
-              exit 1
-            fi
-            
-            # Deploy stack (either fresh or update)
-            echo "Deploying stack..."
             docker stack deploy -c docker-stack.yaml tascrum
-            
-            # Health check - wait for service to be fully deployed
-            echo "Waiting for services to be running... (timeout: 180s)"
-            DEPLOY_FAILED=false
-            timeout 180s bash -c 'until docker service ls --filter "name=tascrum_web-prod" --format "{{.Replicas}}" | grep -q "[0-9]/[0-9]" && [[ "$(docker service ls --filter "name=tascrum_web-prod" --format "{{.Replicas}}" | grep -o "[0-9]*/[0-9]*" | awk -F "/" "{ if (\$1==\$2) print \"healthy\"; else print \"unhealthy\" }")" == "healthy" ]]; do sleep 5; echo "Waiting for deployment..."; done' || DEPLOY_FAILED=true
-            
-            # Check if deployment succeeded
-            if [[ "$DEPLOY_FAILED" == "true" ]]; then
-              echo "Deployment failed or timed out. Checking service logs..."
-              docker service logs tascrum_web-prod --tail 50
-              
-              # Attempt rollback if we have a previous version
-              if [[ -f "/root/tascrum/last_successful_prod_version.txt" ]]; then
-                ROLLBACK_TAG=$(cat /root/tascrum/last_successful_prod_version.txt)
-                echo "Rolling back to last successful version: $ROLLBACK_TAG"
-                
-                # Update stack file with previous version
-                sed -i "s|image: ghcr.io/rstubryan/tascrum-web-prod:$CURRENT_IMAGE_TAG|image: ghcr.io/rstubryan/tascrum-web-prod:$ROLLBACK_TAG|" docker-stack.yaml
-                
-                # Deploy previous version
-                docker stack deploy -c docker-stack.yaml tascrum
-                echo "Rollback complete. Using previous version: $ROLLBACK_TAG"
-                echo "ROLLBACK"
-              else
-                echo "No previous successful version found for rollback"
-                echo "FAILED"
-              fi
-            else
-              # Application seems to be running, check with HTTP request
-              echo "Service deployed successfully. Checking application health..."
-              
-              # Wait for traefik to route requests
-              sleep 10
-              
-              # Check if the application responds properly
-              HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://tascrum.site || echo "000")
-              
-              if [[ "$HTTP_STATUS" == "200" || "$HTTP_STATUS" == "301" || "$HTTP_STATUS" == "302" ]]; then
-                echo "Application is responding with HTTP $HTTP_STATUS. Deployment successful!"
-                
-                # Backup configs for future comparison
-                rm -rf /root/tascrum/configs.old
-                mkdir -p /root/tascrum/configs.old
-                cp -r /root/tascrum/configs/* /root/tascrum/configs.old/
-                
-                echo "SUCCESS"
-              else
-                echo "Application is not responding properly. HTTP status: $HTTP_STATUS"
-                
-                # Attempt rollback if we have a previous version
-                if [[ -f "/root/tascrum/last_successful_prod_version.txt" ]]; then
-                  ROLLBACK_TAG=$(cat /root/tascrum/last_successful_prod_version.txt)
-                  echo "Rolling back to last successful version: $ROLLBACK_TAG"
-                  
-                  # Update stack file with previous version
-                  sed -i "s|image: ghcr.io/rstubryan/tascrum-web-prod:$CURRENT_IMAGE_TAG|image: ghcr.io/rstubryan/tascrum-web-prod:$ROLLBACK_TAG|" docker-stack.yaml
-                  
-                  # Deploy previous version
-                  docker stack deploy -c docker-stack.yaml tascrum
-                  echo "Rollback complete. Using previous version: $ROLLBACK_TAG"
-                  echo "ROLLBACK"
-                else
-                  echo "No previous successful version found for rollback"
-                  echo "FAILED"
-                fi
-              fi
-            fi
-            
-            echo "Deployment process completed. Stack services:"
+            echo "Deployment complete. Stack services:"
             docker stack services tascrum
           EOF
-          )
-          
-          # Check deployment status and exit accordingly
-          if [[ "$DEPLOYMENT_STATUS" == *"ROLLBACK"* ]]; then
-            echo "Warning: Deployment failed, rolled back to previous version" 
-            echo "status=rolled-back" >> $GITHUB_OUTPUT
-          elif [[ "$DEPLOYMENT_STATUS" == *"FAILED"* ]]; then
-            echo "Error: Deployment failed and rollback was not possible"
-            exit 1
-          else
-            echo "Notice: Deployment successful"
-            echo "status=success" >> $GITHUB_OUTPUT
-          fi
