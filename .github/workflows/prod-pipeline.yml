@@ -22,7 +22,7 @@ jobs:
         with:
           scan-type: 'fs'
           format: 'table'
-          output: 'trivy.txt'
+          output: 'trivy-results.txt'
           vuln-type: 'os,library'
           severity: 'CRITICAL,HIGH'
         env:
@@ -30,17 +30,13 @@ jobs:
 
       - name: Publish Trivy Output to Summary
         run: |
-          if [[ -s trivy.txt ]]; then
-            {
-              echo "### Security Output"
-              echo "<details><summary>Click to expand</summary>"
-              echo ""
-              echo '```'
-              cat trivy.txt
-              echo '```'
-              echo "</details>"
-            } >> $GITHUB_STEP_SUMMARY
-          fi
+          echo "### Security Scan Results" >> $GITHUB_STEP_SUMMARY
+          echo "<details><summary>Click to expand</summary>" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          cat trivy-results.txt >> $GITHUB_STEP_SUMMARY || echo "No vulnerabilities found or scan failed" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "</details>" >> $GITHUB_STEP_SUMMARY
 
   build:
     name: Build and Push Docker Image

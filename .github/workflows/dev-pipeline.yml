@@ -34,7 +34,7 @@ jobs:
           echo "<details><summary>Click to expand</summary>" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
-          cat trivy-results.txt >> $GITHUB_STEP_SUMMARY || echo "No vulnerabilities found or scan failed"
+          cat trivy-results.txt >> $GITHUB_STEP_SUMMARY || echo "No vulnerabilities found or scan failed" >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
           echo "</details>" >> $GITHUB_STEP_SUMMARY
 
