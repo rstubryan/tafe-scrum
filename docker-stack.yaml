@@ -119,6 +119,8 @@ services:
       - traefik-public
     deploy:
       replicas: 2
+      update_config:
+        order: start-first
       labels:
         - "traefik.enable=true"
         - "traefik.http.routers.web-prod.rule=Host(`tascrum.site`)"
@@ -140,6 +142,8 @@ services:
       - traefik-public
     deploy:
       replicas: 1
+      update_config:
+        order: start-first
       labels:
         - "traefik.enable=true"
         - "traefik.http.routers.web-dev.rule=Host(`dev.tascrum.site`)"

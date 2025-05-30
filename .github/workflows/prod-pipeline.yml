@@ -81,6 +81,8 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
 
       - name: Install SSH client
         run: sudo apt-get install -y openssh-client
@@ -113,25 +115,43 @@ jobs:
             echo '${{ secrets.GHCR_PAT }}' | docker login ghcr.io -u ${{ github.actor }} --password-stdin
           EOF
           
-          # Deploy stack with removal first to handle config updates
-          echo "Deploying stack..."
+          # Use zero-downtime deployment strategy
+          echo "Deploying stack with zero-downtime strategy..."
           ssh -o StrictHostKeyChecking=no ${{ secrets.PROD_SSH_USER }}@${{ secrets.PROD_SSH_HOST }} << 'EOF'
             cd /root/tascrum
             WEB_PROD_IMAGE_TAG=$(cat docker-stack.yaml | grep "image: ghcr.io/rstubryan/tascrum-web-prod:" | cut -d':' -f3)
             echo "Pulling web-prod image with tag: $WEB_PROD_IMAGE_TAG"
             docker pull ghcr.io/rstubryan/tascrum-web-prod:$WEB_PROD_IMAGE_TAG
             
-            # Remove stack first to clean old configs
+            # Check if stack exists
             if docker stack ls | grep -q "tascrum"; then
-              echo "Removing existing stack..."
-              docker stack rm tascrum
-              echo "Waiting for stack removal to complete..."
-              sleep 15
+              # Check if configs directory has changed by comparing file checksums
+              if [[ -d "/root/tascrum/configs.old" ]]; then
+                CONFIG_CHANGED=$(diff -r /root/tascrum/configs /root/tascrum/configs.old >/dev/null 2>&1; echo $?)
+                if [[ "$CONFIG_CHANGED" -ne "0" ]]; then
+                  echo "Config changes detected, performing full redeployment..."
+                  docker stack rm tascrum
+                  echo "Waiting for stack removal to complete..."
+                  sleep 15
+                else
+                  echo "No config changes detected, using zero-downtime update..."
+                fi
+              else
+                # First time comparison, create backup of configs
+                mkdir -p /root/tascrum/configs.old
+                cp -r /root/tascrum/configs/* /root/tascrum/configs.old/
+              fi
             fi
             
-            # Deploy fresh stack with new configs
-            echo "Deploying new stack..."
+            # Deploy stack (either fresh or update)
+            echo "Deploying stack..."
             docker stack deploy -c docker-stack.yaml tascrum
+            
+            # Backup configs for future comparison
+            rm -rf /root/tascrum/configs.old
+            mkdir -p /root/tascrum/configs.old
+            cp -r /root/tascrum/configs/* /root/tascrum/configs.old/
+            
             echo "Deployment complete. Stack services:"
             docker stack services tascrum
           EOF
