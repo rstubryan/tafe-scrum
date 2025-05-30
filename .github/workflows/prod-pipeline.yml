@@ -18,11 +18,11 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@0.29.0
+        uses: aquasecurity/trivy-action@master
         with:
           scan-type: 'fs'
           format: 'table'
-          output: 'trivy.txt'
+          output: 'trivy-results.txt'
           vuln-type: 'os,library'
           severity: 'CRITICAL,HIGH'
         env:
@@ -30,17 +30,13 @@ jobs:
 
       - name: Publish Trivy Output to Summary
         run: |
-          if [[ -s trivy.txt ]]; then
-            {
-              echo "### Security Output"
-              echo "<details><summary>Click to expand</summary>"
-              echo ""
-              echo '```'
-              cat trivy.txt
-              echo '```'
-              echo "</details>"
-            } >> $GITHUB_STEP_SUMMARY
-          fi
+          echo "### Security Scan Results" >> $GITHUB_STEP_SUMMARY
+          echo "<details><summary>Click to expand</summary>" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          cat trivy-results.txt >> $GITHUB_STEP_SUMMARY || echo "No vulnerabilities found or scan failed" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "</details>" >> $GITHUB_STEP_SUMMARY
 
   build:
     name: Build and Push Docker Image
@@ -56,17 +52,17 @@ jobs:
           echo "NODE_ENV=production" >> .env
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
 
       - name: Login to GitHub Container Registry
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GHCR_PAT }}
 
       - name: Build and push
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v5
         with:
           context: .
           push: true
@@ -82,45 +78,70 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Install SSH client
-        run: sudo apt-get install -y openssh-client
-
-      - name: Setup SSH key
-        uses: webfactory/ssh-agent@v0.7.0
-        with:
-          ssh-private-key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
-
       - name: Update Docker Stack YAML with versioned image
         run: |
           # Only update the web-prod service image, preserve Grafana and others
           sed -i 's|image: ghcr.io/rstubryan/tascrum-web-prod:latest|image: ghcr.io/rstubryan/tascrum-web-prod:${{ github.sha }}|' docker-stack.yaml
 
-      - name: Create directory and deploy
-        run: |
-          # First create the base directory
-          ssh -o StrictHostKeyChecking=no ${{ secrets.PROD_SSH_USER }}@${{ secrets.PROD_SSH_HOST }} "mkdir -p /root/tascrum"
-          
-          # Then create the configs directory
-          ssh -o StrictHostKeyChecking=no ${{ secrets.PROD_SSH_USER }}@${{ secrets.PROD_SSH_HOST }} "mkdir -p /root/tascrum/configs"
-          
-          # Copy the stack file and config files
-          scp -o StrictHostKeyChecking=no docker-stack.yaml ${{ secrets.PROD_SSH_USER }}@${{ secrets.PROD_SSH_HOST }}:/root/tascrum/
-          scp -o StrictHostKeyChecking=no configs/* ${{ secrets.PROD_SSH_USER }}@${{ secrets.PROD_SSH_HOST }}:/root/tascrum/configs/
-          
-          # Configure Docker to authenticate with GitHub Container Registry on the server
-          echo "Configuring Docker login on server..."
-          ssh -o StrictHostKeyChecking=no ${{ secrets.PROD_SSH_USER }}@${{ secrets.PROD_SSH_HOST }} << EOF
+      - name: Create directories on server
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.PROD_SSH_HOST }}
+          username: ${{ secrets.PROD_SSH_USER }}
+          key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
+          script: |
+            mkdir -p /root/tascrum
+            mkdir -p /root/tascrum/configs
+
+      - name: Copy configuration files to server
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.PROD_SSH_HOST }}
+          username: ${{ secrets.PROD_SSH_USER }}
+          key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
+          source: "docker-stack.yaml,configs/*"
+          target: "/root/tascrum"
+
+      - name: Configure Docker authentication
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.PROD_SSH_HOST }}
+          username: ${{ secrets.PROD_SSH_USER }}
+          key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
+          script: |
             echo '${{ secrets.GHCR_PAT }}' | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-          EOF
-          
-          # Deploy stack
-          echo "Deploying stack..."
-          ssh -o StrictHostKeyChecking=no ${{ secrets.PROD_SSH_USER }}@${{ secrets.PROD_SSH_HOST }} << 'EOF'
-            cd /root/tascrum
-            WEB_PROD_IMAGE_TAG=$(cat docker-stack.yaml | grep "image: ghcr.io/rstubryan/tascrum-web-prod:" | cut -d':' -f3)
-            echo "Pulling web-prod image with tag: $WEB_PROD_IMAGE_TAG"
-            docker pull ghcr.io/rstubryan/tascrum-web-prod:$WEB_PROD_IMAGE_TAG
-            docker stack deploy -c docker-stack.yaml tascrum
+            export GIT_COMMIT_HASH=${{ github.sha }}
+
+      - name: Pull the latest image first
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.PROD_SSH_HOST }}
+          username: ${{ secrets.PROD_SSH_USER }}
+          key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
+          script: |
+            echo "Pulling web-prod image with tag: ${{ github.sha }}"
+            docker pull ghcr.io/rstubryan/tascrum-web-prod:${{ github.sha }}
+
+      - name: Deploy Docker stack
+        uses: cssnr/stack-deploy-action@v1
+        with:
+          name: 'tascrum'
+          file: 'docker-stack.yaml'
+          host: ${{ secrets.PROD_SSH_HOST }}
+          user: ${{ secrets.PROD_SSH_USER }}
+          ssh_key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
+          registry_auth: true
+          registry_host: 'ghcr.io'
+          registry_user: ${{ github.actor }}
+          registry_pass: ${{ secrets.GHCR_PAT }}
+          summary: true
+
+      - name: Display stack services
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.PROD_SSH_HOST }}
+          username: ${{ secrets.PROD_SSH_USER }}
+          key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
+          script: |
             echo "Deployment complete. Stack services:"
             docker stack services tascrum
-          EOF
