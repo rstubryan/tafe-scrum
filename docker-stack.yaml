@@ -23,9 +23,6 @@ services:
       - "--certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=web"
       - "--certificatesresolvers.myresolver.acme.email=restubumirr@gmail.com"
       - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
-      - "--metrics.prometheus=true"
-      - "--metrics.prometheus.buckets=0.1,0.3,1.2,5.0"
-      - "--entryPoints.metrics.address=:8082"
     ports:
       - mode: host
         published: 80
@@ -36,9 +33,6 @@ services:
       - mode: host
         published: 8080
         target: 8080
-      - mode: host
-        published: 8082
-        target: 8082
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - traefik-certificates:/letsencrypt
@@ -62,29 +56,11 @@ services:
         - "traefik.http.routers.dashboard-http.middlewares=dashboard-https-redirect"
         - "traefik.http.middlewares.dashboard-https-redirect.redirectscheme.scheme=https"
 
-        # Metrics configuration via HTTPS (external access)
-        - "traefik.http.routers.metrics-https.rule=Host(`metrics.tascrum.site`)"
-        - "traefik.http.routers.metrics-https.service=prometheus@internal"
-        - "traefik.http.routers.metrics-https.entrypoints=websecure"
-        - "traefik.http.routers.metrics-https.tls.certresolver=myresolver"
-
-        # Metrics HTTP to HTTPS redirect
-        - "traefik.http.routers.metrics-http.rule=Host(`metrics.tascrum.site`)"
-        - "traefik.http.routers.metrics-http.entrypoints=web"
-        - "traefik.http.routers.metrics-http.middlewares=metrics-https-redirect"
-        - "traefik.http.middlewares.metrics-https-redirect.redirectscheme.scheme=https"
-
-        # Internal metrics access (for Grafana)
-        - "traefik.http.routers.metrics-internal.rule=Host(`traefik`)"
-        - "traefik.http.routers.metrics-internal.service=prometheus@internal"
-        - "traefik.http.routers.metrics-internal.entrypoints=metrics"
-        - "traefik.http.services.prometheus.loadbalancer.server.port=8082"
-
   loki:
     image: grafana/loki:2.9.1
     command: -config.file=/etc/loki/local-config.yaml
     configs:
-      - source: loki-config-${CONFIG_VERSION}
+      - source: loki-config
         target: /etc/loki/local-config.yaml
     volumes:
       - loki-data:/loki
@@ -106,7 +82,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - promtail-data:/tmp
     configs:
-      - source: promtail-config-${CONFIG_VERSION}
+      - source: promtail-config
         target: /etc/promtail/config.yml
     command: -config.file=/etc/promtail/config.yml
     networks:
@@ -124,9 +100,9 @@ services:
     volumes:
       - grafana-data:/var/lib/grafana
     configs:
-      - source: grafana-datasources-${CONFIG_VERSION}
+      - source: grafana-datasources
         target: /etc/grafana/provisioning/datasources/datasources.yaml
-      - source: grafana-dashboards-config-${CONFIG_VERSION}
+      - source: grafana-dashboards-config
         target: /etc/grafana/provisioning/dashboards/dashboards.yaml
     networks:
       - traefik-public
@@ -200,13 +176,13 @@ services:
         - "com.centurylinklabs.watchtower.enable=true"
 
 configs:
-  loki-config-${CONFIG_VERSION}:
+  loki-config:
     file: ./configs/loki-config.yaml
-  promtail-config-${CONFIG_VERSION}:
+  promtail-config:
     file: ./configs/promtail-config.yaml
-  grafana-datasources-${CONFIG_VERSION}:
+  grafana-datasources:
     file: ./configs/grafana-datasources.yaml
-  grafana-dashboards-config-${CONFIG_VERSION}:
+  grafana-dashboards-config:
     file: ./configs/grafana-dashboards-config.yaml
 
 networks:

@@ -83,19 +83,6 @@ jobs:
           # Only update the web-prod service image, preserve Grafana and others
           sed -i 's|image: ghcr.io/rstubryan/tascrum-web-prod:latest|image: ghcr.io/rstubryan/tascrum-web-prod:${{ github.sha }}|' docker-stack.yaml
 
-      - name: Add timestamp to config names
-        run: |
-          TIMESTAMP=$(date +%Y%m%d%H%M%S)
-          echo "CONFIG_VERSION=$TIMESTAMP" >> $GITHUB_ENV
-          echo "Using timestamp: $TIMESTAMP"
-          
-          # Use single quotes for sed pattern to prevent early shell expansion
-          sed -i 's/\${CONFIG_VERSION}/'"$TIMESTAMP"'/g' docker-stack.yaml
-          
-          # Debug to verify replacement
-          echo "Config names after replacement:"
-          grep -E 'configs:|loki-config-|promtail-config-|grafana-datasources-|grafana-dashboards-config-' docker-stack.yaml
-
       - name: Create directories on server
         uses: appleboy/ssh-action@v1
         with:
@@ -158,13 +145,3 @@ jobs:
           script: |
             echo "Deployment complete. Stack services:"
             docker stack services tascrum
-
-      - name: Clean up old configs
-        uses: appleboy/ssh-action@v1
-        with:
-          host: ${{ secrets.PROD_SSH_HOST }}
-          username: ${{ secrets.PROD_SSH_USER }}
-          key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
-          script: |
-            # Keep only configs used by the current stack
-            docker config ls --format '{{.Name}}' | grep -E 'tascrum_(loki|promtail|grafana)' | grep -v $(date +%Y%m%d) | xargs -r docker config rm
