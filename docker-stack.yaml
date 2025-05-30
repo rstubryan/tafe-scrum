@@ -46,6 +46,29 @@ services:
         - "traefik.http.routers.dashboard-http.middlewares=dashboard-https-redirect"
         - "traefik.http.middlewares.dashboard-https-redirect.redirectscheme.scheme=https"
 
+  grafana:
+    image: grafana/grafana:latest
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=secure_password
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_SERVER_ROOT_URL=https://monitor.tascrum.site
+    volumes:
+      - grafana-data:/var/lib/grafana
+    networks:
+      - traefik-public
+    deploy:
+      replicas: 1
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.grafana.rule=Host(`monitor.tascrum.site`)"
+        - "traefik.http.routers.grafana.entrypoints=websecure"
+        - "traefik.http.routers.grafana.tls.certresolver=myresolver"
+        - "traefik.http.routers.grafana-http.rule=Host(`monitor.tascrum.site`)"
+        - "traefik.http.routers.grafana-http.entrypoints=web"
+        - "traefik.http.routers.grafana-http.middlewares=grafana-https-redirect"
+        - "traefik.http.middlewares.grafana-https-redirect.redirectscheme.scheme=https"
+        - "traefik.http.services.grafana.loadbalancer.server.port=3000"
+
   web-prod:
     image: ghcr.io/rstubryan/tascrum-web-prod:latest
     environment:
@@ -95,3 +118,4 @@ networks:
 
 volumes:
   traefik-certificates:
+  grafana-data:
