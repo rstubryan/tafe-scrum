@@ -113,13 +113,24 @@ jobs:
             echo '${{ secrets.GHCR_PAT }}' | docker login ghcr.io -u ${{ github.actor }} --password-stdin
           EOF
           
-          # Deploy stack
+          # Deploy stack with removal first to handle config updates
           echo "Deploying stack..."
           ssh -o StrictHostKeyChecking=no ${{ secrets.PROD_SSH_USER }}@${{ secrets.PROD_SSH_HOST }} << 'EOF'
             cd /root/tascrum
             WEB_PROD_IMAGE_TAG=$(cat docker-stack.yaml | grep "image: ghcr.io/rstubryan/tascrum-web-prod:" | cut -d':' -f3)
             echo "Pulling web-prod image with tag: $WEB_PROD_IMAGE_TAG"
             docker pull ghcr.io/rstubryan/tascrum-web-prod:$WEB_PROD_IMAGE_TAG
+            
+            # Remove stack first to clean old configs
+            if docker stack ls | grep -q "tascrum"; then
+              echo "Removing existing stack..."
+              docker stack rm tascrum
+              echo "Waiting for stack removal to complete..."
+              sleep 15
+            fi
+            
+            # Deploy fresh stack with new configs
+            echo "Deploying new stack..."
             docker stack deploy -c docker-stack.yaml tascrum
             echo "Deployment complete. Stack services:"
             docker stack services tascrum
