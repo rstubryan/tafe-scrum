@@ -70,7 +70,9 @@ jobs:
         with:
           context: .
           push: true
-          tags: ghcr.io/rstubryan/tascrum-web-prod:latest
+          tags: |
+            ghcr.io/rstubryan/tascrum-web-prod:latest
+            ghcr.io/rstubryan/tascrum-web-prod:${{ github.sha }}
 
   deploy:
     name: Deploy to Production
@@ -88,9 +90,9 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
 
-      - name: Update Docker Stack YAML
+      - name: Update Docker Stack YAML with versioned image
         run: |
-          sed -i 's|image: ghcr.io/rstubryan/tascrum-web:latest|image: ghcr.io/rstubryan/tascrum-web-prod:latest|' docker-stack.yaml
+          sed -i 's|image: ghcr.io/rstubryan/tascrum-web:latest|image: ghcr.io/rstubryan/tascrum-web-prod:${{ github.sha }}|' docker-stack.yaml
 
       - name: Create directory and deploy
         run: |
@@ -100,9 +102,19 @@ jobs:
           # Then copy the file
           scp -o StrictHostKeyChecking=no docker-stack.yaml ${{ secrets.PROD_SSH_USER }}@${{ secrets.PROD_SSH_HOST }}:/root/tascrum/
           
+          # Configure Docker to authenticate with GitHub Container Registry on the server
+          # This fixes the "image could not be accessed on a registry" warning
+          echo "Configuring Docker login on server..."
+          ssh -o StrictHostKeyChecking=no ${{ secrets.PROD_SSH_USER }}@${{ secrets.PROD_SSH_HOST }} << EOF
+            echo '${{ secrets.GHCR_PAT }}' | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+          EOF
+          
           # Finally deploy
+          echo "Deploying stack..."
           ssh -o StrictHostKeyChecking=no ${{ secrets.PROD_SSH_USER }}@${{ secrets.PROD_SSH_HOST }} << 'EOF'
             cd /root/tascrum
-            docker pull ghcr.io/rstubryan/tascrum-web-prod:latest
+            docker pull ghcr.io/rstubryan/tascrum-web-prod:$(cat docker-stack.yaml | grep "image: ghcr.io/rstubryan/tascrum-web-prod:" | cut -d':' -f3)
             docker stack deploy -c docker-stack.yaml tascrum
+            echo "Deployment complete. Stack services:"
+            docker stack services tascrum
           EOF
