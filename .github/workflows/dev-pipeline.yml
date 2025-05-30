@@ -93,11 +93,15 @@ jobs:
 
       - name: Create directory and deploy
         run: |
-          # First create the directory
+          # First create the base directory
           ssh -o StrictHostKeyChecking=no ${{ secrets.PROD_SSH_USER }}@${{ secrets.PROD_SSH_HOST }} "mkdir -p /root/tascrum"
           
-          # Then copy the file
+          # Then create the configs directory
+          ssh -o StrictHostKeyChecking=no ${{ secrets.PROD_SSH_USER }}@${{ secrets.PROD_SSH_HOST }} "mkdir -p /root/tascrum/configs"
+          
+          # Copy the stack file and config files
           scp -o StrictHostKeyChecking=no docker-stack.yaml ${{ secrets.PROD_SSH_USER }}@${{ secrets.PROD_SSH_HOST }}:/root/tascrum/
+          scp -o StrictHostKeyChecking=no configs/* ${{ secrets.PROD_SSH_USER }}@${{ secrets.PROD_SSH_HOST }}:/root/tascrum/configs/
           
           # Configure Docker to authenticate with GitHub Container Registry
           echo "Configuring Docker login on server..."
