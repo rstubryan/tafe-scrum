@@ -9,7 +9,7 @@ import { QueryClient } from "@tanstack/react-query";
 
 export const queryClient = new QueryClient();
 
-const BASE_URL = `/auth`;
+const BASE_URL = `auth`;
 
 export const authApi = {
   login: createApiRequest<LoginRequestProps, AuthResponseProps>({
