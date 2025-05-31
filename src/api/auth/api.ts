@@ -6,28 +6,23 @@ import type {
 import { createApiRequest } from "../base/api-factory";
 import { redirect } from "next/navigation";
 import { QueryClient } from "@tanstack/react-query";
+import { AxiosInstance } from "@/api/base/axios-instance";
 
 export const queryClient = new QueryClient();
 
-const BASE_URL = `auth`;
+const BASE_URL = `${AxiosInstance}/auth`;
 
 export const authApi = {
   login: createApiRequest<LoginRequestProps, AuthResponseProps>({
-    endpoint: `${process.env.NEXT_PUBLIC_BASE_URL}/${BASE_URL}`,
+    endpoint: BASE_URL,
     method: "POST",
     withAuth: false,
-    extraConfig: () => ({
-      url: `${process.env.NEXT_PUBLIC_BASE_URL}/auth`,
-    }),
   }),
 
   register: createApiRequest<RegisterProps, AuthResponseProps>({
-    endpoint: `auth/register`,
+    endpoint: `${BASE_URL}/register`,
     method: "POST",
     withAuth: false,
-    extraConfig: () => ({
-      url: `${process.env.NEXT_PUBLIC_BASE_URL}/auth/register`,
-    }),
   }),
 };
 
