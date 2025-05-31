@@ -16,12 +16,18 @@ export const authApi = {
     endpoint: `${BASE_URL}`,
     method: "POST",
     withAuth: false,
+    extraConfig: () => ({
+      baseURL: process.env.NEXT_PUBLIC_BASE_URL,
+    }),
   }),
 
   register: createApiRequest<RegisterProps, AuthResponseProps>({
     endpoint: `${BASE_URL}/register`,
     method: "POST",
     withAuth: false,
+    extraConfig: () => ({
+      baseURL: process.env.NEXT_PUBLIC_BASE_URL,
+    }),
   }),
 };
 
