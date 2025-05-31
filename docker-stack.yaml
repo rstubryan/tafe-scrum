@@ -131,8 +131,8 @@ services:
     image: ghcr.io/rstubryan/tascrum-web-prod:${GIT_COMMIT_HASH:-latest}
     environment:
       - NODE_ENV=production
-      - NEXT_PUBLIC_BASE_URL=http://api-tascrum.zeabur.app/api/v1
-      - NEXT_PUBLIC_BASE_URL_BLOG=http://api-tascrum.zeabur.app/api/v1/blog
+      - NEXT_PUBLIC_BASE_URL=https://api-tascrum.zeabur.app/api/v1
+      - NEXT_PUBLIC_BASE_URL_BLOG=https://api-tascrum.zeabur.app/api/v1/blog
     networks:
       - traefik-public
     deploy:
@@ -159,8 +159,8 @@ services:
     image: ghcr.io/rstubryan/tascrum-web:${GIT_COMMIT_HASH:-latest}
     environment:
       - NODE_ENV=development
-      - NEXT_PUBLIC_BASE_URL=http://api-tascrum.zeabur.app/api/v1
-      - NEXT_PUBLIC_BASE_URL_BLOG=http://api-tascrum.zeabur.app/api/v1/blog
+      - NEXT_PUBLIC_BASE_URL=https://api-tascrum.zeabur.app/api/v1
+      - NEXT_PUBLIC_BASE_URL_BLOG=https://api-tascrum.zeabur.app/api/v1/blog
     networks:
       - traefik-public
     deploy:

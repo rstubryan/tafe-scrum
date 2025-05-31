@@ -47,6 +47,7 @@ jobs:
 
       - name: Create .env File
         run: |
+          cp .env.example .env
           echo "NEXT_PUBLIC_BASE_URL=${{ secrets.DEV_NEXT_PUBLIC_BASE_URL }}" > .env
           echo "NEXT_PUBLIC_BASE_URL_BLOG=${{ secrets.DEV_NEXT_PUBLIC_BASE_URL_BLOG }}" >> .env
           echo "NODE_ENV=development" >> .env
