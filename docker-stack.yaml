@@ -8,6 +8,10 @@ services:
       - "--rolling-restart"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
 
   traefik:
     image: "traefik:v3.4"
@@ -44,13 +48,11 @@ services:
           - node.role == manager
       labels:
         - "traefik.enable=true"
-        # Dashboard configuration
         - "traefik.http.routers.dashboard.rule=Host(`dashboard.tascrum.site`)"
         - "traefik.http.routers.dashboard.service=api@internal"
         - "traefik.http.routers.dashboard.entrypoints=websecure"
         - "traefik.http.routers.dashboard.tls.certresolver=myresolver"
         - "traefik.http.services.dashboard.loadbalancer.server.port=8080"
-        # HTTP to HTTPS redirect for dashboard
         - "traefik.http.routers.dashboard-http.rule=Host(`dashboard.tascrum.site`)"
         - "traefik.http.routers.dashboard-http.entrypoints=web"
         - "traefik.http.routers.dashboard-http.middlewares=dashboard-https-redirect"
@@ -68,6 +70,9 @@ services:
       - traefik-public
     deploy:
       replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
       labels:
         - "traefik.enable=true"
         - "traefik.http.routers.loki.rule=Host(`loki.tascrum.site`)"
@@ -108,6 +113,9 @@ services:
       - traefik-public
     deploy:
       replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
       labels:
         - "traefik.enable=true"
         - "traefik.http.routers.grafana.rule=Host(`monitor.tascrum.site`)"
@@ -157,6 +165,9 @@ services:
       - traefik-public
     deploy:
       replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
       update_config:
         order: start-first
         parallelism: 1
