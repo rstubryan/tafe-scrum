@@ -13,20 +13,20 @@ const BASE_URL = `auth`;
 
 export const authApi = {
   login: createApiRequest<LoginRequestProps, AuthResponseProps>({
-    endpoint: `${BASE_URL}`,
+    endpoint: `${process.env.NEXT_PUBLIC_BASE_URL}/${BASE_URL}`,
     method: "POST",
     withAuth: false,
     extraConfig: () => ({
-      baseURL: process.env.NEXT_PUBLIC_BASE_URL,
+      url: `${process.env.NEXT_PUBLIC_BASE_URL}/auth`,
     }),
   }),
 
   register: createApiRequest<RegisterProps, AuthResponseProps>({
-    endpoint: `${BASE_URL}/register`,
+    endpoint: `auth/register`,
     method: "POST",
     withAuth: false,
     extraConfig: () => ({
-      baseURL: process.env.NEXT_PUBLIC_BASE_URL,
+      url: `${process.env.NEXT_PUBLIC_BASE_URL}/auth/register`,
     }),
   }),
 };
