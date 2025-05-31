@@ -79,13 +79,9 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Update Docker Stack YAML
+      - name: Update Docker Stack YAML with versioned image
         run: |
-          # Update image tag
           sed -i 's|image: ghcr.io/rstubryan/tascrum-web:latest|image: ghcr.io/rstubryan/tascrum-web:${{ github.sha }}|' docker-stack.yaml
-          
-          # Remove environment section from web-dev
-          sed -i '/web-dev:/,/networks:/{ /environment:/d; /NODE_ENV=/d; /NEXT_PUBLIC_BASE_URL=/d; /NEXT_PUBLIC_BASE_URL_BLOG=/d; }' docker-stack.yaml
 
       - name: Create directories on server
         uses: appleboy/ssh-action@v1
@@ -116,23 +112,6 @@ jobs:
             echo '${{ secrets.GHCR_PAT }}' | docker login ghcr.io -u ${{ github.actor }} --password-stdin
             export GIT_COMMIT_HASH=${{ github.sha }}
 
-      - name: Create environment secrets on server
-        uses: appleboy/ssh-action@v1
-        with:
-          host: ${{ secrets.PROD_SSH_HOST }}
-          username: ${{ secrets.PROD_SSH_USER }}
-          key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
-          script: |
-            # Remove existing secrets if they exist
-            docker secret rm tascrum_base_url || true
-            docker secret rm tascrum_base_url_blog || true
-            docker secret rm tascrum_node_env || true
-            
-            # Create new secrets
-            echo "${{ secrets.DEV_NEXT_PUBLIC_BASE_URL }}" | docker secret create tascrum_base_url -
-            echo "${{ secrets.DEV_NEXT_PUBLIC_BASE_URL_BLOG }}" | docker secret create tascrum_base_url_blog -
-            echo "development" | docker secret create tascrum_node_env -
-
       - name: Pull the latest image first
         uses: appleboy/ssh-action@v1
         with:
@@ -141,6 +120,7 @@ jobs:
           key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
           script: |
             cd /root/tascrum
+            # Pull directly using the github.sha instead of trying to extract from file
             echo "Pulling web-dev image with tag: ${{ github.sha }}"
             docker pull ghcr.io/rstubryan/tascrum-web:${{ github.sha }}
 

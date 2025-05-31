@@ -157,13 +157,10 @@ services:
 
   web-dev:
     image: ghcr.io/rstubryan/tascrum-web:${GIT_COMMIT_HASH:-latest}
-    secrets:
-      - source: tascrum_base_url
-        target: NEXT_PUBLIC_BASE_URL
-      - source: tascrum_base_url_blog
-        target: NEXT_PUBLIC_BASE_URL_BLOG
-      - source: tascrum_node_env
-        target: NODE_ENV
+    environment:
+      - NODE_ENV=development
+      - NEXT_PUBLIC_BASE_URL=http://api-tascrum.zeabur.app/api/v1
+      - NEXT_PUBLIC_BASE_URL_BLOG=http://api-tascrum.zeabur.app/api/v1/blog
     networks:
       - traefik-public
     deploy:
@@ -209,11 +206,3 @@ volumes:
   grafana-data:
   loki-data:
   promtail-data:
-
-secrets:
-  tascrum_base_url:
-    external: true
-  tascrum_base_url_blog:
-    external: true
-  tascrum_node_env:
-    external: true
