@@ -79,13 +79,13 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Update Docker Stack YAML with versioned image
+      - name: Update Docker Stack YAML
         run: |
+          # Update image tag
           sed -i 's|image: ghcr.io/rstubryan/tascrum-web:latest|image: ghcr.io/rstubryan/tascrum-web:${{ github.sha }}|' docker-stack.yaml
-          # Update web-dev service to use secrets instead of environment variables
-          sed -i '/web-dev:/,/networks:/s/environment:/secrets:\n      - source: tascrum_base_url\n        target: NEXT_PUBLIC_BASE_URL\n      - source: tascrum_base_url_blog\n        target: NEXT_PUBLIC_BASE_URL_BLOG\n      - source: tascrum_node_env\n        target: NODE_ENV/' docker-stack.yaml
-          # Add secrets section if not exists
-          grep -q "^secrets:" docker-stack.yaml || echo -e "\nsecrets:\n  tascrum_base_url:\n    external: true\n  tascrum_base_url_blog:\n    external: true\n  tascrum_node_env:\n    external: true" >> docker-stack.yaml
+          
+          # Remove environment section from web-dev
+          sed -i '/web-dev:/,/networks:/{ /environment:/d; /NODE_ENV=/d; /NEXT_PUBLIC_BASE_URL=/d; /NEXT_PUBLIC_BASE_URL_BLOG=/d; }' docker-stack.yaml
 
       - name: Create directories on server
         uses: appleboy/ssh-action@v1
@@ -141,7 +141,6 @@ jobs:
           key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
           script: |
             cd /root/tascrum
-            # Pull directly using the github.sha instead of trying to extract from file
             echo "Pulling web-dev image with tag: ${{ github.sha }}"
             docker pull ghcr.io/rstubryan/tascrum-web:${{ github.sha }}
 
