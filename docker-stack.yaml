@@ -16,7 +16,7 @@ services:
   traefik:
     image: "traefik:v3.4"
     command:
-      - "--log.level=DEBUG"
+      - "--log.level=INFO"
       - "--api=true"
       - "--api.dashboard=true"
       - "--providers.swarm=true"
@@ -105,8 +105,6 @@ services:
     volumes:
       - grafana-data:/var/lib/grafana
     configs:
-      - source: grafana-datasources
-        target: /etc/grafana/provisioning/datasources/datasources.yaml
       - source: grafana-dashboards-config
         target: /etc/grafana/provisioning/dashboards/dashboards.yaml
     networks:
@@ -126,6 +124,43 @@ services:
         - "traefik.http.routers.grafana-http.middlewares=grafana-https-redirect"
         - "traefik.http.middlewares.grafana-https-redirect.redirectscheme.scheme=https"
         - "traefik.http.services.grafana.loadbalancer.server.port=3000"
+
+  prometheus:
+    image: prom/prometheus:latest
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--web.console.libraries=/etc/prometheus/console_libraries"
+      - "--web.console.templates=/etc/prometheus/consoles"
+    volumes:
+      - prometheus-data:/prometheus
+    configs:
+      - source: prometheus-config
+        target: /etc/prometheus/prometheus.yml
+    networks:
+      - traefik-public
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.prometheus.rule=Host(`prometheus.tascrum.site`)"
+        - "traefik.http.routers.prometheus.entrypoints=websecure"
+        - "traefik.http.routers.prometheus.tls.certresolver=myresolver"
+        - "traefik.http.services.prometheus.loadbalancer.server.port=9090"
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    networks:
+      - traefik-public
+    deploy:
+      mode: global
 
   web-prod:
     image: ghcr.io/rstubryan/tascrum-web-prod:${GIT_COMMIT_HASH:-latest}
@@ -191,8 +226,8 @@ configs:
     file: ./configs/loki-config.yaml
   promtail-config:
     file: ./configs/promtail-config.yaml
-  grafana-datasources:
-    file: ./configs/grafana-datasources.yaml
+  prometheus-config:
+    file: ./configs/prometheus-config.yml
   grafana-dashboards-config:
     file: ./configs/grafana-dashboards-config.yaml
 
@@ -206,3 +241,4 @@ volumes:
   grafana-data:
   loki-data:
   promtail-data:
+  prometheus-data:
