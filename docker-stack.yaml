@@ -105,8 +105,6 @@ services:
     volumes:
       - grafana-data:/var/lib/grafana
     configs:
-#      - source: grafana-datasources
-#        target: /etc/grafana/provisioning/datasources/datasources.yaml
       - source: grafana-dashboards-config
         target: /etc/grafana/provisioning/dashboards/dashboards.yaml
     networks:
@@ -230,8 +228,6 @@ configs:
     file: ./configs/promtail-config.yaml
   prometheus-config:
     file: ./configs/prometheus-config.yml
-#  grafana-datasources:
-#    file: ./configs/grafana-datasources.yaml
   grafana-dashboards-config:
     file: ./configs/grafana-dashboards-config.yaml
 
