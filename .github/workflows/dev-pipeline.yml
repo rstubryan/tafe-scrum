@@ -111,6 +111,7 @@ jobs:
           script: |
             echo '${{ secrets.GHCR_PAT }}' | docker login ghcr.io -u ${{ github.actor }} --password-stdin
             export GIT_COMMIT_HASH=${{ github.sha }}
+            export DEPLOY_TIMESTAMP=$(date +%Y%m%d%H%M%S)
 
       - name: Pull the latest image first
         uses: appleboy/ssh-action@v1

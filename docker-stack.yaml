@@ -139,7 +139,7 @@ services:
     volumes:
       - prometheus-data:/prometheus
     configs:
-      - source: prometheus-config
+      - source: prometheus-config-${DEPLOY_TIMESTAMP}
         target: /etc/prometheus/prometheus.yml
     networks:
       - traefik-public
@@ -230,7 +230,7 @@ configs:
     file: ./configs/loki-config.yaml
   promtail-config:
     file: ./configs/promtail-config.yaml
-  prometheus-config:
+  prometheus-config-${DEPLOY_TIMESTAMP}:
     file: ./configs/prometheus-config.yml
   grafana-dashboards-config:
     file: ./configs/grafana-dashboards-config.yaml
