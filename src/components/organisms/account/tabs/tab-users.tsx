@@ -1,6 +1,7 @@
 "use client";
 
 import { useGetAllUsers } from "@/api/user/queries";
+import { useDeleteUsers } from "@/api/user/mutation";
 import {
   Table,
   TableBody,
@@ -16,9 +17,29 @@ import { TabProfileSkeleton } from "@/components/atoms/skeleton/account/form/ske
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { UserProps } from "@/api/user/type";
 import { ResponseProps } from "@/api/base/global-type";
+import { Button } from "@/components/ui/button";
+import { LoaderCircle, Trash2 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 export default function TabUsers() {
   const { data, isLoading, isError } = useGetAllUsers();
+  const { mutate: deleteUser, isPending: isDeletingUser } = useDeleteUsers();
+
+  const handleDeleteUser = (id: number) => {
+    if (id) {
+      deleteUser(id.toString());
+    }
+  };
 
   if (isLoading) {
     return <TabProfileSkeleton type="loading" />;
@@ -44,6 +65,7 @@ export default function TabUsers() {
               <TableHead>Roles</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Theme</TableHead>
+              <TableHead>Action</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -84,6 +106,40 @@ export default function TabUsers() {
                   </Badge>
                 </TableCell>
                 <TableCell>{user.theme || "Default"}</TableCell>
+                <TableCell>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        disabled={isDeletingUser}
+                      >
+                        {isDeletingUser ? (
+                          <LoaderCircle size={16} className="animate-spin" />
+                        ) : (
+                          <Trash2 size={16} />
+                        )}
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Delete User Account</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Are you sure you want to delete{" "}
+                          <b>{user?.username}</b>? This action cannot be undone.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
+                          onClick={() => handleDeleteUser(user.id!)}
+                        >
+                          Delete User
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>

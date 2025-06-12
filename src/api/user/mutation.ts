@@ -103,3 +103,25 @@ export const useDeleteAccount = () => {
     },
   });
 };
+
+export const useDeleteUsers = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) =>
+      userApi.deleteAccount({
+        urlParams: { id },
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["users"] });
+      toast.success("Account deleted successfully");
+    },
+    onError: (error: AxiosError) => {
+      handleApiError(
+        error,
+        "Account deletion failed",
+        "Please check your input and try again.",
+      );
+    },
+  });
+};
