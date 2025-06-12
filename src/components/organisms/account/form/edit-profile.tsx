@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { LoaderCircle, User, KeyRound, Camera } from "lucide-react";
+import { LoaderCircle, User, KeyRound, Camera, Users } from "lucide-react";
 import { useGetUserAuth } from "@/api/user/queries";
 import { useChangeProfilePicture } from "@/api/user/mutation";
 import { UserProps } from "@/api/user/type";
@@ -13,6 +13,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import TabProfile from "@/components/organisms/account/tabs/tab-profile";
 import TabPassword from "@/components/organisms/account/tabs/tab-password";
+import TabUsers from "@/components/organisms/account/tabs/tab-users";
 import { getInitials } from "@/utils";
 import {
   Dialog,
@@ -33,7 +34,6 @@ import Image from "next/image";
 import { Input } from "@/components/ui/input";
 import { changeProfilePictureFormSchema } from "@/api/user/schema";
 import { z } from "zod";
-import { ProfileSkeleton } from "@/components/atoms/skeleton/account/skeleton-profile";
 
 export default function EditProfile() {
   const { data, isLoading: isLoadingUserData } = useGetUserAuth();
@@ -76,12 +76,27 @@ export default function EditProfile() {
     });
   };
 
-  if (isLoadingUserData) {
-    return <ProfileSkeleton type="edit-profile" />;
-  }
-
-  if (!data) {
-    return <ProfileSkeleton type="error" />;
+  if (!data || isLoadingUserData) {
+    return (
+      <div className="space-y-6 my-4">
+        <div className="grid grid-cols-1 sm:gap-6 gap-0 md:grid-cols-[250px_1fr]">
+          <div className="space-y-6">
+            <div className="animate-pulse rounded-lg border p-6">
+              <div className="flex flex-col items-center space-y-4">
+                <div className="h-24 w-24 rounded-full bg-muted" />
+                <div className="space-y-2 w-full">
+                  <div className="h-4 w-32 bg-muted rounded mx-auto" />
+                  <div className="h-3 w-40 bg-muted rounded mx-auto" />
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="animate-pulse space-y-6">
+            <div className="h-[400px] rounded-lg border bg-muted" />
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -234,9 +249,10 @@ export default function EditProfile() {
               onValueChange={setActiveTab}
               className="w-full"
             >
-              <TabsList className="grid w-full grid-cols-2">
+              <TabsList className="grid w-full grid-cols-3">
                 <TabsTrigger value="profile">Profile</TabsTrigger>
                 <TabsTrigger value="password">Password</TabsTrigger>
+                <TabsTrigger value="users">Users</TabsTrigger>
               </TabsList>
             </Tabs>
           </div>
@@ -260,13 +276,27 @@ export default function EditProfile() {
                 <KeyRound className="mr-2 h-4 w-4" />
                 Password
               </Button>
+              <Button
+                variant={activeTab === "users" ? "secondary" : "ghost"}
+                className="w-full justify-start"
+                onClick={() => setActiveTab("users")}
+              >
+                <Users className="mr-2 h-4 w-4" />
+                Users List
+              </Button>
             </div>
           </div>
         </div>
 
         {/* Right content area */}
         <div className="space-y-6">
-          {activeTab === "profile" ? <TabProfile /> : <TabPassword />}
+          {activeTab === "profile" ? (
+            <TabProfile />
+          ) : activeTab === "password" ? (
+            <TabPassword />
+          ) : (
+            <TabUsers />
+          )}{" "}
         </div>
       </div>
     </div>
