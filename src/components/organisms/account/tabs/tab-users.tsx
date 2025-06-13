@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { useGetAllUsers } from "@/api/user/queries";
 import { useDeleteUsers } from "@/api/user/mutation";
 import {
@@ -16,9 +17,9 @@ import { Badge } from "@/components/ui/badge";
 import { TabProfileSkeleton } from "@/components/atoms/skeleton/account/form/skeleton-form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { UserProps } from "@/api/user/type";
-import { ResponseProps } from "@/api/base/global-type";
 import { Button } from "@/components/ui/button";
 import { LoaderCircle, Trash2 } from "lucide-react";
+import { PaginationLayout } from "@/components/templates/layout/pagination-layout";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -34,12 +35,20 @@ import {
 export default function TabUsers() {
   const { data, isLoading, isError } = useGetAllUsers();
   const { mutate: deleteUser, isPending: isDeletingUser } = useDeleteUsers();
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   const handleDeleteUser = (id: number) => {
     if (id) {
       deleteUser(id.toString());
     }
   };
+
+  useEffect(() => {
+    if (data) {
+      setCurrentPage(1);
+    }
+  }, [data]);
 
   if (isLoading) {
     return <TabProfileSkeleton type="loading" />;
@@ -49,7 +58,15 @@ export default function TabUsers() {
     return <TabProfileSkeleton type="error" />;
   }
 
-  const users = (data as ResponseProps<UserProps[]>) || [];
+  const usersArray = Array.isArray(data) ? data : [];
+
+  const totalItems = usersArray.length;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+
+  const paginatedUsers = usersArray.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage,
+  );
 
   return (
     <Card>
@@ -62,16 +79,12 @@ export default function TabUsers() {
             <TableRow>
               <TableHead>User</TableHead>
               <TableHead>Username</TableHead>
-              <TableHead>Roles</TableHead>
               <TableHead>Status</TableHead>
-              <TableHead>Theme</TableHead>
               <TableHead>Action</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
-            {/* @ts-expect-error */}
-            {users.map((user: UserProps) => (
+            {paginatedUsers.map((user: UserProps) => (
               <TableRow key={user.id}>
                 <TableCell className="flex items-center gap-2">
                   <Avatar className="h-8 w-8">
@@ -81,7 +94,10 @@ export default function TabUsers() {
                         alt={user.full_name_display}
                       />
                     ) : (
-                      <AvatarFallback style={{ backgroundColor: user.color }}>
+                      <AvatarFallback
+                        style={{ backgroundColor: user.color }}
+                        className={"text-secondary"}
+                      >
                         {getInitials(user.full_name_display)}
                       </AvatarFallback>
                     )}
@@ -90,22 +106,10 @@ export default function TabUsers() {
                 </TableCell>
                 <TableCell>{user.username}</TableCell>
                 <TableCell>
-                  <div className="flex gap-1 flex-wrap">
-                    {user.roles?.map((role: string) => (
-                      <Badge key={role} variant="secondary">
-                        {role}
-                      </Badge>
-                    ))}
-                  </div>
-                </TableCell>
-                <TableCell>
-                  {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
-                  {/* @ts-expect-error */}
-                  <Badge variant={user.is_active ? "success" : "destructive"}>
+                  <Badge variant={user.is_active ? "outline" : "destructive"}>
                     {user.is_active ? "Active" : "Inactive"}
                   </Badge>
                 </TableCell>
-                <TableCell>{user.theme || "Default"}</TableCell>
                 <TableCell>
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
@@ -144,6 +148,17 @@ export default function TabUsers() {
             ))}
           </TableBody>
         </Table>
+
+        {/* Pagination component */}
+        {totalItems > itemsPerPage && (
+          <div className="mt-5">
+            <PaginationLayout
+              currentPage={currentPage}
+              totalPages={totalPages}
+              setCurrentPage={setCurrentPage}
+            />
+          </div>
+        )}
       </CardContent>
     </Card>
   );
