@@ -34,6 +34,7 @@ import Image from "next/image";
 import { Input } from "@/components/ui/input";
 import { changeProfilePictureFormSchema } from "@/api/user/schema";
 import { z } from "zod";
+import Cookies from "js-cookie";
 
 export default function EditProfile() {
   const { data, isLoading: isLoadingUserData } = useGetUserAuth();
@@ -75,6 +76,19 @@ export default function EditProfile() {
       },
     });
   };
+
+  const userInfoString = Cookies.get("user_info");
+  let userInfo = null;
+
+  if (userInfoString) {
+    try {
+      userInfo = JSON.parse(userInfoString);
+    } catch (error) {
+      return error;
+    }
+  }
+
+  const isAdmin = userInfo?.username === "admin";
 
   if (!data || isLoadingUserData) {
     return (
@@ -276,14 +290,16 @@ export default function EditProfile() {
                 <KeyRound className="mr-2 h-4 w-4" />
                 Password
               </Button>
-              <Button
-                variant={activeTab === "users" ? "secondary" : "ghost"}
-                className="w-full justify-start"
-                onClick={() => setActiveTab("users")}
-              >
-                <Users className="mr-2 h-4 w-4" />
-                Users List
-              </Button>
+              {isAdmin && (
+                <Button
+                  variant={activeTab === "users" ? "secondary" : "ghost"}
+                  className="w-full justify-start"
+                  onClick={() => setActiveTab("users")}
+                >
+                  <Users className="mr-2 h-4 w-4" />
+                  Users List
+                </Button>
+              )}
             </div>
           </div>
         </div>
