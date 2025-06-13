@@ -35,6 +35,7 @@ import { Input } from "@/components/ui/input";
 import { changeProfilePictureFormSchema } from "@/api/user/schema";
 import { z } from "zod";
 import Cookies from "js-cookie";
+import React from "react";
 
 export default function EditProfile() {
   const { data, isLoading: isLoadingUserData } = useGetUserAuth();
@@ -84,7 +85,7 @@ export default function EditProfile() {
     try {
       userInfo = JSON.parse(userInfoString);
     } catch (error) {
-      return error;
+      console.error("Failed to parse user_info cookie:", error);
     }
   }
 
