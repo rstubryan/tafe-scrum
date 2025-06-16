@@ -1,4 +1,14 @@
 services:
+  watchtower:
+    image: containrrr/watchtower
+    command:
+      - "--label-enable"
+      - "--interval"
+      - "30"
+      - "--rolling-restart"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
   traefik:
     image: "traefik:v3.4"
     container_name: "traefik"
@@ -8,11 +18,93 @@ services:
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
       - "--entryPoints.web.address=:80"
+      - "--entryPoints.websecure.address=:443"
+      - "--certificatesresolvers.myresolver.acme.httpchallenge=true"
+      - "--certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=web"
+      - "--certificatesresolvers.myresolver.acme.email=restubumirr@gmail.com"
+      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
     ports:
       - "80:80"
+      - "443:443"
       - "8080:8080"
     volumes:
-      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - traefik-certificates:/letsencrypt
+    networks:
+      - traefik-public
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.dashboard.rule=Host(`dashboard.localhost`)"
+      - "traefik.http.routers.dashboard.service=api@internal"
+      - "traefik.http.services.dashboard.loadbalancer.server.port=8080"
+
+  loki:
+    image: grafana/loki:2.9.1
+    command: -config.file=/etc/loki/local-config.yaml
+    volumes:
+      - ./configs/loki-config.yaml:/etc/loki/local-config.yaml
+      - loki-data:/loki
+    networks:
+      - traefik-public
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.loki.rule=Host(`loki.localhost`)"
+      - "traefik.http.services.loki.loadbalancer.server.port=3100"
+
+  promtail:
+    image: grafana/promtail:2.9.1
+    volumes:
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - promtail-data:/tmp
+      - ./configs/promtail-config.yaml:/etc/promtail/config.yml
+    command: -config.file=/etc/promtail/config.yml
+    networks:
+      - traefik-public
+
+  grafana:
+    image: grafana/grafana:latest
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=secure_password
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_SERVER_ROOT_URL=http://monitor.localhost
+      - GF_INSTALL_PLUGINS=grafana-piechart-panel,grafana-clock-panel
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./configs/grafana-dashboards-config.yaml:/etc/grafana/provisioning/dashboards/dashboards.yaml
+    networks:
+      - traefik-public
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.grafana.rule=Host(`monitor.localhost`)"
+      - "traefik.http.services.grafana.loadbalancer.server.port=3000"
+
+  prometheus:
+    image: prom/prometheus:latest
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--web.console.libraries=/etc/prometheus/console_libraries"
+      - "--web.console.templates=/etc/prometheus/consoles"
+    volumes:
+      - prometheus-data:/prometheus
+      - ./configs/prometheus-config.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - traefik-public
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.prometheus.rule=Host(`prometheus.localhost`)"
+      - "traefik.http.services.prometheus.loadbalancer.server.port=9090"
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    networks:
+      - traefik-public
 
   web:
     image: "ghcr.io/rstubryan/tascrum-web:latest"
@@ -21,8 +113,21 @@ services:
       - NODE_ENV=production
       - NEXT_PUBLIC_BASE_URL=http://api-tascrum.zeabur.app/api/v1
       - NEXT_PUBLIC_BASE_URL_BLOG=http://api-tascrum.zeabur.app/api/v1/blog
+    networks:
+      - traefik-public
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.web.rule=Host(`tascrum.site`)"
-      - "traefik.http.routers.web.entrypoints=web"
+      - "traefik.http.routers.web.rule=Host(`tascrum.localhost`)"
       - "traefik.http.services.web.loadbalancer.server.port=3000"
+      - "com.centurylinklabs.watchtower.enable=true"
+
+networks:
+  traefik-public:
+    driver: bridge
+
+volumes:
+  traefik-certificates:
+  grafana-data:
+  loki-data:
+  promtail-data:
+  prometheus-data:
