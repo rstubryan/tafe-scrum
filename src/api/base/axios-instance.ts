@@ -8,5 +8,5 @@ export const AxiosInstance = axios.create({
 export const AxiosInstanceBlog = axios.create({
   baseURL:
     process.env.NEXT_PUBLIC_BASE_URL_BLOG ||
-    "https://blog-tascrum.zeabur.app/api/v1",
+    "https://blog.sineasmov.com/wp-json/wp/v2",
 });
