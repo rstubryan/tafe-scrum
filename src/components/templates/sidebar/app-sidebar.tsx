@@ -153,22 +153,22 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     documentation: [
       {
         name: "Introduction",
-        url: "/dashboard/documentation/[slug]",
+        url: "/dashboard/documentation/introduction",
         icon: Frame,
       },
       {
         name: "Get Started",
-        url: "/dashboard/documentation/[slug]",
+        url: "/dashboard/documentation/get-started",
         icon: Map,
       },
       {
         name: "Tutorials",
-        url: "/dashboard/documentation/[slug]",
+        url: "/dashboard/documentation/tutorials",
         icon: Settings2,
       },
       {
         name: "Changelog",
-        url: "/dashboard/documentation/[slug]",
+        url: "/dashboard/documentation/changelog",
         icon: GalleryVerticalEnd,
       },
     ],

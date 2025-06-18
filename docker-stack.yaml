@@ -27,6 +27,10 @@ services:
       - "--certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=web"
       - "--certificatesresolvers.myresolver.acme.email=restubumirr@gmail.com"
       - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+      - "--metrics.prometheus=true"
+      - "--metrics.prometheus.addEntryPointsLabels=true"
+      - "--metrics.prometheus.addServicesLabels=true"
+      - "--metrics.prometheus.addRoutersLabels=true"
     ports:
       - mode: host
         published: 80
@@ -135,7 +139,7 @@ services:
     volumes:
       - prometheus-data:/prometheus
     configs:
-      - source: prometheus-config
+      - source: prometheus-config-v1
         target: /etc/prometheus/prometheus.yml
     networks:
       - traefik-public
@@ -226,7 +230,7 @@ configs:
     file: ./configs/loki-config.yaml
   promtail-config:
     file: ./configs/promtail-config.yaml
-  prometheus-config:
+  prometheus-config-v1:
     file: ./configs/prometheus-config.yml
   grafana-dashboards-config:
     file: ./configs/grafana-dashboards-config.yaml
