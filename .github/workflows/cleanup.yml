@@ -16,5 +16,18 @@ jobs:
           key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
           script: |
             echo "Running scheduled cleanup at $(date)"
+            
+            # Count before cleanup
+            EXITED_COUNT=$(docker ps -a --filter "status=exited" --filter "label=com.docker.stack.namespace=tascrum" | wc -l)
+            echo "Found $EXITED_COUNT exited containers before cleanup"
+            
+            # Run cleanup
+            docker container prune -f
+            docker image prune -f
+            
+            # Verify after cleanup
+            REMAINING=$(docker ps -a --filter "status=exited" --filter "label=com.docker.stack.namespace=tascrum" | wc -l)
+            echo "Remaining exited containers: $REMAINING"
+
             docker container prune -f
             docker image prune -f
