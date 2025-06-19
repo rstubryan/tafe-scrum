@@ -7,8 +7,5 @@ updates:
     open-pull-requests-limit: 10
     versioning-strategy: auto
     target-branch: "ops/config"
-    labels:
-      - "dependencies"
-      - "npm"
     allow:
       - dependency-type: "all"
