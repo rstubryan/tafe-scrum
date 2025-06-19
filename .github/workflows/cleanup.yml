@@ -1,0 +1,20 @@
+name: Scheduled Docker Cleanup
+
+on:
+  schedule:
+    - cron: '0 2 * * *'  # Runs at 2 AM UTC daily
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run Docker cleanup
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.PROD_SSH_HOST }}
+          username: ${{ secrets.PROD_SSH_USER }}
+          key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
+          script: |
+            echo "Running scheduled cleanup at $(date)"
+            docker container prune -f
+            docker image prune -f
