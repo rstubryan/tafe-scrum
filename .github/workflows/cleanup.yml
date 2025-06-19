@@ -28,6 +28,3 @@ jobs:
             # Verify after cleanup
             REMAINING=$(docker ps -a --filter "status=exited" --filter "label=com.docker.stack.namespace=tascrum" | wc -l)
             echo "Remaining exited containers: $REMAINING"
-
-            docker container prune -f
-            docker image prune -f
