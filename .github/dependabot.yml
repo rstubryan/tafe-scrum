@@ -1,7 +1,6 @@
 version: 2
 updates:
-  # Configuration for Bun dependencies (package.json)
-  - package-ecosystem: "npm" # Dependabot uses npm ecosystem for all package.json files, including Bun projects
+  - package-ecosystem: "npm"
     directory: "/"
     schedule:
       interval: "weekly"
@@ -9,8 +8,6 @@ updates:
     versioning-strategy: auto
     labels:
       - "dependencies"
-      - "bun"
-    # Optional: Increase security by allowing security updates immediately
-    # rather than waiting for scheduled time
+      - "npm"
     allow:
       - dependency-type: "all"
