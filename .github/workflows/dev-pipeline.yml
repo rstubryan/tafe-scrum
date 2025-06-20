@@ -180,7 +180,7 @@ jobs:
             echo "❌ Deployment verification failed after $MAX_RETRIES attempts"
             exit 1
 
-      - name: Clean up old images
+      - name: Clean up after deployment
         if: success()
         uses: appleboy/ssh-action@v1
         with:
@@ -188,20 +188,24 @@ jobs:
           username: ${{ secrets.PROD_SSH_USER }}
           key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
           script: |
-            echo "Deployment successful! Cleaning up old images..."
+            echo "Deployment successful! Cleaning up resources..."
             
-            # Store current image ID to ensure we don't remove it
+            # Store current image details
             CURRENT_IMAGE="ghcr.io/rstubryan/tascrum-web:${{ github.sha }}"
             LATEST_IMAGE="ghcr.io/rstubryan/tascrum-web:latest"
             
             echo "Current image: $CURRENT_IMAGE"
             echo "Latest image: $LATEST_IMAGE"
             
+            # Clean up exited containers first
+            echo "Cleaning up exited containers..."
+            docker container prune -f
+            
             # List all tascrum-web images
             echo "Listing all tascrum-web images:"
             docker images "ghcr.io/rstubryan/tascrum-web" --format "{{.Repository}}:{{.Tag}} {{.ID}}"
             
-            # Find and remove old images, keeping current and latest
+            # Remove old images, keeping current and latest
             echo "Removing old images (keeping current and latest):"
             docker images "ghcr.io/rstubryan/tascrum-web" --format "{{.Repository}}:{{.Tag}} {{.ID}}" | grep -v "${{ github.sha }}" | grep -v "latest" | while read -r img; do
               if [ -n "$img" ]; then
@@ -210,5 +214,9 @@ jobs:
               fi
             done
             
-            echo "Image cleanup complete. Remaining images:"
+            # Check for dangling images and remove them
+            echo "Removing dangling images..."
+            docker image prune -f
+            
+            echo "Cleanup complete. Remaining tascrum-web images:"
             docker images "ghcr.io/rstubryan/tascrum-web"
