@@ -19,12 +19,15 @@ jobs:
             
             # Count before cleanup
             EXITED_COUNT=$(docker ps -a --filter "status=exited" --filter "label=com.docker.stack.namespace=tascrum" | wc -l)
-            echo "Found $EXITED_COUNT exited containers before cleanup"
+            UNUSED_IMAGES=$(docker images | grep 'tascrum' | wc -l)
+            echo "Found $EXITED_COUNT exited containers and $UNUSED_IMAGES unused images before cleanup"
             
             # Run cleanup
             docker container prune -f
-            docker image prune -f
+            docker image prune -f --all  # Added --all flag to remove all unused images
             
             # Verify after cleanup
-            REMAINING=$(docker ps -a --filter "status=exited" --filter "label=com.docker.stack.namespace=tascrum" | wc -l)
-            echo "Remaining exited containers: $REMAINING"
+            REMAINING_CONTAINERS=$(docker ps -a --filter "status=exited" --filter "label=com.docker.stack.namespace=tascrum" | wc -l)
+            REMAINING_IMAGES=$(docker images | grep 'tascrum' | wc -l)
+            echo "Remaining exited containers: $REMAINING_CONTAINERS"
+            echo "Remaining unused images: $REMAINING_IMAGES"
