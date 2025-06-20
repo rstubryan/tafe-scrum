@@ -1,11 +1,13 @@
 import MainContent from "@/components/templates/content/main-content";
-import { Skeleton } from "@/components/ui/skeleton";
 import {
   Card,
   CardContent,
   CardFooter,
   CardHeader,
 } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 export default function TasksSkeletonPage() {
   return (
@@ -14,13 +16,13 @@ export default function TasksSkeletonPage() {
         {/* Header Section with Filter Container */}
         <div className="lg:flex justify-between items-center">
           <div>
-            <Skeleton className="h-8 w-36 mb-2" />
-            <Skeleton className="h-5 w-64" />
+            <h1 className="text-2xl font-bold mb-2">Page Title</h1>
+            <p className="text-muted-foreground">Page Description</p>
           </div>
-          <Skeleton className="lg:mt-0 mt-3 lg:w-[150px] w-full h-9 rounded-md" />
+          <Button>Action Button</Button>
         </div>
 
-        {/* Task Grid Skeleton */}
+        {/* Task Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {Array(9)
             .fill(0)
@@ -28,14 +30,15 @@ export default function TasksSkeletonPage() {
               <Card key={index} className="flex flex-col h-full">
                 <CardHeader className="pb-0">
                   <div className="flex items-center gap-2">
-                    <Skeleton className="h-10 w-10 rounded-md" />{" "}
-                    {/* Task ref # */}
+                    <div className="flex h-10 w-10 items-center justify-center rounded-md bg-primary/10">
+                      <p className="leading-7 font-bold text-primary">#ID</p>
+                    </div>
                     <div>
-                      <Skeleton className="h-5 w-48 mb-1" /> {/* Task title */}
-                      <div className="flex gap-1 items-center">
-                        <Skeleton className="h-4 w-16" /> {/* Status */}
-                        <Skeleton className="h-4 w-2" /> {/* Bullet */}
-                        <Skeleton className="h-4 w-16" /> {/* Open/Closed */}
+                      <h3 className="font-semibold">Task Name</h3>
+                      <div className="flex gap-1 text-xs text-muted-foreground">
+                        <span className="text-amber-500">Status</span>
+                        <span>•</span>
+                        <span className="font-medium">State</span>
                       </div>
                     </div>
                   </div>
@@ -45,40 +48,54 @@ export default function TasksSkeletonPage() {
                   <div className="mt-2 text-xs">
                     <div className="mb-2 grid grid-cols-1 gap-1 text-sm">
                       <div className="flex items-center gap-1">
-                        <Skeleton className="h-4 w-20" /> {/* Created label */}
-                        <Skeleton className="h-4 w-24" /> {/* Date */}
+                        <span className="font-medium">Created:</span>
+                        <span>Date</span>
                       </div>
                       <div className="flex items-center gap-1">
-                        <Skeleton className="h-4 w-16" /> {/* Owner label */}
-                        <Skeleton className="h-4 w-20" /> {/* Owner name */}
+                        <span className="font-medium">Owner:</span>
+                        <span>Username</span>
                       </div>
                       <div className="flex items-center gap-1">
-                        <Skeleton className="h-4 w-20" /> {/* Assigned label */}
-                        <Skeleton className="h-4 w-24" /> {/* Assignee name */}
+                        <span className="font-medium">Assigned:</span>
+                        <span>Username</span>
                       </div>
                       <div className="flex items-center gap-1 truncate">
-                        <Skeleton className="h-4 w-24" />{" "}
-                        {/* User Story label */}
-                        <Skeleton className="h-4 w-32" />{" "}
-                        {/* User Story text */}
+                        <span className="font-medium">User Story:</span>
+                        <span>Story Title</span>
                       </div>
                     </div>
                   </div>
                 </CardContent>
 
                 <CardFooter className="grid grid-cols-1 2xl:grid-cols-2 gap-2">
-                  <Skeleton className="h-10 w-full rounded-md" />{" "}
-                  {/* View Task Details */}
-                  <Skeleton className="h-10 w-full rounded-md" />{" "}
-                  {/* View Task in User Story */}
+                  <Link
+                    href="#"
+                    className="inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-3 py-2"
+                  >
+                    <span className="truncate">View Task Details</span>
+                  </Link>
+                  <Link
+                    href="#"
+                    className="inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md text-sm font-medium bg-secondary text-secondary-foreground hover:bg-secondary/90 h-10 px-3 py-2"
+                  >
+                    <span className="truncate">View Task in User Story</span>
+                  </Link>
                 </CardFooter>
               </Card>
             ))}
         </div>
 
-        {/* Pagination Skeleton */}
+        {/* Pagination */}
         <div className="mt-4 flex justify-center">
-          <Skeleton className="h-9 w-56" />
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="icon">
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            <Button variant="outline">1</Button>
+            <Button variant="outline" size="icon">
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
       </div>
     </MainContent>

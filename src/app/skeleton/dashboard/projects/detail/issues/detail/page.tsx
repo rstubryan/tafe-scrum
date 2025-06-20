@@ -1,73 +1,81 @@
 import MainContent from "@/components/templates/content/main-content";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 export default function IssueDetailSkeletonPage() {
   return (
     <div className="flex flex-col gap-4">
       <MainContent>
         {/* Header */}
-        <div className="lg:flex justify-between items-center">
+        <section className="flex-col sm:flex-row justify-between sm:items-center gap-4">
           <div>
-            <Skeleton className="h-8 w-48 mb-2" />
-            <Skeleton className="h-5 w-72" />
+            <h1 className="text-2xl font-bold mb-2">Page Title</h1>
+            <p className="text-muted-foreground">Page Description</p>
           </div>
-          <div className="flex gap-2 items-center"></div>
-        </div>
+        </section>
 
         {/* Issue Content */}
         <div className="flex flex-col gap-4 mt-5">
           {/* Issue Header */}
           <div className="flex flex-col lg:flex-row justify-between">
             <div className="flex items-center gap-2">
-              <Skeleton className="h-12 w-12 rounded-md" />
+              <div className="flex h-12 w-12 items-center justify-center rounded-md bg-primary/10">
+                <p className="leading-7 font-bold text-primary">#ID</p>
+              </div>
               <div>
-                <Skeleton className="h-8 w-64 mb-1" />
-                <div className="flex items-center gap-1">
-                  <Skeleton className="h-4 w-20" />
-                  <Skeleton className="h-4 w-2" />
-                  <Skeleton className="h-4 w-16" />
+                <h2 className="text-xl font-semibold">Issue Title</h2>
+                <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                  <span className="text-amber-500">Status</span>
+                  <span>•</span>
+                  <span className="font-medium">State</span>
                 </div>
               </div>
             </div>
 
             <div className="mt-4 lg:mt-0 flex items-center gap-2">
-              <Skeleton className="h-10 w-24 rounded-md" />
-              <Skeleton className="h-10 w-[200px] rounded-md" />
+              <Button variant="outline">Edit</Button>
+              <Button variant="outline" className="flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-amber-500"></div>
+                Status
+              </Button>
             </div>
           </div>
 
           {/* Issue Details Card */}
           <Card className="mt-4">
             <CardHeader>
-              <CardTitle>
-                <Skeleton className="h-6 w-32" />
-              </CardTitle>
+              <CardTitle>Issue Details</CardTitle>
             </CardHeader>
             <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-4">
                 <div>
-                  <Skeleton className="h-5 w-28 mb-1" />
-                  <Skeleton className="h-4 w-40" />
+                  <h3 className="text-sm font-medium mb-1">Created Date</h3>
+                  <p className="text-sm text-muted-foreground">Date</p>
                 </div>
                 <div>
-                  <Skeleton className="h-5 w-28 mb-1" />
-                  <Skeleton className="h-4 w-40" />
+                  <h3 className="text-sm font-medium mb-1">Modified Date</h3>
+                  <p className="text-sm text-muted-foreground">Date</p>
                 </div>
                 <div>
-                  <Skeleton className="h-5 w-28 mb-1" />
-                  <Skeleton className="h-4 w-40" />
+                  <h3 className="text-sm font-medium mb-1">Due Date</h3>
+                  <p className="text-sm text-muted-foreground">Not set</p>
                 </div>
               </div>
 
               <div className="space-y-4">
                 <div>
-                  <Skeleton className="h-5 w-28 mb-1" />
-                  <Skeleton className="h-4 w-40" />
+                  <h3 className="text-sm font-medium mb-1">Owner</h3>
+                  <div className="flex items-center gap-2">
+                    <Avatar className="h-6 w-6">
+                      <AvatarFallback>A</AvatarFallback>
+                    </Avatar>
+                    <p className="text-sm text-muted-foreground">Username</p>
+                  </div>
                 </div>
                 <div>
-                  <Skeleton className="h-5 w-28 mb-1" />
-                  <Skeleton className="h-4 w-40" />
+                  <h3 className="text-sm font-medium mb-1">Assigned To</h3>
+                  <p className="text-sm text-muted-foreground">Username</p>
                 </div>
               </div>
             </CardContent>
@@ -76,18 +84,12 @@ export default function IssueDetailSkeletonPage() {
           {/* Description Card */}
           <Card className="mt-4">
             <CardHeader>
-              <CardTitle>
-                <Skeleton className="h-6 w-24" />
-              </CardTitle>
+              <CardTitle>Description</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-2">
-                <Skeleton className="h-4 w-full" />
-                <Skeleton className="h-4 w-full" />
-                <Skeleton className="h-4 w-3/4" />
-                <Skeleton className="h-4 w-5/6" />
-                <Skeleton className="h-4 w-full" />
-              </div>
+              <p className="text-sm text-muted-foreground">
+                No description available
+              </p>
             </CardContent>
           </Card>
         </div>
