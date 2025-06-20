@@ -1,17 +1,29 @@
 import MainContent from "@/components/templates/content/main-content";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
-import { User, KeyRound, Users } from "lucide-react";
+import {
+  User,
+  KeyRound,
+  Users,
+  AtSign,
+  Mail,
+  FileText,
+  Save,
+  Trash2,
+} from "lucide-react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 
 export default function AccountSkeletonPage() {
   return (
     <MainContent>
       {/* Header */}
       <div>
-        <Skeleton className="h-8 w-36 mb-2" />
-        <Skeleton className="h-5 w-64" />
+        <h1 className="text-2xl font-bold mb-2">Page Title</h1>
+        <p className="text-muted-foreground">Page Description</p>
       </div>
 
       <div className="space-y-6 my-4">
@@ -22,12 +34,19 @@ export default function AccountSkeletonPage() {
             <div className="rounded-lg border p-6">
               <div className="flex flex-col items-center space-y-4">
                 <div className="relative">
-                  <Skeleton className="h-24 w-24 rounded-full" />
-                  <Skeleton className="absolute -bottom-1 -right-1 h-8 w-8 rounded-full" />
+                  <Avatar className="h-24 w-24">
+                    <AvatarFallback>User</AvatarFallback>
+                  </Avatar>
+                  <Button
+                    size="sm"
+                    className="absolute -bottom-1 -right-1 h-8 w-8 rounded-full p-0"
+                  >
+                    Edit
+                  </Button>
                 </div>
                 <div className="space-y-2 w-full text-center">
-                  <Skeleton className="h-5 w-32 mx-auto" />
-                  <Skeleton className="h-4 w-40 mx-auto" />
+                  <h3 className="font-medium">User Name</h3>
+                  <p className="text-sm text-muted-foreground">User Email</p>
                 </div>
               </div>
             </div>
@@ -36,15 +55,9 @@ export default function AccountSkeletonPage() {
             <div className="md:hidden">
               <Tabs defaultValue="profile" className="w-full">
                 <TabsList className="grid w-full grid-cols-3">
-                  <TabsTrigger value="profile" disabled>
-                    Profile
-                  </TabsTrigger>
-                  <TabsTrigger value="password" disabled>
-                    Password
-                  </TabsTrigger>
-                  <TabsTrigger value="users" disabled>
-                    Users
-                  </TabsTrigger>
+                  <TabsTrigger value="profile">Profile</TabsTrigger>
+                  <TabsTrigger value="password">Password</TabsTrigger>
+                  <TabsTrigger value="users">Users</TabsTrigger>
                 </TabsList>
               </Tabs>
             </div>
@@ -52,27 +65,15 @@ export default function AccountSkeletonPage() {
             {/* Desktop navigation */}
             <div className="hidden rounded-lg border p-3 md:block">
               <div className="space-y-1">
-                <Button
-                  variant="secondary"
-                  className="w-full justify-start"
-                  disabled
-                >
+                <Button variant="secondary" className="w-full justify-start">
                   <User className="mr-2 h-4 w-4" />
                   Profile
                 </Button>
-                <Button
-                  variant="ghost"
-                  className="w-full justify-start"
-                  disabled
-                >
+                <Button variant="ghost" className="w-full justify-start">
                   <KeyRound className="mr-2 h-4 w-4" />
                   Password
                 </Button>
-                <Button
-                  variant="ghost"
-                  className="w-full justify-start"
-                  disabled
-                >
+                <Button variant="ghost" className="w-full justify-start">
                   <Users className="mr-2 h-4 w-4" />
                   Users List
                 </Button>
@@ -84,55 +85,63 @@ export default function AccountSkeletonPage() {
           <div className="space-y-6">
             <Card className="rounded-xl border py-6 shadow-sm">
               <CardHeader className="px-6 pb-0">
-                <Skeleton className="h-5 w-24 mb-1" />
-                <Skeleton className="h-4 w-56" />
+                <h2 className="font-semibold">Card Title</h2>
+                <p className="text-sm text-muted-foreground">
+                  Card Description
+                </p>
               </CardHeader>
               <CardContent className="px-6 mt-6">
                 <div className="space-y-4">
                   {/* Username field */}
                   <div className="space-y-2">
-                    <div className="flex items-center gap-2">
-                      <Skeleton className="h-4 w-4 rounded-full" />
-                      <Skeleton className="h-4 w-20" />
-                    </div>
-                    <Skeleton className="h-9 w-full" />
-                    <Skeleton className="h-3 w-48" />
+                    <Label htmlFor="username" className="flex items-center">
+                      <AtSign className="mr-2 h-4 w-4" />
+                      Field Label
+                    </Label>
+                    <Input id="username" defaultValue="Field Value" disabled />
+                    <p className="text-xs text-muted-foreground">Help Text</p>
                   </div>
 
                   {/* Email field */}
                   <div className="space-y-2">
-                    <div className="flex items-center gap-2">
-                      <Skeleton className="h-4 w-4 rounded-full" />
-                      <Skeleton className="h-4 w-16" />
-                    </div>
-                    <Skeleton className="h-9 w-full" />
-                    <Skeleton className="h-3 w-56" />
+                    <Label htmlFor="email" className="flex items-center">
+                      <Mail className="mr-2 h-4 w-4" />
+                      Field Label
+                    </Label>
+                    <Input id="email" defaultValue="Field Value" disabled />
+                    <p className="text-xs text-muted-foreground">Help Text</p>
                   </div>
 
                   {/* Full Name field */}
                   <div className="space-y-2">
-                    <div className="flex items-center gap-2">
-                      <Skeleton className="h-4 w-4 rounded-full" />
-                      <Skeleton className="h-4 w-24" />
-                    </div>
-                    <Skeleton className="h-9 w-full" />
-                    <Skeleton className="h-3 w-52" />
+                    <Label htmlFor="full_name" className="flex items-center">
+                      <User className="mr-2 h-4 w-4" />
+                      Field Label
+                    </Label>
+                    <Input id="full_name" defaultValue="Field Value" />
+                    <p className="text-xs text-muted-foreground">Help Text</p>
                   </div>
 
                   {/* Bio field */}
                   <div className="space-y-2">
-                    <div className="flex items-center gap-2">
-                      <Skeleton className="h-4 w-4 rounded-full" />
-                      <Skeleton className="h-4 w-12" />
-                    </div>
-                    <Skeleton className="h-24 w-full" />
-                    <Skeleton className="h-3 w-40" />
+                    <Label htmlFor="bio" className="flex items-center">
+                      <FileText className="mr-2 h-4 w-4" />
+                      Field Label
+                    </Label>
+                    <Textarea id="bio" className="min-h-16" />
+                    <p className="text-xs text-muted-foreground">Help Text</p>
                   </div>
 
                   {/* Form Buttons */}
                   <div className="flex justify-end gap-2">
-                    <Skeleton className="h-9 w-32 sm:w-36" />
-                    <Skeleton className="h-9 w-32 sm:w-36" />
+                    <Button variant="destructive" className="w-full sm:w-max">
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Button Text
+                    </Button>
+                    <Button className="w-full sm:w-max">
+                      <Save className="h-4 w-4 mr-2" />
+                      Button Text
+                    </Button>
                   </div>
                 </div>
               </CardContent>
