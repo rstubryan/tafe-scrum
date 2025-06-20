@@ -4,7 +4,7 @@ services:
     command:
       - "--label-enable"
       - "--interval"
-      - "3600"
+      - "300"
       - "--rolling-restart"
       - "tascrum"
     volumes:
