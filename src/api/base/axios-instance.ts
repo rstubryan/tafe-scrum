@@ -2,7 +2,7 @@ import axios from "axios";
 
 export const AxiosInstance = axios.create({
   baseURL:
-    process.env.NEXT_PUBLIC_BASE_URL || "https://api-tascrum.zeabur.app/api/v1",
+    process.env.NEXT_PUBLIC_BASE_URL || "https://api.tascrum.site/api/v1",
 });
 
 export const AxiosInstanceBlog = axios.create({
