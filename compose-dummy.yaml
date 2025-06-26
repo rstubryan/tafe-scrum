@@ -21,3 +21,4 @@ services:
 networks:
   traefik-public:
     external: true
+    name: tascrum_traefik-public
