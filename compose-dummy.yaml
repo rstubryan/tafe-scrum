@@ -3,13 +3,20 @@ services:
     image: traefik:v3.4
     ports:
       - "71:71"
+      - "7443:7443"
     command:
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
       - "--entrypoints.web.address=:71"
+      - "--entrypoints.websecure.address=:7443"
+      - "--certificatesresolvers.myresolver.acme.httpchallenge=true"
+      - "--certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=web"
+      - "--certificatesresolvers.myresolver.acme.email=restubumirr@gmail.com"
+      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
       - "--api.insecure=true"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
+      - traefik-dummy-certificates:/letsencrypt
 
   web-dummy:
     image: ghcr.io/rstubryan/tascrum-web-dummy:latest
@@ -19,6 +26,13 @@ services:
       - NEXT_PUBLIC_BASE_URL_BLOG=https://blog.sineasmov.com/wp-json/wp/v2
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.dummy.rule=PathPrefix(`/`)"
+      - "traefik.http.routers.dummy.rule=Host(`dumtest.tascrum.site`)"
       - "traefik.http.routers.dummy.entrypoints=web"
       - "traefik.http.services.dummy.loadbalancer.server.port=3000"
+      - "traefik.http.routers.dummy-secure.rule=Host(`dumtest.tascrum.site`)"
+      - "traefik.http.routers.dummy-secure.entrypoints=websecure"
+      - "traefik.http.routers.dummy-secure.tls=true"
+      - "traefik.http.routers.dummy-secure.tls.certresolver=myresolver"
+
+volumes:
+  traefik-dummy-certificates:
