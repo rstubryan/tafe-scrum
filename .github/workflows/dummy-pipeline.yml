@@ -30,9 +30,9 @@ jobs:
       - name: Deploy to VPS
         uses: appleboy/ssh-action@v1
         with:
-          host: ${{ secrets.DUMMY_SSH_HOST }}
-          username: ${{ secrets.DUMMY_SSH_USER }}
-          key: ${{ secrets.DUMMY_SSH_PRIVATE_KEY }}
+          host: ${{ secrets.PROD_SSH_HOST }}
+          username: ${{ secrets.PROD_SSH_USER }}
+          key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
           script: |
             docker pull ghcr.io/rstubryan/tascrum-web-dummy:latest
             docker stop tascrum-web-dummy || true
