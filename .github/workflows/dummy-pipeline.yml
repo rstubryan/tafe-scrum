@@ -36,6 +36,18 @@ jobs:
           source: "compose-dummy.yaml"
           target: "/home/${{ secrets.PROD_SSH_USER }}/tascrum-web-dummy"
 
+      - name: Stop and remove existing containers
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.PROD_SSH_HOST }}
+          username: ${{ secrets.PROD_SSH_USER }}
+          key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
+          script: |
+            echo "Stopping and removing existing containers..."
+            cd ~/tascrum-web-dummy
+            docker compose -f compose-dummy.yaml down --remove-orphans
+            docker system prune -f
+
       - name: Deploy to VPS
         uses: cssnr/stack-deploy-action@v1
         with:
