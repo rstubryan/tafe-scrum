@@ -4,9 +4,10 @@ services:
     command:
       - "--label-enable"
       - "--interval"
-      - "300"
+      - "30"
+      - "--cleanup"
+      - "--include-stopped"
       - "--rolling-restart"
-      - "tascrum"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     deploy:
