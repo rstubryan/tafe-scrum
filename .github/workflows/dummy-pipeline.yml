@@ -27,13 +27,13 @@ jobs:
       - name: Logout from GitHub Container Registry
         run: docker logout
 
-      - name: Copy files to VPS
+      - name: Copy compose-dummy.yaml to VPS
         uses: appleboy/scp-action@v1
         with:
           host: ${{ secrets.PROD_SSH_HOST }}
           username: ${{ secrets.PROD_SSH_USER }}
           key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
-          source: "compose-dummy.yaml,prometheus.yml"
+          source: "compose-dummy.yaml"
           target: "/home/${{ secrets.PROD_SSH_USER }}/tascrum-web-dummy"
 
       - name: Stop and remove existing containers
