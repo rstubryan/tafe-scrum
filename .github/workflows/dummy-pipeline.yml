@@ -36,13 +36,17 @@ jobs:
           source: "compose-dummy.yaml,haproxy.cfg"
           target: "/home/${{ secrets.PROD_SSH_USER }}/tascrum-web-dummy"
 
-      - name: Login registry and deploy on VPS
-        uses: appleboy/ssh-action@v1
+      - name: Deploy to VPS
+        uses: cssnr/stack-deploy-action@v1
         with:
+          name: tascrum-web-dummy
+          file: compose-dummy.yaml
           host: ${{ secrets.PROD_SSH_HOST }}
-          username: ${{ secrets.PROD_SSH_USER }}
-          key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
-          script: |
-            echo '${{ secrets.GHCR_PAT }}' | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-            docker pull ghcr.io/rstubryan/tascrum-web-dummy:latest
-            docker compose -f ~/compose-dummy.yaml -p tascrum-web-dummy up -d --force-recreate --remove-orphans
+          user: ${{ secrets.PROD_SSH_USER }}
+          ssh_key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
+          registry_host: 'ghcr.io'
+          registry_user: ${{ github.actor }}
+          registry_pass: ${{ secrets.GHCR_PAT }}
+          mode: compose
+          args: '--force-recreate --remove-orphans'
+          summary: true
