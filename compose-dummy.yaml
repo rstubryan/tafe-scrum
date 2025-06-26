@@ -19,6 +19,6 @@ services:
       - NEXT_PUBLIC_BASE_URL_BLOG=https://blog.sineasmov.com/wp-json/wp/v2
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.dummy.rule=Host(`dummy.tascrum.site`)"
+      - "traefik.http.routers.dummy.rule=PathPrefix(`/`)"
       - "traefik.http.routers.dummy.entrypoints=web"
       - "traefik.http.services.dummy.loadbalancer.server.port=3000"
