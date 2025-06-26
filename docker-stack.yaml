@@ -8,6 +8,8 @@ services:
       - "--cleanup"
       - "--include-stopped"
       - "--rolling-restart"
+      - "--scope"
+      - "tascrum"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     deploy:
@@ -21,13 +23,14 @@ services:
   traefik:
     image: "traefik:v3.4"
     command:
-      - "--log.level=INFO"
+      - "--log.level=DEBUG"
       - "--api=true"
       - "--api.dashboard=true"
       - "--providers.swarm=true"
       - "--providers.swarm.exposedbydefault=false"
       - "--entryPoints.web.address=:80"
       - "--entryPoints.websecure.address=:443"
+      - "--entrypoints.web.http.redirections.entryPoint.permanent=false"
       - "--certificatesresolvers.myresolver.acme.httpchallenge=true"
       - "--certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=web"
       - "--certificatesresolvers.myresolver.acme.email=restubumirr@gmail.com"
