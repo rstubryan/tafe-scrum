@@ -28,13 +28,13 @@ jobs:
     needs: build
     steps:
       - name: Deploy to VPS
-        uses: appleboy/ssh-action@v1
+        uses: cssnr/stack-deploy-action@v1
         with:
+          name: tascrum-web-dummy
+          file: compose-dummy.yaml
           host: ${{ secrets.PROD_SSH_HOST }}
-          username: ${{ secrets.PROD_SSH_USER }}
-          key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
-          script: |
-            docker pull ghcr.io/rstubryan/tascrum-web-dummy:latest
-            docker stop tascrum-web-dummy || true
-            docker rm tascrum-web-dummy || true
-            docker run -d --name tascrum-web-dummy -p 3000:3000 --restart always ghcr.io/rstubryan/tascrum-web-dummy:latest
+          user: ${{ secrets.PROD_SSH_USER }}
+          ssh_key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
+          mode: compose
+          args: '--force-recreate --remove-orphans'
+          summary: true
