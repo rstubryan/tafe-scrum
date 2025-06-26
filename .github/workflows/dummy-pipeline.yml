@@ -1,0 +1,24 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches:
+      - dummy
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build the Docker image
+        run: docker build . --tag ghcr.io/rstubryan/tascrum-web-dummy:latest -f dummy.Dockerfile
+      - name: Login to DockerHub
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ secrets.actor }}
+          password: ${{ secrets.GHCR_PAT }}
+      - name: Push Docker image
+        run: docker push ghcr.io/rstubryan/tascrum-web-dummy:latest
+      - name: Logout from DockerHub
+        run: docker logout
