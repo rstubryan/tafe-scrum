@@ -2,16 +2,18 @@ services:
   traefik:
     image: traefik:v3.4
     ports:
-      - "71:71"
-      - "7443:7443"
+      - "71:71"      # Custom HTTP port
+      - "7443:7443"  # Custom HTTPS port
+      - "80:80"      # Standard HTTP port for ACME validation
     command:
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
       - "--entrypoints.web.address=:71"
       - "--entrypoints.websecure.address=:7443"
+      - "--entrypoints.webacme.address=:80"  # New entrypoint for ACME validation
       - "--api.insecure=true"
       - "--certificatesresolvers.myresolver.acme.httpchallenge=true"
-      - "--certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=web"
+      - "--certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=webacme"  # Changed to use standard port
       - "--certificatesresolvers.myresolver.acme.email=restubumirr@gmail.com"
       - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
     volumes:
@@ -31,8 +33,10 @@ services:
       - "traefik.http.services.dummy.loadbalancer.server.port=3000"
       - "traefik.http.routers.dummy-secure.rule=Host(`dummy.tascrum.site`)"
       - "traefik.http.routers.dummy-secure.entrypoints=websecure"
-      - "traefik.http.routers.dummy-secure.tls=true"
-      - "traefik.http.routers.dummy-secure.tls.certresolver=myresolver"
+      - "traefik.http.routers.web-dummy.tls.certresolver=myresolver"
+      - "traefik.http.routers.dummy-acme.rule=Host(`dummy.tascrum.site`) && PathPrefix(`/.well-known/acme-challenge/`)"
+      - "traefik.http.routers.dummy-acme.entrypoints=webacme"
+      - "traefik.http.routers.dummy-acme.service=dummy"
 
 volumes:
   traefik-certificates:
