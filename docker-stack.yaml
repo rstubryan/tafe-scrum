@@ -23,7 +23,7 @@ services:
   traefik:
     image: "traefik:v3.4"
     command:
-      - "--log.level=INFO"
+      - "--log.level=DEBUG"
       - "--api=true"
       - "--api.dashboard=true"
       - "--providers.swarm=true"
