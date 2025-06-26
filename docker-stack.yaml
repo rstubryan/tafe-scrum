@@ -8,6 +8,8 @@ services:
       - "--cleanup"
       - "--include-stopped"
       - "--rolling-restart"
+      - "--filter"
+      - "name=tascrum"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     deploy:
