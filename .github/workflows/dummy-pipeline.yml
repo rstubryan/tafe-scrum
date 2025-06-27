@@ -45,7 +45,7 @@ jobs:
           script: |
             echo "Stopping and removing existing containers..."
             cd ~/tascrum-web-dummy
-            docker stack -f compose-dummy.yaml down --remove-orphans
+            docker stack rm tascrum-web-dummy
             docker system prune -f
 
       - name: Deploy to VPS
