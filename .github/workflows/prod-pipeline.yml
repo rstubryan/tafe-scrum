@@ -146,56 +146,6 @@ jobs:
             echo "Deployment complete. Stack services:"
             docker stack services tascrum
 
-      - name: Pre-warm new containers
-        uses: appleboy/ssh-action@v1
-        with:
-          host: ${{ secrets.PROD_SSH_HOST }}
-          username: ${{ secrets.PROD_SSH_USER }}
-          key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
-          command_timeout: "2m"
-          script: |
-            echo "Pre-warming containers before verification..."
-            sleep 30s  # Allow initial startup
-            # Make actual HTTP requests to warm up the service
-            curl -s -o /dev/null -w "%{http_code}" https://tascrum.site/ || true
-
-      - name: Verify deployment success
-        id: verify
-        uses: appleboy/ssh-action@v1
-        with:
-          host: ${{ secrets.PROD_SSH_HOST }}
-          username: ${{ secrets.PROD_SSH_USER }}
-          key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
-          command_timeout: "10m"
-          script: |
-            echo "Verifying deployment of web-prod service..."
-            MAX_RETRIES=24
-            RETRY_DELAY=10
-            COUNTER=0
-            
-            while [ $COUNTER -lt $MAX_RETRIES ]; do
-              # Check replica count
-              SERVICE_STATUS=$(docker service ls --filter "name=tascrum_web-prod" --format "{{.Replicas}}")
-              echo "Current status: $SERVICE_STATUS"
-              
-              # Check if the service is actually responding to HTTP requests
-              HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://tascrum.site/ || echo "failed")
-              echo "HTTP status: $HTTP_STATUS"
-              
-              if [[ "$SERVICE_STATUS" == "2/2" && ("$HTTP_STATUS" == "200" || "$HTTP_STATUS" == "301" || "$HTTP_STATUS" == "302") ]]; then
-                echo "✅ Service deployed successfully and responding to HTTP requests!"
-                echo "DEPLOYMENT_STATUS=success" >> $GITHUB_OUTPUT
-                exit 0
-              fi
-              
-              echo "Waiting for service to stabilize... ($COUNTER/$MAX_RETRIES)"
-              sleep $RETRY_DELAY
-              COUNTER=$((COUNTER+1))
-            done
-            
-            echo "❌ Deployment verification failed after $MAX_RETRIES attempts"
-            exit 1
-
       - name: Clean up old images
         if: success()
         uses: appleboy/ssh-action@v1
