@@ -6,6 +6,7 @@ services:
       - "--interval"
       - "300"
       - "--rolling-restart"
+      - "--scope"
       - "tascrum"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
