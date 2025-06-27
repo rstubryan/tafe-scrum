@@ -4,11 +4,8 @@ services:
     command:
       - "--label-enable"
       - "--interval"
-      - "30"
-      - "--cleanup"
-      - "--include-stopped"
+      - "300"
       - "--rolling-restart"
-      - "--http-api-update"
       - "--scope"
       - "tascrum"
     volumes:
@@ -24,14 +21,13 @@ services:
   traefik:
     image: "traefik:v3.4"
     command:
-      - "--log.level=DEBUG"
+      - "--log.level=INFO"
       - "--api=true"
       - "--api.dashboard=true"
       - "--providers.swarm=true"
       - "--providers.swarm.exposedbydefault=false"
       - "--entryPoints.web.address=:80"
       - "--entryPoints.websecure.address=:443"
-      - "--entrypoints.web.http.redirections.entryPoint.permanent=false"
       - "--certificatesresolvers.myresolver.acme.httpchallenge=true"
       - "--certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=web"
       - "--certificatesresolvers.myresolver.acme.email=restubumirr@gmail.com"
@@ -40,18 +36,6 @@ services:
       - "--metrics.prometheus.addEntryPointsLabels=true"
       - "--metrics.prometheus.addServicesLabels=true"
       - "--metrics.prometheus.addRoutersLabels=true"
-      - "--providers.swarm.defaultRule=Host(`{{ normalize .Name }}.tascrum.site`)"
-      - "--serversTransport.forwardingTimeouts.dialTimeout=5s"
-      - "--serversTransport.forwardingTimeouts.responseHeaderTimeout=30s"
-      - "--serversTransport.forwardingTimeouts.idleConnTimeout=90s"
-      - "--serversTransport.maxIdleConnsPerHost=100"
-      - "--accesslog=true"
-      - "--accesslog.format=json"
-      - "--accesslog.bufferingsize=100"
-      - "--ping=true"
-      - "--ping.entryPoint=web"
-      - "--retry.attempts=3"
-      - "--metrics.prometheus.buckets=0.1,0.3,1.2,5.0"
     ports:
       - mode: host
         published: 80
@@ -200,13 +184,9 @@ services:
       update_config:
         order: start-first
         parallelism: 1
-        delay: 90s
+        delay: 30s
         failure_action: rollback
-        monitor: 180s
-      restart_policy:
-        condition: on-failure
-        max_attempts: 3
-        delay: 10s
+        monitor: 60s
       labels:
         - "traefik.enable=true"
         - "traefik.http.routers.web-prod.rule=Host(`tascrum.site`)"
@@ -219,18 +199,6 @@ services:
         - "traefik.http.services.web-prod.loadbalancer.server.port=3000"
         - "com.centurylinklabs.watchtower.enable=true"
         - "com.docker.stack.namespace=tascrum"
-        - "traefik.http.services.web-prod.loadbalancer.healthcheck.path=/"
-        - "traefik.http.services.web-prod.loadbalancer.healthcheck.interval=3s"
-        - "traefik.http.services.web-prod.loadbalancer.healthcheck.timeout=3s"
-        - "traefik.http.services.web-prod.loadbalancer.healthcheck.retries=3"
-        - "traefik.http.services.web-prod.loadbalancer.sticky=true"
-        - "traefik.http.services.web-prod.loadbalancer.sticky.cookie.name=tascrum_sticky"
-        - "traefik.http.services.web-prod.loadbalancer.sticky.cookie.secure=true"
-        - "traefik.http.services.web-prod.loadbalancer.passhostheader=true"
-        - "traefik.http.middlewares.web-prod-cb.circuitbreaker.expression=NetworkErrorRatio() > 0.25"
-        - "traefik.http.routers.web-prod.middlewares=web-prod-cb@docker"
-        - "traefik.http.services.web-prod.loadbalancer.draininterval=10s"
-        - "traefik.http.services.web-prod.loadbalancer.draintimeout=20s"
 
   web-dev:
     image: ghcr.io/rstubryan/tascrum-web:${GIT_COMMIT_HASH:-latest}
@@ -248,13 +216,9 @@ services:
       update_config:
         order: start-first
         parallelism: 1
-        delay: 90s
+        delay: 30s
         failure_action: rollback
-        monitor: 180s
-      restart_policy:
-        condition: on-failure
-        max_attempts: 3
-        delay: 10s
+        monitor: 60s
       labels:
         - "traefik.enable=true"
         - "traefik.http.routers.web-dev.rule=Host(`dev.tascrum.site`)"
@@ -267,18 +231,6 @@ services:
         - "traefik.http.services.web-dev.loadbalancer.server.port=3000"
         - "com.centurylinklabs.watchtower.enable=true"
         - "com.docker.stack.namespace=tascrum"
-        - "traefik.http.services.web-dev.loadbalancer.healthcheck.path=/"
-        - "traefik.http.services.web-dev.loadbalancer.healthcheck.interval=3s"
-        - "traefik.http.services.web-dev.loadbalancer.healthcheck.timeout=3s"
-        - "traefik.http.services.web-dev.loadbalancer.healthcheck.retries=3"
-        - "traefik.http.services.web-dev.loadbalancer.sticky=true"
-        - "traefik.http.services.web-dev.loadbalancer.sticky.cookie.name=tascrum_dev_sticky"
-        - "traefik.http.services.web-dev.loadbalancer.sticky.cookie.secure=true"
-        - "traefik.http.services.web-dev.loadbalancer.passhostheader=true"
-        - "traefik.http.middlewares.web-dev-cb.circuitbreaker.expression=NetworkErrorRatio() > 0.25"
-        - "traefik.http.routers.web-dev.middlewares=web-dev-cb@docker"
-        - "traefik.http.services.web-dev.loadbalancer.draininterval=10s"
-        - "traefik.http.services.web-dev.loadbalancer.draintimeout=20s"
 
 configs:
   loki-config:
