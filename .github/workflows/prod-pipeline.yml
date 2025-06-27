@@ -146,37 +146,6 @@ jobs:
             echo "Deployment complete. Stack services:"
             docker stack services tascrum
 
-      - name: Verify deployment success
-        id: verify
-        uses: appleboy/ssh-action@v1
-        with:
-          host: ${{ secrets.PROD_SSH_HOST }}
-          username: ${{ secrets.PROD_SSH_USER }}
-          key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
-          command_timeout: "5m"
-          script: |
-            echo "Verifying deployment of web-prod service..."
-            MAX_RETRIES=12
-            RETRY_DELAY=5
-            COUNTER=0
-            
-            while [ $COUNTER -lt $MAX_RETRIES ]; do
-              SERVICE_STATUS=$(docker service ls --filter "name=tascrum_web-prod" --format "{{.Replicas}}")
-              echo "Current status: $SERVICE_STATUS"
-              
-              if [[ "$SERVICE_STATUS" == "2/2" ]]; then
-                echo "✅ Service deployed successfully!"
-                exit 0
-              fi
-              
-              echo "Waiting for service to stabilize... ($COUNTER/$MAX_RETRIES)"
-              sleep $RETRY_DELAY
-              COUNTER=$((COUNTER+1))
-            done
-            
-            echo "❌ Deployment verification failed after $MAX_RETRIES attempts"
-            exit 1
-
       - name: Clean up old images
         if: success()
         uses: appleboy/ssh-action@v1
@@ -206,6 +175,10 @@ jobs:
                 docker rmi $img || true
               fi
             done
+            
+            # Check for dangling images and remove them
+            echo "Removing dangling images..."
+            docker image prune -f
             
             echo "Image cleanup complete. Remaining images:"
             docker images "ghcr.io/rstubryan/tascrum-web-prod"

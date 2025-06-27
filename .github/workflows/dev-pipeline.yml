@@ -119,8 +119,6 @@ jobs:
           username: ${{ secrets.PROD_SSH_USER }}
           key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
           script: |
-            cd /root/tascrum
-            # Pull directly using the github.sha instead of trying to extract from file
             echo "Pulling web-dev image with tag: ${{ github.sha }}"
             docker pull ghcr.io/rstubryan/tascrum-web:${{ github.sha }}
 
@@ -148,39 +146,7 @@ jobs:
             echo "Deployment complete. Stack services:"
             docker stack services tascrum
 
-      - name: Verify deployment success
-        id: verify
-        uses: appleboy/ssh-action@v1
-        with:
-          host: ${{ secrets.PROD_SSH_HOST }}
-          username: ${{ secrets.PROD_SSH_USER }}
-          key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
-          command_timeout: "5m"
-          script: |
-            echo "Verifying deployment of web-dev service..."
-            MAX_RETRIES=12
-            RETRY_DELAY=5
-            COUNTER=0
-            
-            while [ $COUNTER -lt $MAX_RETRIES ]; do
-              SERVICE_STATUS=$(docker service ls --filter "name=tascrum_web-dev" --format "{{.Replicas}}")
-              echo "Current status: $SERVICE_STATUS"
-              
-              if [[ "$SERVICE_STATUS" == "1/1" ]]; then
-                echo "✅ Service deployed successfully!"
-                echo "DEPLOYMENT_STATUS=success" >> $GITHUB_OUTPUT
-                exit 0
-              fi
-              
-              echo "Waiting for service to stabilize... ($COUNTER/$MAX_RETRIES)"
-              sleep $RETRY_DELAY
-              COUNTER=$((COUNTER+1))
-            done
-            
-            echo "❌ Deployment verification failed after $MAX_RETRIES attempts"
-            exit 1
-
-      - name: Clean up after deployment
+      - name: Clean up old images
         if: success()
         uses: appleboy/ssh-action@v1
         with:
@@ -188,7 +154,7 @@ jobs:
           username: ${{ secrets.PROD_SSH_USER }}
           key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
           script: |
-            echo "Deployment successful! Cleaning up resources..."
+            echo "Deployment successful! Cleaning up old images..."
             
             # Store current image details
             CURRENT_IMAGE="ghcr.io/rstubryan/tascrum-web:${{ github.sha }}"
@@ -196,10 +162,6 @@ jobs:
             
             echo "Current image: $CURRENT_IMAGE"
             echo "Latest image: $LATEST_IMAGE"
-            
-            # Clean up exited containers first
-            echo "Cleaning up exited containers..."
-            docker container prune -f
             
             # List all tascrum-web images
             echo "Listing all tascrum-web images:"
