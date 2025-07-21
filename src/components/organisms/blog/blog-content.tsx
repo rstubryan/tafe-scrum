@@ -6,7 +6,6 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { format } from "date-fns";
 import { PaginationLayout } from "@/components/templates/layout/pagination-layout";
-// import Image from "next/image";
 
 export default function BlogContent() {
   const { data: posts, isLoading, isError } = useGetBlogPost();
